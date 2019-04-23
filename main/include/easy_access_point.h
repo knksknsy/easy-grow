@@ -8,7 +8,6 @@
 #ifndef MAIN_INCLUDE_EASY_ACCESS_POINT_H_
 
 
-void initialise_wifi();
 
 
 #endif /* MAIN_INCLUDE_EASY_ACCESS_POINT_H_ */

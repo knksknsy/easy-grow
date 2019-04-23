@@ -15,6 +15,7 @@
 
 #include <esp_http_server.h>
 
+
 /* A simple example that demonstrates how to create GET and POST
  * handlers for the web server.
  * The examples use simple WiFi configuration that you can set via
@@ -23,8 +24,8 @@
  * with the config you want -
  * ie. #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_WIFI_SSID "Test"
-#define EXAMPLE_WIFI_PASS "Test"
+#define EXAMPLE_WIFI_SSID "mirohero"
+#define EXAMPLE_WIFI_PASS "12345678"
 
 static const char *TAG="APP";
 
@@ -270,7 +271,7 @@ static void initialise_wifi(void *arg)
     ESP_ERROR_CHECK(esp_wifi_start());
 }
 
-void app_main()
+void start_http()
 {
     static httpd_handle_t server = NULL;
     ESP_ERROR_CHECK(nvs_flash_init());

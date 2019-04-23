@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <esp_system.h>
-#include <easy_access_point.h>
+#include <easy_http_server.h>
 
 
 /******************************************************************************
@@ -19,5 +19,5 @@
 *******************************************************************************/
 void app_main(void)
 {
-	initialise_wifi();
+	start_http();
 }
