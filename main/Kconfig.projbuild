@@ -1,0 +1,8 @@
+menu "Easy Configuration"
+
+config CHANNEL
+    int "Channel"
+    range 1 13
+    default 1
+
+endmenu

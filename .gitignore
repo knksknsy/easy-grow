@@ -1,0 +1,11 @@
+/sdk
+/bin
+/build
+/ESP
+/ESP8266_RTOS_SDK
+
+# eclipse project file
+.settings/
+.classpath
+.project
+.cproject
