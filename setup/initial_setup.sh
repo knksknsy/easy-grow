@@ -112,7 +112,7 @@ function install_toolchain {
 }
 
 function set_env_vars {
-    echo "export PATH=$PATH:$FULL_PATH/$ESP/xtensa-lx106-elf/bin" >> $BASH_PROFILE_PATH
+    echo "export PATH=\$PATH:$FULL_PATH/$ESP/xtensa-lx106-elf/bin" >> $BASH_PROFILE_PATH
     echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
     PYTHON=$(eval which python)
     echo "export PYTHONPATH=$PYTHON" >> $BASH_PROFILE_PATH
