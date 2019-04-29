@@ -16,6 +16,8 @@
 #include <esp_http_server.h>
 
 
+
+
 /* A simple example that demonstrates how to create GET and POST
  * handlers for the web server.
  * The examples use simple WiFi configuration that you can set via
@@ -24,13 +26,13 @@
  * with the config you want -
  * ie. #define EXAMPLE_WIFI_SSID "mywifissid"
 */
-#define EXAMPLE_WIFI_SSID "mirohero"
-#define EXAMPLE_WIFI_PASS "12345678"
+#define EXAMPLE_WIFI_SSID "MartinRouterKing"
+#define EXAMPLE_WIFI_PASS "VgEp#x+c2d7MnVzK,;_="
 
 static const char *TAG="APP";
 
 /* An HTTP GET handler */
-esp_err_t hello_get_handler(httpd_req_t *req)
+esp_err_t moisture_up_get_handler(httpd_req_t *req)
 {
     char*  buf;
     size_t buf_len;
@@ -104,53 +106,62 @@ esp_err_t hello_get_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
-httpd_uri_t hello = {
-    .uri       = "/hello",
-    .method    = HTTP_GET,
-    .handler   = hello_get_handler,
-    /* Let's pass response string in user
-     * context to demonstrate it's usage */
-    .user_ctx  = "Hello World!"
-};
-
-/* An HTTP POST handler */
-esp_err_t echo_post_handler(httpd_req_t *req)
+esp_err_t moisture_down_get_handler(httpd_req_t *req)
 {
-    char buf[100];
-    int ret, remaining = req->content_len;
+	char* buf;
+	size_t buf_len;
 
-    while (remaining > 0) {
-        /* Read the data for the request */
-        if ((ret = httpd_req_recv(req, buf,
-                        MIN(remaining, sizeof(buf)))) <= 0) {
-            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
-                /* Retry receiving if timeout occurred */
-                continue;
-            }
-            return ESP_FAIL;
-        }
+	/*
+	 buf_len = httpd_resp_send(req, "<!DOCTYPE html><html><body>") + 1;
+	 if (buf_len > 1) {
+	 buf = malloc(buf_len);
+	 if (httpd_resp_send(req, "<!DOCTYPE html><html><body>", buf, buf_len) == ESP_OK) {
+	 ESP_LOGI(TAG, "Found header => Host: %s", buf);
+	 }
+	 free(buf);
+	 }
+	 */
+	char* resp_str = "<!DOCTYPE html><html><body>";
+	httpd_resp_send(req, resp_str, strlen(resp_str));
 
-        /* Send back the same data */
-        httpd_resp_send_chunk(req, buf, ret);
-        remaining -= ret;
+	resp_str =
+			"<table class=\"fixed\" border=\"1\">"
+					"<col width=\"800px\" /><col width=\"300px\" /><col width=\"300px\" /><col width=\"100px\" />"
+					"<thead><tr><th>Name</th><th>Type</th><th>Size (Bytes)</th><th>Delete</th></tr></thead>"
+					"<tbody>";
+	httpd_resp_send(req, resp_str, strlen(resp_str));
 
-        /* Log data received */
-        ESP_LOGI(TAG, "=========== RECEIVED DATA ==========");
-        ESP_LOGI(TAG, "%.*s", ret, buf);
-        ESP_LOGI(TAG, "====================================");
-    }
+	resp_str = "</tbody></table>";
+	httpd_resp_send(req, resp_str, strlen(resp_str));
 
-    // End response
-    httpd_resp_send_chunk(req, NULL, 0);
-    return ESP_OK;
+	resp_str = "</body></html>";
+	httpd_resp_send(req, resp_str, strlen(resp_str));
+
+	httpd_resp_send(req, NULL, 0);
+
+	return ESP_OK;
 }
 
-httpd_uri_t echo = {
-    .uri       = "/echo",
-    .method    = HTTP_POST,
-    .handler   = echo_post_handler,
-    .user_ctx  = NULL
+httpd_uri_t moistureup = {
+    .uri       = "/moistureup",
+    .method    = HTTP_GET,
+    .handler   = moisture_up_get_handler,
+    /* Let's pass response string in user
+     * context to demonstrate it's usage */
+    .user_ctx  = "Moisture was set up."
 };
+
+httpd_uri_t moisturedown = {
+    .uri       = "/moisturedown",
+    .method    = HTTP_GET,
+    .handler   = moisture_down_get_handler,
+    /* Let's pass response string in user
+     * context to demonstrate it's usage */
+    .user_ctx  = "Moisture was set down."
+};
+
+
+
 
 /* An HTTP PUT handler. This demonstrates realtime
  * registration and deregistration of URI handlers
@@ -169,14 +180,14 @@ esp_err_t ctrl_put_handler(httpd_req_t *req)
 
     if (buf == '0') {
         /* Handler can be unregistered using the uri string */
-        ESP_LOGI(TAG, "Unregistering /hello and /echo URIs");
-        httpd_unregister_uri(req->handle, "/hello");
-        httpd_unregister_uri(req->handle, "/echo");
+        ESP_LOGI(TAG, "Unregistering /moistureup and /echo URIs");
+        httpd_unregister_uri(req->handle, "/moistureup");
+        httpd_unregister_uri(req->handle, "/mousturedown");
     }
     else {
-        ESP_LOGI(TAG, "Registering /hello and /echo URIs");
-        httpd_register_uri_handler(req->handle, &hello);
-        httpd_register_uri_handler(req->handle, &echo);
+        ESP_LOGI(TAG, "Registering /moistureup and /echo URIs");
+        httpd_register_uri_handler(req->handle, &moistureup);
+        httpd_register_uri_handler(req->handle, &moisturedown);
     }
 
     /* Respond with empty body */
@@ -201,8 +212,8 @@ httpd_handle_t start_webserver(void)
     if (httpd_start(&server, &config) == ESP_OK) {
         // Set URI handlers
         ESP_LOGI(TAG, "Registering URI handlers");
-        httpd_register_uri_handler(server, &hello);
-        httpd_register_uri_handler(server, &echo);
+        httpd_register_uri_handler(server, &moistureup);
+        httpd_register_uri_handler(server, &moisturedown);
         httpd_register_uri_handler(server, &ctrl);
         return server;
     }
@@ -269,6 +280,7 @@ static void initialise_wifi(void *arg)
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
     ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config));
     ESP_ERROR_CHECK(esp_wifi_start());
+
 }
 
 void start_http()

@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <esp_system.h>
 #include <easy_http_server.h>
+#include <esp_log.h>
 
 
 /******************************************************************************
@@ -20,4 +21,5 @@
 void app_main(void)
 {
 	start_http();
+
 }
