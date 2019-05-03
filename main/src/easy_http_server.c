@@ -121,17 +121,12 @@ esp_err_t moisture_down_get_handler(httpd_req_t *req)
 	 free(buf);
 	 }
 	 */
-	char* resp_str = "<!DOCTYPE html><html><body>";
+	char* resp_str = "<!DOCTYPE html> <html><body> <p>Hello World</p> </body></html>";
 	httpd_resp_send(req, resp_str, strlen(resp_str));
 
-	resp_str =
-			"<table class=\"fixed\" border=\"1\">"
-					"<col width=\"800px\" /><col width=\"300px\" /><col width=\"300px\" /><col width=\"100px\" />"
-					"<thead><tr><th>Name</th><th>Type</th><th>Size (Bytes)</th><th>Delete</th></tr></thead>"
-					"<tbody>";
+	resp_str ="<p>Hello World</p>";
 	httpd_resp_send(req, resp_str, strlen(resp_str));
 
-	resp_str = "</tbody></table>";
 	httpd_resp_send(req, resp_str, strlen(resp_str));
 
 	resp_str = "</body></html>";
