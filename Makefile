@@ -3,7 +3,7 @@
 #
 
 
-IDF_PATH := $(HOME)/esp/ESP8266_RTOS_SDK
+#IDF_PATH := $(HOME)/esp/ESP8266_RTOS_SDK
 #BIN := tools/esp/xtensa-lx106-elf/bin
 #PATH := tools/esp/xtensa-lx106-elf/bin
 
