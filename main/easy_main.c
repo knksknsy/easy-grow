@@ -23,6 +23,6 @@
 void app_main(void)
 {
 	init_gpio();
-	start_http();
+	//start_http();
 
 }
