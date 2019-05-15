@@ -69,34 +69,30 @@ void checkStates() {
 }
 
 void blinkTask() {
-	bool isHigh = false;
-
+	int cnt = 0;
 	while (1) {
-		vTaskDelay(1000 / portTICK_RATE_MS);
-		gpio_set_level(LED_PIN, isHigh ? 1 : 0);
-		isHigh = !isHigh;
-		gpio_set_level(GPIO_OUTPUT_IO_1, isHigh ? 1 : 0);
-		ESP_LOGI(TAG, "Blink Task called\n");
+        ESP_LOGI(TAG, "cnt: %d\n", cnt++);
+        vTaskDelay(1000 / portTICK_RATE_MS);
+        gpio_set_level(LED_PIN, cnt % 2);
+        gpio_set_level(GPIO_OUTPUT_IO_1, cnt % 2);
 	}
 }
 
-void init_gpio_output() {
-	gpio_config_t io_conf;
+void init_gpio_output(gpio_config_t io_conf) {
 	io_conf.intr_type = GPIO_INTR_DISABLE;
 	io_conf.mode = GPIO_MODE_OUTPUT;
 	io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
 	io_conf.pull_down_en = 0;
 	io_conf.pull_up_en = 0;
-	ESP_LOGI(TAG, "Config set to gpio %d",gpio_config(&io_conf));
+	gpio_config(&io_conf);
 }
 
-void init_gpio_input() {
-	gpio_config_t io_input_conf;
-	io_input_conf.intr_type = GPIO_INTR_POSEDGE;
-	io_input_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
-	io_input_conf.mode = GPIO_MODE_INPUT;
-	io_input_conf.pull_up_en = 1;
-	gpio_config(&io_input_conf);
+void init_gpio_input(gpio_config_t io_conf) {
+	io_conf.intr_type = GPIO_INTR_POSEDGE;
+	io_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
+	io_conf.mode = GPIO_MODE_INPUT;
+	io_conf.pull_up_en = 1;
+	gpio_config(&io_conf);
 
 	gpio_set_intr_type(GPIO_INPUT_WATER_LEVEL_ONE, GPIO_INTR_ANYEDGE);
 	gpio_set_intr_type(GPIO_INPUT_WATER_LEVEL_TWO, GPIO_INTR_ANYEDGE);
@@ -114,8 +110,9 @@ void init_gpio_input() {
 }
 
 void init_gpio() {
-	init_gpio_output();
-	init_gpio_input();
+	gpio_config_t io_conf;
+	init_gpio_output(io_conf);
+	init_gpio_input(io_conf);
 	blinkTask();
 }
 
