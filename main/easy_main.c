@@ -9,6 +9,8 @@
 #include <stdio.h>
 #include <esp_system.h>
 #include <easy_http_server.h>
+#include <easy_gpio.h>
+
 #include <esp_log.h>
 
 
@@ -20,6 +22,7 @@
 *******************************************************************************/
 void app_main(void)
 {
-	start_http();
+	init_gpio();
+	//start_http();
 
 }
