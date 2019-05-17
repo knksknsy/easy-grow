@@ -126,17 +126,14 @@ function set_env_vars {
 	do
 		if [[ $LINE == *${TOOLCHAIN}* ]]; then
 			HAS_TOOLCHAIN_ENV=1
-			echo "HAS_TOOLCHAIN_ENV=1"
 			continue
 		fi
 		if [[ $LINE == *${RTOS_SDK}* ]]; then
 			HAS_RTOS_SDK_ENV=1
-			echo "HAS_RTOS_SDK_ENV=1"
 			continue
 		fi
 		if [[ $LINE == *${PYTHONPATH}* ]]; then
 			HAS_PYTHON_ENV=1
-			echo "HAS_PYTHON_ENV=1"
 			continue
 		fi
 	done <$FILE
