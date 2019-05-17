@@ -101,8 +101,8 @@ function install_toolchain {
     fn_cd "$FULL_PATH/$ESP"
 
     echo "Downloading ESP8266 toolchain from Espressif..."
-    echo `wget https://dl.espressif.com/dl/xtensa-lx106-elf-osx-1.22.0-88-gde0bdc1-4.8.5.tar.gz`
-    echo `tar -xzf xtensa-lx106-elf-osx-1.22.0-88-gde0bdc1-4.8.5.tar.gz`
+    echo `wget https://dl.espressif.com/dl/xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz`
+    echo `tar -xzf xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz`
 
     fn_cd "$FULL_PATH"
     echo `chmod -R 777 $ESP`
@@ -112,8 +112,8 @@ function install_toolchain {
 }
 
 function set_env_vars {
-    echo "export PATH=$FULL_PATH/$ESP/xtensa-lx106-elf/bin:\${PATH}" >> $BASH_PROFILE_PATH
-    echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
+	echo "export PATH=$FULL_PATH/$ESP/xtensa-lx106-elf/bin:\$PATH" >> $BASH_PROFILE_PATH
+	echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
     PYTHON=$(eval which python)
     echo "export PYTHONPATH=$PYTHON" >> $BASH_PROFILE_PATH
     echo "Environment variables set to $BASH_PROFILE_PATH"
