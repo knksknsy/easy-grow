@@ -22,10 +22,10 @@ function script_usage {
 }
 
 # Check if script is run as root
-if [[ $EUID -ne 0 ]]; then
-    echo -e "Error: Rerun initial_setup.sh as root!"
-    exit 1
-fi
+#if [[ $EUID -ne 0 ]]; then
+#    echo -e "Error: Rerun initial_setup.sh as root!"
+#    exit 1
+#fi
 
 # No command arguments passed
 if [[ "$#" -eq 0 ]]; then
@@ -72,6 +72,7 @@ if [[ $DEFAULT -eq 0 ]]; then
 fi
 
 function main {
+	install_python_requirements
     install_toolchain
     set_env_vars
     install_rtos_sdk
@@ -81,21 +82,25 @@ function fn_cd {
     cd $1
 }
 
-function install_toolchain {
-    echo "Installing toolchain for ESP8266..."
-
+function install_python_requirements {
+	echo "Installing python requirements..."
+	
     if hash pip; then
-        install_pyserial
+        echo `python -m pip install --user -r python_requirements.txt`
     else
         if hash easy_install; then
-            install_pip
-            install_pyserial
+		    echo `easy_install pip`
+		    echo `python -m pip install --user -r python_requirements.txt`
         else
             echo -e `hash easy_install`
             echo -e "Error: Please install easy_install!"
             exit 1
         fi
     fi
+}
+
+function install_toolchain {
+    echo "Installing toolchain for ESP8266..."
 
     echo `mkdir -p $FULL_PATH/$ESP`
     fn_cd "$FULL_PATH/$ESP"
@@ -139,7 +144,7 @@ function set_env_vars {
 	done <$FILE
 	
 	if [[ $HAS_TOOLCHAIN_ENV -eq 0 ]]; then
-		echo "export PATH=$FULL_PATH/$ESP/xtensa-lx106-elf/bin:\$PATH" >> $BASH_PROFILE_PATH
+		echo "export PATH=\$PATH:$FULL_PATH/$ESP/xtensa-lx106-elf/bin" >> $BASH_PROFILE_PATH
 	fi
 	if [[ $HAS_RTOS_SDK_ENV -eq 0 ]]; then
 		echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
@@ -157,22 +162,12 @@ function install_rtos_sdk {
 
     echo "Cloning git repository https://github.com/espressif/ESP8266_RTOS_SDK.git"
     echo `git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git`
+    
     echo "Checking out commit d83c9f7866e59dcbb254ce5366c27418d410e84e"
     fn_cd "$FULL_PATH/$ESP/ESP8266_RTOS_SDK"
     echo `git checkout d83c9f7866e59dcbb254ce5366c27418d410e84e`
+    
     echo "ESP8266_RTOS_SDK successfully installed into directory: $FULL_PATH/$ESP/ESP8266_RTOS_SDK"
-}
-
-function install_pyserial {
-    echo "Installing pyserial via pip..."
-    echo `pip install pyserial`
-    echo "pyserial successfully installed!"
-}
-
-function install_pip {
-    echo "Installing pip via easy_install..."
-    echo `easy_install pip`
-    echo "pip successfully installed!"
 }
 
 main
