@@ -112,10 +112,46 @@ function install_toolchain {
 }
 
 function set_env_vars {
-	echo "export PATH=$FULL_PATH/$ESP/xtensa-lx106-elf/bin:\$PATH" >> $BASH_PROFILE_PATH
-	echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
-    PYTHON=$(eval which python)
-    echo "export PYTHONPATH=$PYTHON" >> $BASH_PROFILE_PATH
+	FILE=$BASH_PROFILE_PATH
+	# boolean indicating if environment variables are set
+	HAS_TOOLCHAIN_ENV=0
+	HAS_RTOS_SDK_ENV=0
+	HAS_PYTHON_ENV=0
+	# string containing the env vars substrings
+	TOOLCHAIN="xtensa-lx106-elf/bin"
+	RTOS_SDK="ESP8266_RTOS_SDK"
+	PYTHONPATH="PYTHONPATH="
+	
+	while IFS= read LINE
+	do
+		if [[ $LINE == *${TOOLCHAIN}* ]]; then
+			HAS_TOOLCHAIN_ENV=1
+			echo "HAS_TOOLCHAIN_ENV=1"
+			continue
+		fi
+		if [[ $LINE == *${RTOS_SDK}* ]]; then
+			HAS_RTOS_SDK_ENV=1
+			echo "HAS_RTOS_SDK_ENV=1"
+			continue
+		fi
+		if [[ $LINE == *${PYTHONPATH}* ]]; then
+			HAS_PYTHON_ENV=1
+			echo "HAS_PYTHON_ENV=1"
+			continue
+		fi
+	done <$FILE
+	
+	if [[ $HAS_TOOLCHAIN_ENV -eq 0 ]]; then
+		echo "export PATH=$FULL_PATH/$ESP/xtensa-lx106-elf/bin:\$PATH" >> $BASH_PROFILE_PATH
+	fi
+	if [[ $HAS_RTOS_SDK_ENV -eq 0 ]]; then
+		echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
+	fi
+	if [[ $HAS_PYTHON_ENV -eq 0 ]]; then
+	    PYTHON=$(eval which python)
+	    echo "export PYTHONPATH=$PYTHON" >> $BASH_PROFILE_PATH
+	fi
+	
     echo "Environment variables set to $BASH_PROFILE_PATH"
 }
 
