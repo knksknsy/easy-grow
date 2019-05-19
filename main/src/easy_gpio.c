@@ -28,13 +28,12 @@ static const char *TAG = "main";
  *
  */
 
-#define LED_PIN 4
-
+#define GPIO_OUTPUT_LED		15
 #define GPIO_OUTPUT_IO_1    16
-#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_1)| (1ULL<<LED_PIN))
+#define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_LED) | (1ULL<<GPIO_OUTPUT_IO_1))
 
-#define GPIO_INPUT_WATER_LEVEL_ONE     7
-#define GPIO_INPUT_WATER_LEVEL_TWO     8
+#define GPIO_INPUT_WATER_LEVEL_ONE     4
+#define GPIO_INPUT_WATER_LEVEL_TWO     5
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<GPIO_INPUT_WATER_LEVEL_ONE) | (1ULL<<GPIO_INPUT_WATER_LEVEL_TWO))
 
 static xQueueHandle gpio_evt_queue = NULL;
@@ -44,13 +43,11 @@ static xQueueHandle gpio_evt_queue = NULL;
  * Input pin connected to ground
  * TODO Think about external pulldown receiver
  */
-static void gpio_input_received(void *arg) {
+static void gpio_task_input_received(void *arg) {
 	uint32_t io_num;
-
-	for (;;) {
-		if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-			ESP_LOGI(TAG, "GPIO[%d] intr, val: %d\n", io_num,
-					gpio_get_level(io_num));
+	while(1) {
+		if(xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
+			ESP_LOGI(TAG, "GPIO[%d] intr, val: %d\n", io_num, gpio_get_level(io_num));
 		}
 	}
 }
@@ -69,53 +66,58 @@ void checkStates() {
 }
 
 void blinkTask() {
-	bool isHigh = false;
+	int cnt = 0;
 
 	while (1) {
+		ESP_LOGI(TAG, "cnt: %d\n", cnt++);
 		vTaskDelay(1000 / portTICK_RATE_MS);
-		gpio_set_level(LED_PIN, isHigh ? 1 : 0);
-		isHigh = !isHigh;
-		gpio_set_level(GPIO_OUTPUT_IO_1, isHigh ? 1 : 0);
-		ESP_LOGI(TAG, "Blink Task called\n");
+		gpio_set_level(GPIO_OUTPUT_LED, cnt % 2);
+		gpio_set_level(GPIO_OUTPUT_IO_1, cnt % 2);
 	}
 }
 
-void init_gpio_output() {
-	gpio_config_t io_conf;
-	io_conf.intr_type = GPIO_INTR_DISABLE;
-	io_conf.mode = GPIO_MODE_OUTPUT;
-	io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
-	io_conf.pull_down_en = 0;
-	io_conf.pull_up_en = 0;
-	ESP_LOGI(TAG, "Config set to gpio %d",gpio_config(&io_conf));
+void init_gpio_output(gpio_config_t *io_config) {
+	io_config->intr_type = GPIO_INTR_DISABLE;
+	io_config->mode = GPIO_MODE_OUTPUT;
+	io_config->pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
+	io_config->pull_down_en = 0;
+	io_config->pull_up_en = 0;
+	gpio_config(io_config);
 }
 
-void init_gpio_input() {
-	gpio_config_t io_input_conf;
-	io_input_conf.intr_type = GPIO_INTR_POSEDGE;
-	io_input_conf.pin_bit_mask = GPIO_INPUT_PIN_SEL;
-	io_input_conf.mode = GPIO_MODE_INPUT;
-	io_input_conf.pull_up_en = 1;
-	gpio_config(&io_input_conf);
+void init_gpio_input(gpio_config_t *io_config) {
+	io_config->intr_type = GPIO_INTR_POSEDGE;
+	io_config->pin_bit_mask = GPIO_INPUT_PIN_SEL;
+	io_config->mode = GPIO_MODE_INPUT;
+	io_config->pull_up_en = 1;
+	gpio_config(io_config);
 
 	gpio_set_intr_type(GPIO_INPUT_WATER_LEVEL_ONE, GPIO_INTR_ANYEDGE);
 	gpio_set_intr_type(GPIO_INPUT_WATER_LEVEL_TWO, GPIO_INTR_ANYEDGE);
 
+	// create a queue to handle GPIO event from ISR
 	gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-	xTaskCreate(gpio_input_received, "gpio_input_received", 2048, NULL, 10,
-	NULL);
+	// start GPIO task
+	xTaskCreate(gpio_task_input_received, "gpio_input_received", 2048, NULL, 10, NULL);
 
+	// install GPIO ISR service
 	gpio_install_isr_service(0);
-	gpio_isr_handler_add(GPIO_INPUT_WATER_LEVEL_ONE, gpio_isr_handler,
-			(void *) GPIO_INPUT_WATER_LEVEL_ONE);
-	gpio_isr_handler_add(GPIO_INPUT_WATER_LEVEL_TWO, gpio_isr_handler,
-			(void *) GPIO_INPUT_WATER_LEVEL_TWO);
+	// hook ISR handler for GPIO_INPUT_WATER_LEVEL_ONE
+	gpio_isr_handler_add(GPIO_INPUT_WATER_LEVEL_ONE, gpio_isr_handler, (void *) GPIO_INPUT_WATER_LEVEL_ONE);
+	// hook ISR handler for GPIO_INPUT_WATER_LEVEL_TWO
+	gpio_isr_handler_add(GPIO_INPUT_WATER_LEVEL_TWO, gpio_isr_handler, (void *) GPIO_INPUT_WATER_LEVEL_TWO);
 
+	// remove ISR handler for GPIO_INPUT_WATER_LEVEL_ONE
+	gpio_isr_handler_remove(GPIO_INPUT_WATER_LEVEL_ONE);
+	// hook ISR handler for GPIO_INPUT_WATER_LEVEL_ONE
+	gpio_isr_handler_add(GPIO_INPUT_WATER_LEVEL_ONE, gpio_isr_handler, (void *) GPIO_INPUT_WATER_LEVEL_ONE);
 }
 
 void init_gpio() {
-	init_gpio_output();
-	init_gpio_input();
-	blinkTask();
+	gpio_config_t io_conf;
+	init_gpio_output(&io_conf);
+	init_gpio_input(&io_conf);
+
+	xTaskCreate(blinkTask, "blinkTask", 2048, NULL, 10, NULL);
 }
 
