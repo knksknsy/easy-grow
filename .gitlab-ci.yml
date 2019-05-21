@@ -8,6 +8,7 @@ test:
     - mkdir ESP
     - cd ESP/
     - git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git
+    - cd ESP8266_RTOS_SDK
     - git reset --hard "d83c9f7866e59dcbb254ce5366c27418d410e84e"
     - ls
     - printenv
