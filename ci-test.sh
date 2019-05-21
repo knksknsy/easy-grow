@@ -67,7 +67,7 @@ if [[ $DEFAULT -eq 0 ]]; then
     fi
     # Create directory if it does not exist
     if [[ ! -d $FULL_PATH ]]; then
-        echo `mkdir -p $FULL_PATH`
+        echo "mkdir -p $FULL_PATH"
     fi
 fi
 
@@ -86,13 +86,13 @@ function install_python_requirements {
 	echo "Installing python requirements..."
 	
     if hash pip; then
-        echo `python -m pip install --user -r python_requirements.txt`
+        echo "python -m pip install --user -r python_requirements.txt"
     else
         if hash easy_install; then
-		    echo `easy_install pip`
-		    echo `python -m pip install --user -r python_requirements.txt`
+		    echo "easy_install pip"
+		    echo "python -m pip install --user -r python_requirements.txt"
         else
-            echo -e `hash easy_install`
+            echo -e "hash easy_install"
             echo -e "Error: Please install easy_install!"
             exit 1
         fi
@@ -102,15 +102,15 @@ function install_python_requirements {
 function install_toolchain {
     echo "Installing toolchain for ESP8266..."
 
-    echo `mkdir -p $FULL_PATH/$ESP`
+    echo "mkdir -p $FULL_PATH/$ESP"
     fn_cd "$FULL_PATH/$ESP"
 
     echo "Downloading ESP8266 toolchain from Espressif..."
-    echo `wget https://dl.espressif.com/dl/xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz`
-    echo `tar -xzf xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz`
+    echo "wget https://dl.espressif.com/dl/xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz"
+    echo "tar -xzf xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz"
 
     fn_cd "$FULL_PATH"
-    echo `chmod -R 777 $ESP`
+    echo "chmod -R 777 $ESP"
     fn_cd "$FULL_PATH/$ESP"
 
     echo "Toolchain for ESP8266 successfully installed into directory: $FULL_PATH/$ESP/xtends-lx106-elf/"
