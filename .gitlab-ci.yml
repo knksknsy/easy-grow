@@ -1,4 +1,4 @@
-image: eugenmayer/make
+image: vowstar/esp8266
 
 variables: 
     IDF_PATH: ${CI_PROJECT_DIR}/ESP/ESP8266_RTOS_SDK
