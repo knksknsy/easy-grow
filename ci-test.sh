@@ -161,11 +161,11 @@ function install_rtos_sdk {
     echo "Installing ESP8266_RTOS_SDK..."
 
     echo "Cloning git repository https://github.com/espressif/ESP8266_RTOS_SDK.git"
-    echo `git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git`
+    echo "git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git"
     
     echo "Checking out commit d83c9f7866e59dcbb254ce5366c27418d410e84e"
     fn_cd "$FULL_PATH/$ESP/ESP8266_RTOS_SDK"
-    echo `git checkout d83c9f7866e59dcbb254ce5366c27418d410e84e`
+    echo "git checkout d83c9f7866e59dcbb254ce5366c27418d410e84e"
     
     echo "ESP8266_RTOS_SDK successfully installed into directory: $FULL_PATH/$ESP/ESP8266_RTOS_SDK"
 }
