@@ -1,17 +1,16 @@
 image: vowstar/esp8266
 
-  before_script:
-    - cd setup/
-    - ./initial_setup.sh
-  variables:
-    BEISPIEL_PFAD: "pfad"
+before_script:
+  - cd setup/
+  - ./initial_setup.sh
+variables:
+  BEISPIEL_PFAD: "pfad"
 
-  script:
-    - make
-  only:
-    - master
-    - httpd
-
+script:
+  - make
+only:
+  - master
+  - httpd
 
 
 
