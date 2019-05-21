@@ -1,12 +1,17 @@
 image: vowstar/esp8266
 
-variables: 
-    CI_DEBUG_SERVICES: trace
+
 
 test:
   before_script:
     - ls 
-    - ./ci-test.sh"
+    - mkdir ESP
+    - cd ESP/
+    - git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git
+    - git checkout d83c9f7866e59dcbb254ce5366c27418d410e84e
+    - ls
+    - printenv
+    
   script:
     - make
   only:
