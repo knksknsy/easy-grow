@@ -2,6 +2,7 @@ image: vowstar/esp8266
 
 variables: 
     IDF_PATH: "/builds/embedded/ss19/easy-grow/ESP/ESP8266_RTOS_SDK"
+    HOME: ${PWD}
 
 envtest:
   script:
@@ -20,7 +21,7 @@ test:
     - printenv
     
   script:
-    - cd ..
+    - cd ${HOME}
     - ls
     - make
   only:
