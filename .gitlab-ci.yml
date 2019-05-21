@@ -1,13 +1,13 @@
 image: vowstar/esp8266
 
-before_script:
-  - "./ci-test.sh"
-
-script:
-  - make
-only:
-  - master
-  - feature/ci
-
+test:
+  before_script:
+    - ls 
+    - ./ci-test.sh"
+  script:
+    - make
+  only:
+    - master
+    - feature/ci
 
 
