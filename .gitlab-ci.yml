@@ -1,5 +1,8 @@
 image: vowstar/esp8266
 
+variables: 
+    CI_DEBUG_SERVICES: trace
+
 test:
   before_script:
     - ls 

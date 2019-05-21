@@ -150,7 +150,7 @@ function set_env_vars {
 		echo "export IDF_PATH=$FULL_PATH/$ESP/ESP8266_RTOS_SDK" >> $BASH_PROFILE_PATH
 	fi
 	if [[ $HAS_PYTHON_ENV -eq 0 ]]; then
-	    #PYTHON=$(eval which python)
+	    PYTHON=$(eval which python)
 	    echo "export PYTHONPATH=$PYTHON" >> $BASH_PROFILE_PATH
 	fi
 	
