@@ -1,7 +1,7 @@
 image: vowstar/esp8266
 
 variables: 
-    IDF_PATH: ${CI_PROJECT_DIR}/ESP8266_RTOS_SDK
+    IDF_PATH: ${CI_PROJECT_DIR}/ESP/ESP8266_RTOS_SDK
 
 envtest:
   script:
