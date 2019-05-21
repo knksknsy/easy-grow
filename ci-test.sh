@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash +x
 FULL_PATH=""
 ESP="ESP"
 BASH_PROFILE_PATH=$HOME/.bash_profile
