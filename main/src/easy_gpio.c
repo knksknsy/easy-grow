@@ -246,18 +246,17 @@ void init_gpio() {
 	// Implementation
 	gpio_install_isr_service(0);
 
-	init_input_moisture_buttons();
-	init_input_water_level_sensors();
-	init_input_photo_diode();
-	init_input_moisture_sensor();
-	init_output_pump();
-	init_output_moisture_leds();
-	init_output_water_level_leds();
+//	init_input_moisture_buttons();
+//	init_input_water_level_sensors();
+//	init_input_photo_diode();
+//	init_input_moisture_sensor();
+//	init_output_pump();
+//	init_output_moisture_leds();
+//	init_output_water_level_leds();
 
 	// Example
 	gpio_config_t io_conf;
 	init_gpio_output_example(&io_conf);
-	esp_task_wdt_init();
 	xTaskCreate(blinkTask, "blinkTask", 2048, NULL, 10, NULL);
 }
 
