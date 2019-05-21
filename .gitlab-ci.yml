@@ -10,7 +10,7 @@ script:
   - make
 only:
   - master
-  - httpd
+  - feature/ci
 
 
 
