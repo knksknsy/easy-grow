@@ -20,6 +20,7 @@ test:
     - printenv
     
   script:
+    - cd ..
     - ls
     - make
   only:
