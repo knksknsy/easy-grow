@@ -5,8 +5,8 @@ variables:
 
 envtest:
   script:
-    - echo IDF_PATH
-    - echo PATH
+    - echo ${IDF_PATH}
+    - echo ${PATH}
 
 test:
   before_script:
@@ -20,10 +20,8 @@ test:
     - printenv
     
   script:
-    - cd ~
     - ls
     - make
   only:
     - master
     - feature/ci
-
