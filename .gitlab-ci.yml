@@ -1,4 +1,4 @@
-image: vowstar/esp8266
+image: eugenmayer/make
 
 variables: 
     IDF_PATH: ${CI_PROJECT_DIR}/ESP/ESP8266_RTOS_SDK
@@ -17,6 +17,10 @@ test:
     - git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git
     - cd ESP8266_RTOS_SDK
     - git checkout "d83c9f7866e59dcbb254ce5366c27418d410e84e"
+    - cd ${CI_PROJECT_DIR}/ESP
+    - wget "https://dl.espressif.com/dl/xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz"
+    - tar -xzf "xtensa-lx106-elf-osx-1.22.0-92-g8facf4c-5.2.0.tar.gz"
+    - export PATH=$PATH:${CI_PROJECT_DIR}/ESP/xtensa-lx106-elf/bin
     - ls
     - printenv
     
