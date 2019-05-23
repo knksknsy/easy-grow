@@ -7,10 +7,10 @@ DEFAULT=0
 
 function script_usage {
     echo "For installing software environment in the project's root run (default):"
-    echo "sudo ./initial_setup.sh"
+    echo "./initial_setup.sh"
     echo ""
     echo "For installing software environment in an arbitrary path provide the --dir <path> argument:"
-    echo "sudo ./initial_setup.sh --dir <path>"
+    echo "./initial_setup.sh --dir <path>"
     echo ""
     echo "The software environment will be installed in the following directory:"
     echo -e "When default (no --dir <path> argument is passed):\t'<project-path>/ESP'"

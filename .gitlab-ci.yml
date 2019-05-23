@@ -3,13 +3,14 @@ image: mirohero/docker-esp8266
 variables: 
     IDF_PATH: ${CI_PROJECT_DIR}/ESP/ESP8266_RTOS_SDK
 
-envtest:
+sdk-test:
   script:
     - echo ${IDF_PATH}
     - echo ${PATH}
     - echo ${CI_PROJECT_DIR}
 
-test:
+
+build-test:
   before_script:
     - ls 
     - mkdir ESP
