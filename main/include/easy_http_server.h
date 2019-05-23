@@ -9,7 +9,7 @@
 
 #define MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_
 
-void start_http();
+void user_init(void);
 
 
 
