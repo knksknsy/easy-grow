@@ -1,13 +1,31 @@
-image: vowstar/esp8266
+image: mirohero/docker-esp8266
 
-test:
+variables: 
+    IDF_PATH: ${CI_PROJECT_DIR}/ESP/ESP8266_RTOS_SDK
+
+sdk-test:
+  script:
+    - echo ${IDF_PATH}
+    - echo ${PATH}
+    - echo ${CI_PROJECT_DIR}
+
+
+build-test:
   before_script:
     - ls 
-    - cd setup/
-    - ./initial_setup.sh"
+    - mkdir ESP
+    - cd ESP/
+    - git clone --recursive https://github.com/espressif/ESP8266_RTOS_SDK.git
+    - cd ESP8266_RTOS_SDK
+    - git checkout "d83c9f7866e59dcbb254ce5366c27418d410e84e"
+    - cd ${CI_PROJECT_DIR}
+    - ls
+    - printenv
+    
   script:
+    - cd ${CI_PROJECT_DIR}
+    - ls
     - make
   only:
     - master
-    - httpd
-
+    - feature/ci
