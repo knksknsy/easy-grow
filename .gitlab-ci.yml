@@ -12,4 +12,4 @@ build-test:
     - make
   only:
     - master
-    - feature/ci
+    - dev
