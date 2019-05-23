@@ -10,6 +10,7 @@ function script_usage {
     echo "This script creates and runs a Docker container from the docker-esp8266 image."
     echo "Run this script inside the docker directory from the projects path."
     echo ""
+
     # echo "Provide the --device parameter for exporting a serial port from your local machine to the Docker container."
     # echo "Usage: ./docker.sh --device /dev/ttyUSB0"
 }
@@ -60,4 +61,14 @@ fi
     docker run -ti --rm --name esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
 #else
     #docker run -ti esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
+#fi
+
+### NO WINDOWS SUPPORT... ###
+
+#if [[ $IS_MAC_OS -eq 1 ]]; then
+#    # Run container on MacOS
+#    docker run -ti --rm --name esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
+#else
+#    # Run container on Windows
+#    docker run -ti --rm --name esp8266 --privileged -v ${SERIAL_PORT}:/dev/ttyUSB0 -v %cd%:/easy-grow docker-esp8266 /bin/bash
 #fi
