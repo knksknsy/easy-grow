@@ -18,4 +18,4 @@ build-test:
     when: always
     expire_in: 7d
     paths:
-      - "${CI_PROJECT_DIR}/easy_grow.bin"
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
