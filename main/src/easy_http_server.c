@@ -5,14 +5,20 @@
  *      Author: m.bilge
  */
 
+#include <FreeRTOS.h>
+
 #include <esp_wifi.h>
 #include <esp_event_loop.h>
 #include <esp_log.h>
+#include <esp_err.h>
 #include <esp_system.h>
 #include <nvs_flash.h>
 #include <sys/param.h>
-#include <easy_http_server.h>
+#include <lwip/api.h>
 
+#include <easy_wifi_manager.h>
+
+#include <easy_http_server.h>
 #include <esp_http_server.h>
 
 
@@ -237,9 +243,10 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "Got IP: '%s'",
                 ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
 
+
         /* Start the web server */
         if (*server == NULL) {
-            *server = start_webserver();
+            //*server = start_webserver();
         }
         break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
@@ -248,7 +255,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 
         /* Stop the web server */
         if (*server) {
-            stop_webserver(*server);
+           // stop_webserver(*server);
             *server = NULL;
         }
         break;
@@ -261,7 +268,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 static void initialise_wifi(void *arg)
 {
     tcpip_adapter_init();
-    ESP_ERROR_CHECK(esp_event_loop_init(event_handler, arg));
+    //ESP_ERROR_CHECK(esp_event_loop_init(event_handler, arg));
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
     ESP_ERROR_CHECK(esp_wifi_set_storage(WIFI_STORAGE_RAM));
@@ -278,11 +285,124 @@ static void initialise_wifi(void *arg)
 
 }
 
-void start_http()
+
+void httpd_task(void *pvParameters)
 {
-    static httpd_handle_t server = NULL;
+    ESP_LOGI(TAG, "HTTPD Task Started");
+
+    struct netconn *client = NULL;
+    struct netconn *nc = netconn_new(NETCONN_TCP);
+    if (nc == NULL) {
+        printf("Failed to allocate socket.\n");
+        vTaskDelete(NULL);
+    }
+    netconn_bind(nc, IP_ADDR_ANY, 80);
+    ESP_LOGI(TAG, "Netconn bound");
+
+    netconn_listen(nc);
+
+    char buf[512];
+    ESP_LOGI(TAG, "Buffer allocated.");
+
+    const char *webpage = {
+        "HTTP/1.1 200 OK\r\n"
+        "Content-type: text/html\r\n\r\n"
+        "<html><head><title>Easy Grow Server</title>"
+        "<style> div.main {"
+        "font-family: Arial;"
+        "padding: 0.01em 16px;"
+        "box-shadow: 2px 2px 1px 1px #d2d2d2;"
+        "background-color: #f1f1f1;}"
+        "</style></head>"
+        "<body><div class='main'>"
+        "<h3>HTTP Server</h3>"
+        "<p>URL: %s</p>"
+    	"<p>Current Moisture: feucht</p>"
+    	"<p>Watertanklevel: voll</p>"
+        "<p>Sun hours: viele</p>"
+        "<p>Uptime: %d seconds</p>"
+        "<p>Free heap: %d bytes</p>"
+        "<button onclick=\"location.href='/higher'\" type='button'>"
+        "Moisture Higher</button></p>"
+        "<button onclick=\"location.href='/lower'\" type='button'>"
+        "Moisture Lower</button></p>"
+        "</div></body></html>"
+    };
+    ESP_LOGI(TAG, "Webpage loaded");
+
+    /* disable LED */
+    //gpio_enable(2, GPIO_OUTPUT);
+    //gpio_write(2, true);
+    ESP_LOGI(TAG, "Webpage loaded");
+
+    while (1) {
+        ESP_LOGI(TAG, "Webpage loaded");
+
+        err_t err = netconn_accept(nc, &client);
+        if (err == ERR_OK) {
+            struct netbuf *nb;
+            ESP_LOGI(TAG, "Webpage loaded");
+
+            if ((err = netconn_recv(client, &nb)) == ERR_OK) {
+                void *data;
+                u16_t len;
+                netbuf_data(nb, &data, &len);
+                /* check for a GET request */
+                ESP_LOGI(TAG, "Webpage loaded");
+
+                if (!strncmp(data, "GET ", 4)) {
+                    ESP_LOGI(TAG, "Webpage loaded");
+
+                    char uri[16];
+                    const int max_uri_len = 16;
+                    char *sp1, *sp2;
+                    /* extract URI */
+                    sp1 = data + 4;
+                    sp2 = memchr(sp1, ' ', max_uri_len);
+                    int len = sp2 - sp1;
+                    memcpy(uri, sp1, len);
+                    uri[len] = '\0';
+                    printf("uri: %s\n", uri);
+
+                    if (!strncmp(uri, "/higher", max_uri_len))
+                        //gpio_write(2, false);
+                    	ESP_LOGI(TAG, "Webpage loaded");
+                    else if (!strncmp(uri, "/lower", max_uri_len))
+                        ESP_LOGI(TAG, "Webpage loaded");
+                        //gpio_write(2, true);
+                    ESP_LOGI(TAG, "Webpage loaded");
+
+                    snprintf(buf, sizeof(buf), webpage,
+                            uri,
+                            xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
+                            (int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
+                    netconn_write(client, buf, strlen(buf), NETCONN_COPY);
+                }
+                ESP_LOGI(TAG, "Webpage loaded");
+
+            }
+            netbuf_delete(nb);
+        }
+        printf("Closing connection\n");
+        netconn_close(client);
+        netconn_delete(client);
+    }
+}
+
+void init_server(){
+	xTaskCreate(&httpd_task, "http_server", 8000, NULL, 2, NULL);
+}
+
+
+
+void start_http(const website_interface *website)
+{
+    ESP_LOGI(TAG, "start_http called.");
+
+    //static httpd_handle_t server = NULL;
     ESP_ERROR_CHECK(nvs_flash_init());
-    initialise_wifi(&server);
+    init_server();
+    ESP_LOGI(TAG, "nvs_flash_init called.");
 }
 
 

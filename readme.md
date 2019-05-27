@@ -14,6 +14,10 @@ Easy Grow is a C++ Program to take care of your plants.
     1.1.3 [Export host's serial port to container](#serial_port)
 
     1.1.4 [Run the Docker Container](#cont_docker)
+    
+    1.1.4.1 [```docker.sh``` script](#mac)
+
+    1.1.4.2 [```docker run``` command](#win)
 
     1.2 [ESP8266 Toolchain to your Local Machine (MacOS only)](#local)
 
@@ -82,8 +86,22 @@ You are now able to export the host's serial port to the Docker container. How t
 
 Make sure you have installed Docker, built the ```docker-esp8266``` Image, and enabled exporting the host's serial ports to the container before you continue with running a Docker container.
 
+There are two options for instantiating a container from the ```docker-esp8266``` image:
+
+1. Conveniently with the the ```docker.sh``` script.<br/>(Recommended only for MacOS)
+2. Over with the ```docker run``` command.<br/>(Recommended only for Windows)
+
+<a name="mac"></a>
+##### 1.1.4.1 ```docker.sh``` script
+
 1. Change your directory to: ```$ cd <project_path>/docker```
 2. Start the container with the script: ```$ ./docker.sh```. This script enables you to start a container from the ```docker-esp8266``` image. It also mounts the project directory to the ```/easy-grow``` directory of the container. It also exports the host's ```/dev/ttyUSB0``` port to the container's ```/dev/ttyUSB0``` port.
+
+<a name="win"></a>
+##### 1.1.4.2 ```docker run```command
+
+Just run the following line with the respective ```<project_path>```:<br/>
+```docker run -ti --rm --name esp8266 -v <project_path>:/easy-grow docker-esp8266 /bin/bash```
 
 <a name="local"></a>
 ### 1.2 ESP8266 Toolchain to your Local Machine (MacOS only)
