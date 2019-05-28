@@ -16,11 +16,6 @@
 #define TAG "Main"
 
 
-#include "freertos/FreeRTOS.h"
-#include <task.h>
-#include <stdint.h>
-#include "ws2812_i2s.h"
-
 /******************************************************************************
  * FunctionName : app_main
  * Description  : entry of user application, init user function here
@@ -29,19 +24,8 @@
 *******************************************************************************/
 void app_main(void)
 {
-    ESP_LOGI(TAG, "app_main started");
-
-	//init_gpio();
-	init_output_moisture_leds();
-	ws2812_i2s_init(10,);
-	ws2812_pixel_t pixels = {255,22,33};
-	ws2812_i2s_update(&pixels);
-
-
-
 	wifi_init();
 
-	//Change website to start ESP with AP Screen
     website_interface website = EASY_GROW_MODE;
     start_http(&website);
 
