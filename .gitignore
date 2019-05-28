@@ -9,3 +9,5 @@
 .classpath
 .project
 .cproject
+sdkconfig
+sdkconfig.old

@@ -10,9 +10,16 @@
 #include <esp_system.h>
 #include <easy_http_server.h>
 #include <easy_gpio.h>
+#include <easy_wifi_manager.h>
 
 #include <esp_log.h>
+#define TAG "Main"
 
+
+#include "freertos/FreeRTOS.h"
+#include <task.h>
+#include <stdint.h>
+#include "ws2812_i2s.h"
 
 /******************************************************************************
  * FunctionName : app_main
@@ -22,7 +29,20 @@
 *******************************************************************************/
 void app_main(void)
 {
-	init_gpio();
-	//start_http();
+    ESP_LOGI(TAG, "app_main started");
+
+	//init_gpio();
+	init_output_moisture_leds();
+	ws2812_i2s_init(10,);
+	ws2812_pixel_t pixels = {255,22,33};
+	ws2812_i2s_update(&pixels);
+
+
+
+	wifi_init();
+
+	//Change website to start ESP with AP Screen
+    website_interface website = EASY_GROW_MODE;
+    start_http(&website);
 
 }
