@@ -14,10 +14,13 @@
 #include "freertos/queue.h"
 
 #include "driver/gpio.h"
+#include "driver/hw_timer.h"
 
 #include "esp_log.h"
 #include "esp_system.h"
 #include "easy_gpio.h"
+#include "esp_timer.h"
+#include "esp_sleep.h"
 
 static const char *TAG = "main";
 
@@ -46,9 +49,13 @@ static const char *TAG = "main";
 #define GPIO_OUTPUT_IO_1    			16
 
 static xQueueHandle gpio_event_queue_output_leds = NULL;
-static xQueueHandle gpio_event_queue_input_moisture_buttons = NULL;
+static xQueueHandle gpio_event_queue_input_moisture_button_l = NULL;
+static xQueueHandle gpio_event_queue_input_moisture_button_r = NULL;
 static xQueueHandle gpio_event_queue_input_water_level_sensors = NULL;
 static xQueueHandle gpio_event_queue_input_photo_diode = NULL;
+
+buttonStates lbutton_states;
+buttonStates rbutton_states;
 
 static void gpio_isr_handler_output_leds(void *arg) {
 	uint32_t gpio_num = (uint32_t) arg;
@@ -65,17 +72,117 @@ static void gpio_task_output_leds(void *arg) {
 	}
 }
 
-static void gpio_isr_handler_input_moisture_buttons(void *arg) {
-	uint32_t gpio_num = (uint32_t) arg;
-	xQueueSendFromISR(gpio_event_queue_input_moisture_buttons, &gpio_num, NULL);
+buttonStates delay_debounce(buttonStates button_state, int button_value) {
+	if (button_value){                      /* if pressed     */
+		if (button_state == PRESS){
+			button_state = DOWN;
+		}
+		if (button_state == UP){
+			vTaskDelay(75 / portTICK_RATE_MS);
+			if (button_value == 1){
+				button_state = PRESS;
+			}
+		}
+	} else {                                 /* if not pressed */
+		if (button_state == RELEASE){
+			button_state = UP;
+		}
+		if (button_state == DOWN){
+			if (button_value == 0){
+				vTaskDelay(75 / portTICK_RATE_MS);
+				if (button_value == 0){
+					button_state = RELEASE;
+				}
+			}
+		}
+	}
+	return button_state;
 }
 
-static void gpio_task_input_moisture_buttons(void *arg) {
+static void gpio_isr_handler_input_moisture_button_l(void *arg) {
+	uint32_t gpio_num = (uint32_t) arg;
+	xQueueSendFromISR(gpio_event_queue_input_moisture_button_l, &gpio_num, NULL);
+}
+
+static void gpio_task_input_moisture_button_l(void *arg) {
 	uint32_t io_num;
 	while (1) {
-		if (xQueueReceive(gpio_event_queue_input_moisture_buttons, &io_num, portMAX_DELAY)) {
-			// TODO: Logic implementation
-			ESP_LOGI(TAG, "GPIO[%d] intr, value: %d\n", io_num, gpio_get_level(io_num));
+		if (xQueueReceive(gpio_event_queue_input_moisture_button_l, &io_num, portMAX_DELAY)) {
+
+			buttonStates button_state = delay_debounce(lbutton_states, gpio_get_level(LBUTTON_D1_INPUT));
+
+			if (button_state == PRESS) {
+				int LED1 = gpio_get_level(LED_MOISTURE_1_D2_OUTPUT);
+				int LED2 = gpio_get_level(LED_MOISTURE_2_D3_OUTPUT);
+				int LED3 = gpio_get_level(LED_MOISTURE_3_D4_OUTPUT);
+
+				if (LED1 == 0 && LED2 == 0 && LED3 == 0) {
+					LED1 = 1;
+					LED2 = 1;
+					LED3 = 1;
+				}
+				else if (LED1 == 1 && LED2 == 1 && LED3 == 1) {
+					LED1 = 1;
+					LED2 = 1;
+					LED3 = 0;
+				}
+				else if (LED1 == 1 && LED2 == 1 && LED3 == 0) {
+					LED1 = 1;
+					LED2 = 0;
+					LED3 = 0;
+				}
+				else if (LED1 == 1 && LED2 == 0 && LED3 == 0) {
+					LED1 = 0;
+					LED2 = 0;
+					LED3 = 0;
+				}
+
+				gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, LED1);
+				gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, LED2);
+				gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, LED3);
+			}
+		}
+	}
+}
+
+static void gpio_isr_handler_input_moisture_button_r(void *arg) {
+	uint32_t gpio_num = (uint32_t) arg;
+	xQueueSendFromISR(gpio_event_queue_input_moisture_button_r, &gpio_num, NULL);
+}
+
+static void gpio_task_input_moisture_button_r(void *arg) {
+	uint32_t io_num;
+	while (1) {
+		if (xQueueReceive(gpio_event_queue_input_moisture_button_r, &io_num, portMAX_DELAY)) {
+
+			buttonStates button_state = delay_debounce(rbutton_states, gpio_get_level(RBUTTON_D5_INPUT));
+
+			if (button_state == PRESS) {
+				int LED1 = gpio_get_level(LED_MOISTURE_1_D2_OUTPUT);
+				int LED2 = gpio_get_level(LED_MOISTURE_2_D3_OUTPUT);
+				int LED3 = gpio_get_level(LED_MOISTURE_3_D4_OUTPUT);
+
+				if (LED1 == 0 && LED2 == 0 && LED3 == 0) {
+					gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 1);
+					gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 0);
+					gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 0);
+				}
+				else if (LED1 == 1 && LED2 == 0 && LED3 == 0) {
+					gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 1);
+					gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 1);
+					gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 0);
+				}
+				else if (LED1 == 1 && LED2 == 1 && LED3 == 0) {
+					gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 1);
+					gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 1);
+					gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 1);
+				}
+				else if (LED1 == 1 && LED2 == 1 && LED3 == 1) {
+					gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 0);
+					gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 0);
+					gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 0);
+				}
+			}
 		}
 	}
 }
@@ -124,10 +231,10 @@ void init_output_pump() {
 	gpio_config(&io_config);
 }
 
-void init_input_moisture_buttons() {
+void init_input_moisture_button_l() {
 	gpio_config_t io_config;
-	io_config.intr_type = GPIO_INTR_POSEDGE;
-	io_config.pin_bit_mask = ((1ULL << LBUTTON_D1_INPUT) | (1ULL << RBUTTON_D5_INPUT ));
+	io_config.intr_type = GPIO_INTR_ANYEDGE;
+	io_config.pin_bit_mask = (1ULL << LBUTTON_D1_INPUT);
 	io_config.mode = GPIO_MODE_INPUT;
 	io_config.pull_down_en = 1;
 
@@ -137,11 +244,31 @@ void init_input_moisture_buttons() {
 	// gpio_set_intr_type(LBUTTON_D1_INPUT, GPIO_INTR_POSEDGE);
 	// gpio_set_intr_type(RBUTTON_D5_INPUT, GPIO_INTR_NEGEDGE);
 
-	gpio_event_queue_input_moisture_buttons = xQueueCreate(10, sizeof(uint32_t));
-	xTaskCreate(gpio_task_input_moisture_buttons, "gpio_task_input_moisture_buttons", 2048, NULL, 10, NULL);
+	gpio_event_queue_input_moisture_button_l = xQueueCreate(10, sizeof(uint32_t));
+	xTaskCreate(gpio_task_input_moisture_button_l, "gpio_task_input_moisture_button_l", 2048, NULL, 10, NULL);
 
-	gpio_isr_handler_add(LBUTTON_D1_INPUT, gpio_isr_handler_input_moisture_buttons, (void *) LBUTTON_D1_INPUT);
-	gpio_isr_handler_add(RBUTTON_D5_INPUT, gpio_isr_handler_input_moisture_buttons, (void *) RBUTTON_D5_INPUT);
+	gpio_isr_handler_add(LBUTTON_D1_INPUT, gpio_isr_handler_input_moisture_button_l, (void *) LBUTTON_D1_INPUT);
+
+	gpio_config(&io_config);
+}
+
+void init_input_moisture_button_r() {
+	gpio_config_t io_config;
+	io_config.intr_type = GPIO_INTR_ANYEDGE;
+	io_config.pin_bit_mask = (1ULL << RBUTTON_D5_INPUT);
+	io_config.mode = GPIO_MODE_INPUT;
+	io_config.pull_down_en = 1;
+
+	// Interrupt
+
+	// Individual interrupt edge
+	// gpio_set_intr_type(LBUTTON_D1_INPUT, GPIO_INTR_POSEDGE);
+	// gpio_set_intr_type(RBUTTON_D5_INPUT, GPIO_INTR_NEGEDGE);
+
+	gpio_event_queue_input_moisture_button_r = xQueueCreate(10, sizeof(uint32_t));
+	xTaskCreate(gpio_task_input_moisture_button_r, "gpio_task_input_moisture_button_r", 2048, NULL, 10, NULL);
+
+	gpio_isr_handler_add(RBUTTON_D5_INPUT, gpio_isr_handler_input_moisture_button_r, (void *) RBUTTON_D5_INPUT);
 
 	gpio_config(&io_config);
 }
@@ -246,17 +373,19 @@ void init_gpio() {
 	// Implementation
 	gpio_install_isr_service(0);
 
-//	init_input_moisture_buttons();
+	init_input_moisture_button_l();
+	init_input_moisture_button_r();
 //	init_input_water_level_sensors();
 //	init_input_photo_diode();
 //	init_input_moisture_sensor();
 //	init_output_pump();
-//	init_output_moisture_leds();
+	init_output_moisture_leds();
 //	init_output_water_level_leds();
 
+
 	// Example
-	gpio_config_t io_conf;
-	init_gpio_output_example(&io_conf);
-	xTaskCreate(blinkTask, "blinkTask", 2048, NULL, 10, NULL);
+//	gpio_config_t io_conf;
+//	init_gpio_output_example(&io_conf);
+//	xTaskCreate(blinkTask, "blinkTask", 2048, NULL, 10, NULL);
 }
 
