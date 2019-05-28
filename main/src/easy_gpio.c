@@ -19,10 +19,7 @@
 #include "esp_system.h"
 #include "easy_gpio.h"
 
-#include "ws2812.h"
-
-
-static const char *TAG = "GPIO";
+static const char *TAG = "main";
 
 /**
  *
@@ -52,12 +49,6 @@ static xQueueHandle gpio_event_queue_output_leds = NULL;
 static xQueueHandle gpio_event_queue_input_moisture_buttons = NULL;
 static xQueueHandle gpio_event_queue_input_water_level_sensors = NULL;
 static xQueueHandle gpio_event_queue_input_photo_diode = NULL;
-
-
-void setMoistureLevel(int *level){
-	uint32_t color = 0x00FF0000;
-	ws2812_set_many(LED_MOISTURE_2_D3_OUTPUT, &color,(size_t) level);
-}
 
 static void gpio_isr_handler_output_leds(void *arg) {
 	uint32_t gpio_num = (uint32_t) arg;

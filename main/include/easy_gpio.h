@@ -7,7 +7,6 @@
 
 #include "driver/gpio.h"
 
-
 #ifndef MAIN_INCLUDE_EASY_GPIO_H_
 
 #define MAIN_INCLUDE_EASY_GPIO_H_
@@ -39,8 +38,6 @@ void init_input_water_level_sensors();
 void init_output_water_level_leds();
 void init_input_photo_diode();
 void init_input_moisture_sensor();
-
-void setMoistureLevel(int *level);
 
 void init_gpio();
 
