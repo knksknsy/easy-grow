@@ -17,6 +17,7 @@
 #include <lwip/api.h>
 
 #include <easy_wifi_manager.h>
+#include <easy_gpio.h>
 
 #include <easy_http_server.h>
 #include <esp_http_server.h>
@@ -102,6 +103,8 @@ void httpd_task(void *pvParameters)
                     if (!strncmp(uri, "/higher", max_uri_len)){
                         //TODO
                     	//setMoistureHigher(true);
+                    	//int level = 10;
+                    	//setMoistureLevel(&level);
                     }
                     else if (!strncmp(uri, "/lower", max_uri_len)){
                     	//TODO
@@ -131,6 +134,7 @@ void init_server(){
 void start_http(const website_interface *website)
 {
     //static httpd_handle_t server = NULL;
+
     nvs_flash_init();
     init_server();
 }

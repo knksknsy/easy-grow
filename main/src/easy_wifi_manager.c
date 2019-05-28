@@ -23,9 +23,8 @@
 #include <easy_wifi_manager.h>
 #include <easy_http_server.h>
 
-
-#define EXAMPLE_WIFI_SSID "o2-WLAN57"
-#define EXAMPLE_WIFI_PASS "wlanschmarotzer"
+#define EXAMPLE_WIFI_SSID "MartinRouterKing"
+#define EXAMPLE_WIFI_PASS "VgEp#x+c2d7MnVzK,;_="
 
 const int WIFI_CONNECTED_BIT = BIT0;
 
