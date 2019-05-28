@@ -19,13 +19,19 @@
 #define WATER_MEDIUM 1
 #define WATER_HIGH 2
 
+typedef enum { UP, DOWN, PRESS, RELEASE } buttonStates;
+
 // Example
 void init_gpio_output_example(gpio_config_t *io_config);
 void blinkTask();
 
+buttonStates delay_debounce(buttonStates button_state, int button_value);
+
 // Implementation
-static void gpio_isr_handler_input_moisture_buttons(void *arg);
-static void gpio_task_input_moisture_buttons(void *arg);
+static void gpio_isr_handler_input_moisture_button_l(void *arg);
+static void gpio_task_input_moisture_button_l(void *arg);
+static void gpio_isr_handler_input_moisture_button_r(void *arg);
+static void gpio_task_input_moisture_button_r(void *arg);
 static void gpio_isr_handler_input_water_level_sensors(void *arg);
 static void gpio_task_input_water_level_sensors(void *arg);
 static void gpio_isr_handler_input_photo_diode(void *arg);
