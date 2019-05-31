@@ -10,6 +10,7 @@
 #include <esp_system.h>
 #include <easy_http_server.h>
 #include <easy_gpio.h>
+// #include <easy_example.h>
 #include <easy_wifi_manager.h>
 
 #include <esp_log.h>
@@ -24,6 +25,8 @@
 *******************************************************************************/
 void app_main(void)
 {
+	init_gpio();
+    // init_example();
 	wifi_init();
 
     website_interface website = EASY_GROW_MODE;
