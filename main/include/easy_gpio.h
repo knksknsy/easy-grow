@@ -15,7 +15,7 @@
 #define WATER_MEDIUM	1
 #define WATER_HIGH		2
 
-typedef enum { UP, DOWN, PRESS, RELEASE } buttonStates;
+typedef enum { UP, DOWN, PRESS, RELEASE } ButtonStates;
 
 void init_gpio();
 
