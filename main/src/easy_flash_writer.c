@@ -70,7 +70,6 @@ void flash_write(int const address, uint8_t const value) {
 	uint8_t* pData = &_data[address];
     ESP_LOGI(TAG, "Data: [%d]", (int)pData);
 
-
 	  if (*pData != value)
 	  {
 	    *pData = value;
@@ -92,7 +91,7 @@ void flash_write(int const address, uint8_t const value) {
 
 
 void initFlashWriter(){
-	flash_write(_startSector,1);
+	//flash_write(_startSector,1);
     ESP_LOGI(TAG, "Reading Data: [%d]", flash_read(_startSector));
 
 }
