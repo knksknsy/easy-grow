@@ -18,6 +18,7 @@ Easy Grow is a C++ Program to take care of your plants.
     * [1.2 ESP8266 toolchain setup to your local machine (MacOS only)](#local)
 - [2. Configuring the Espressif IoT Development Framework](#idf_config)
 - [3. Building, flashing, and monitoring](#build)
+- [4. Build and flash LED example](#led_example)
 <!-- toc -->
 
 <a name="sw_env"></a>
@@ -149,3 +150,17 @@ Open a new terminal window and paste the following commands in order to trigger 
 1. Build the project with ```$ make``` from the projects root directory.
 2. Execute ```$ make flash``` for flashing the nodeMCU. This is only possible with MacOS and Linux hosts and not on Windows.
 3. If it's finished and connected to the nodeMCU you can monitor the nodeMCU with ```$ make monitor```. This is only possible with MacOS and Linux hosts and not on Windows.
+
+<a name="led_example"></a>
+## 4. Build and flash LED example
+
+1. Clone the Git repository:<br>```$ git clone git@gitlab.mi.hdm-stuttgart.de:embedded/ss19/easy-grow.git```
+2. Navigate to the ```easy-grow``` directory:<br>```$ cd easy-grow```
+3. Checkout the ```example```branch:<br>```$ git checkout example```
+4. Navigate to the ```docker```directory:<br>```$ cd docker```
+5. Plug your ESP8266 nodeMCU into your USB port
+6. Run the ```docker.sh``` script inside of the directory. This will create the Docker image ```docker-esp8266``` and initialize a container with the ESP IDF environment.<br>```$ ./docker.sh```
+7. Inside the container navigate to the ```easy-grow``` project directory:<br>```$ cd easy-grow```
+8. Configure the ESP IDF serial flasher. For reference see: [2. Configuring the Espressif IoT Development Framework](#idf_config).
+9. Build the project, flash the nodeMCU, and monitor with:<br>```$ make && make flash && make monitor```.<br> If an error happens during flashing then rerun the following ```$ make flash && make monitor```.
+

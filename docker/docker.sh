@@ -5,7 +5,6 @@ YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
 NC='\033[0m'
 
-
 function script_usage {
     echo "This script creates and runs a Docker container from the docker-esp8266 image."
     echo "Run this script inside the docker directory from the projects path."

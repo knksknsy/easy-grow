@@ -3,9 +3,13 @@
 /build
 /ESP
 /ESP8266_RTOS_SDK
+sdkconfig
+sdkconfig.old
 
 # eclipse project file
 .settings/
+.vscode/
+.idea/
 .classpath
 .project
 .cproject
