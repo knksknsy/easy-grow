@@ -5,15 +5,16 @@
    software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
    CONDITIONS OF ANY KIND, either express or implied.
 */
-
+#include <esp_log.h>
 #include <stdio.h>
 #include <esp_system.h>
 #include <easy_http_server.h>
 #include <easy_gpio.h>
 #include <easy_access_point.h>
 #include <easy_wifi_manager.h>
+#include <easy_flash_writer.h>
 
-#include <esp_log.h>
+
 #define TAG "Main"
 
 /******************************************************************************
@@ -25,14 +26,27 @@
 void app_main(void)
 {
     ESP_LOGI(TAG, "app_main started");
+
 	initialise_ap();
 
-	//init_gpio();
 
-	wifi_init();
+
+	//init_gpio();
+	initFlashWriter();
+
+
+	//wifi_init();
 
 	//Change website to start ESP with AP Screen
     website_interface website = EASY_GROW_MODE;
     start_http(&website);
 
+
 }
+
+
+
+
+
+
+
