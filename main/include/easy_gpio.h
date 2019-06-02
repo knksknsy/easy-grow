@@ -17,6 +17,11 @@
 
 typedef enum { UP, DOWN, PRESS, RELEASE } ButtonStates;
 
+void moisture_button_handler(uint32_t io_num);
+void photo_diode_handler(uint32_t io_num);
+void water_level_handler(uint32_t io_num);
+
+void init_isr();
 void init_gpio();
 
 void init_output_pump();
@@ -30,4 +35,3 @@ void init_input_moisture_sensor();
 void setMoistureLevel(int *level);
 
 #endif /* MAIN_INCLUDE_EASY_GPIO_H_ */
-
