@@ -19,6 +19,8 @@
 #include "driver/gpio.h"
 #include "driver/adc.h"
 
+#include "esp_timer.h"
+#include "esp_sleep.h"
 #include "esp_err.h"
 #include "esp_log.h"
 #include "esp_system.h"
@@ -202,32 +204,6 @@ static void gpio_task(void *arg)
 	}
 }
 
-static void adc_task()
-{
-	int x;
-	uint16_t adc_data[100];
-
-	while (1)
-	{
-		if (ESP_OK == adc_read(&adc_data[0]))
-		{
-			ESP_LOGI(TAG, "adc read: %d\r\n", adc_data[0]);
-		}
-
-		ESP_LOGI(TAG, "adc read fast:\r\n");
-
-		if (ESP_OK == adc_read_fast(adc_data, 100))
-		{
-			for (x = 0; x < 100; x++)
-			{
-				printf("%d\n", adc_data[x]);
-			}
-		}
-
-		vTaskDelay(1000 / portTICK_RATE_MS);
-	}
-}
-
 /**
  * Input pin connected to ground
  * TODO Think about external pulldown receiver
@@ -329,6 +305,46 @@ void init_photo_diode_input()
 	gpio_config(&io_config);
 }
 
+static void adc_timer_callback(void *arg)
+{
+	int64_t time_since_boot = esp_timer_get_time();
+	ESP_LOGI(TAG, "ADC timer called, time since boot: (%d)",
+			(int32_t) time_since_boot);
+
+	int x;
+	uint8_t data_size = 20;
+	uint16_t adc_data[data_size];
+	if (ESP_OK == adc_read(&adc_data[0]))
+	{
+		ESP_LOGI(TAG, "adc read: %d\r\n", adc_data[0]);
+	}
+
+	ESP_LOGI(TAG, "adc read fast:\r\n");
+
+	if (ESP_OK == adc_read_fast(adc_data, data_size))
+	{
+		for (x = 0; x < data_size; x++)
+		{
+			printf("%d\n", adc_data[x]);
+		}
+	}
+}
+
+void init_adc_timer()
+{
+	/* Create timer */
+	const esp_timer_create_args_t adc_timer_args =
+	{ .callback = &adc_timer_callback, .name = "adc_timer" };
+
+	esp_timer_handle_t adc_timer;
+	ESP_ERROR_CHECK(esp_timer_create(&adc_timer_args, &adc_timer));
+
+	/* Start timer 5s interval */
+	ESP_ERROR_CHECK(esp_timer_start_periodic(adc_timer, 5000000));
+	ESP_LOGI(TAG, "Started timer, time since boot: (%d)",
+			(int32_t) esp_timer_get_time());
+}
+
 void init_moisture_sensor_adc_input()
 {
 	adc_config_t adc_config;
@@ -336,11 +352,11 @@ void init_moisture_sensor_adc_input()
 	// Depend on menuconfig -> Component config -> PHY -> vdd33_const value
 	// When measuring system voltage(ADC_READ_VDD_MODE), vdd33_const must be set to 255.
 	adc_config.mode = ADC_READ_TOUT_MODE;
-	// ADC sample collection clock = 89MHz/clk_div = 10MHz
+	// ADC sample collection clock = 80MHz/clk_div = 10MHz
 	adc_config.clk_div = 8;
 	ESP_ERROR_CHECK(adc_init(&adc_config));
 
-	xTaskCreate(adc_task, "adc_task", 1024, NULL, 5, NULL);
+	init_adc_timer();
 }
 
 void init_isr()
@@ -357,10 +373,11 @@ void init_gpio()
 	init_moisture_buttons_input();
 	init_moisture_leds_output();
 	init_water_level_sensors_input();
-	init_photo_diode_input();
-	init_moisture_sensor_adc_input();
 	init_pump_output();
-	init_water_level_leds_output();
+	init_moisture_sensor_adc_input();
+	/* Disable RX and TX GPIOs for monitoring */
+//	init_photo_diode_input();
+//	init_water_level_leds_output();
 }
 
 void setMoistureLevel(int *level)
