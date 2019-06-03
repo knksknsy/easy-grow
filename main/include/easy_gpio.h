@@ -8,23 +8,26 @@
 #ifndef MAIN_INCLUDE_EASY_GPIO_H_
 #define MAIN_INCLUDE_EASY_GPIO_H_
 
-#define GPIO_HIGH		1
-#define GPIO_LOW		0
+/**
+ *
+ *  GPIO class to read sensors and do stuff
+ *
+ */
+#define PUMP_D0_OUTPUT						16
+#define LBUTTON_D1_INPUT					5
+#define LED_MOISTURE_1_D2_OUTPUT			4
+#define LED_MOISTURE_2_D3_OUTPUT			0
+#define LED_MOISTURE_3_D4_OUTPUT			2
+#define RBUTTON_D5_INPUT					14
+#define WATER_LEVEL_TOP_D6_INPUT			12
+#define WATER_LEVEL_BOTTOM_D7_INPUT			13
+#define LED_WATER_LEVEL_TOP_D8_OUTPUT		15
+#define PHOTO_DIODE_RX_INPUT				3
+#define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
 
-#define WATER_LOW		0
-#define WATER_MEDIUM	1
-#define WATER_HIGH		2
-
-typedef enum { UP, DOWN, PRESS, RELEASE } ButtonStates;
-
-static void adc_timer_callback(void* arg);
-static ButtonStates delay_debounce(ButtonStates button_state, int gpio_num);
+static void adc_timer_callback(void *arg);
 static void gpio_isr_handler(void *arg);
 static void gpio_task(void *arg);
-
-void moisture_button_handler(uint32_t io_num);
-void photo_diode_handler(uint32_t io_num);
-void water_level_handler(uint32_t io_num);
 
 void init_isr();
 void init_gpio();
@@ -37,7 +40,5 @@ void init_water_level_leds_output();
 void init_photo_diode_input();
 void init_moisture_sensor_adc_input();
 void init_adc_timer();
-
-void setMoistureLevel(int *level);
 
 #endif /* MAIN_INCLUDE_EASY_GPIO_H_ */

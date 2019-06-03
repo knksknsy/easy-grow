@@ -11,6 +11,7 @@
 #include <stdlib.h>
 
 #include "easy_gpio.h"
+#include "easy_controller.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -27,146 +28,9 @@
 #include "assert.h"
 #include "sdkconfig.h"
 
-#include "ws2812.h"
-
 static const char *TAG = "GPIO";
 
-/**
- *
- *  GPIO class to read sensors and do stuff
- *
- */
-#define PUMP_D0_OUTPUT						16
-#define LBUTTON_D1_INPUT					5
-#define LED_MOISTURE_1_D2_OUTPUT			4
-#define LED_MOISTURE_2_D3_OUTPUT			0
-#define LED_MOISTURE_3_D4_OUTPUT			2
-#define RBUTTON_D5_INPUT					14
-#define WATER_LEVEL_TOP_D6_INPUT			12
-#define WATER_LEVEL_BOTTOM_D7_INPUT			13
-#define LED_WATER_LEVEL_TOP_D8_OUTPUT		15
-#define PHOTO_DIODE_RX_INPUT				3
-#define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
-
 static xQueueHandle gpio_event_queue = NULL;
-
-static ButtonStates delay_debounce(ButtonStates button_state, int gpio_num)
-{
-	/* if pressed */
-	if (gpio_get_level(gpio_num))
-	{
-		if (button_state == PRESS)
-		{
-			button_state = DOWN;
-		}
-		if (button_state == UP)
-		{
-			vTaskDelay(25 / portTICK_RATE_MS);
-			if (gpio_get_level(gpio_num) == 1)
-			{
-				button_state = PRESS;
-			}
-		}
-	}
-	/* if not pressed */
-	else
-	{
-		if (button_state == RELEASE)
-		{
-			button_state = UP;
-		}
-		if (button_state == DOWN)
-		{
-			if (gpio_get_level(gpio_num) == 0)
-			{
-				vTaskDelay(25 / portTICK_RATE_MS);
-				if (gpio_get_level(gpio_num) == 0)
-				{
-					button_state = RELEASE;
-				}
-			}
-		}
-	}
-	return button_state;
-}
-
-void moisture_button_handler(uint32_t io_num)
-{
-	static ButtonStates lbutton_states;
-	static ButtonStates rbutton_states;
-
-	int LED1 = gpio_get_level(LED_MOISTURE_1_D2_OUTPUT);
-	int LED2 = gpio_get_level(LED_MOISTURE_2_D3_OUTPUT);
-	int LED3 = gpio_get_level(LED_MOISTURE_3_D4_OUTPUT);
-
-	/* Decrease moisture */
-	if (io_num == LBUTTON_D1_INPUT)
-	{
-
-		lbutton_states = delay_debounce(lbutton_states, LBUTTON_D1_INPUT);
-		ESP_LOGI(TAG, "l_button_states: %d", lbutton_states);
-
-		if (lbutton_states == PRESS)
-		{
-			if (!LED1 && !LED2 && !LED3)
-			{
-				LED1 = 1, LED2 = 1, LED3 = 1;
-			}
-			else if (LED1 && LED2 && LED3)
-			{
-				LED1 = 1, LED2 = 1, LED3 = 0;
-			}
-			else if (LED1 && LED2 && !LED3)
-			{
-				LED1 = 1, LED2 = 0, LED3 = 0;
-			}
-			else if (LED1 && !LED2 && !LED3)
-			{
-				LED1 = 0, LED2 = 0, LED3 = 0;
-			}
-		}
-	}
-	/* Increase moisture */
-	else if (io_num == RBUTTON_D5_INPUT)
-	{
-		rbutton_states = delay_debounce(rbutton_states, RBUTTON_D5_INPUT);
-		ESP_LOGI(TAG, "r_button_states: %d", rbutton_states);
-
-		if (rbutton_states == PRESS)
-		{
-			if (!LED1 && !LED2 && !LED3)
-			{
-				LED1 = 1, LED2 = 0, LED3 = 0;
-			}
-			else if (LED1 && !LED2 && !LED3)
-			{
-				LED1 = 1, LED2 = 1, LED3 = 0;
-			}
-			else if (LED1 && LED2 && !LED3)
-			{
-				LED1 = 1, LED2 = 1, LED3 = 1;
-			}
-			else if (LED1 && LED2 && LED3)
-			{
-				LED1 = 0, LED2 = 0, LED3 = 0;
-			}
-		}
-	}
-	if (lbutton_states == PRESS || rbutton_states == PRESS)
-	{
-		gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, LED1);
-		gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, LED2);
-		gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, LED3);
-	}
-}
-
-void photo_diode_handler(uint32_t io_num)
-{
-}
-
-void water_level_handler(uint32_t io_num)
-{
-}
 
 static void gpio_isr_handler(void *arg)
 {
@@ -378,10 +242,4 @@ void init_gpio()
 	/* Disable RX and TX GPIOs for monitoring */
 //	init_photo_diode_input();
 //	init_water_level_leds_output();
-}
-
-void setMoistureLevel(int *level)
-{
-	uint32_t color = 0x00FF0000;
-	ws2812_set_many(LED_MOISTURE_2_D3_OUTPUT, &color, (size_t) level);
 }
