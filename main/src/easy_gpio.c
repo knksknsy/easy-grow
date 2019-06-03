@@ -9,19 +9,21 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+
+#include "easy_gpio.h"
+
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"
 
 #include "driver/gpio.h"
-#include "driver/hw_timer.h"
+#include "driver/adc.h"
 
+#include "esp_err.h"
 #include "esp_log.h"
-#include "sdkconfig.h"
 #include "esp_system.h"
-#include "easy_gpio.h"
-#include "esp_timer.h"
-#include "esp_sleep.h"
+#include "assert.h"
+#include "sdkconfig.h"
 
 #include "ws2812.h"
 
@@ -43,7 +45,6 @@ static const char *TAG = "GPIO";
 #define LED_WATER_LEVEL_TOP_D8_OUTPUT		15
 #define PHOTO_DIODE_RX_INPUT				3
 #define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
-#define MOISTURE_SENSOR_A0_INPUT			0xA0
 
 static xQueueHandle gpio_event_queue = NULL;
 
@@ -201,6 +202,32 @@ static void gpio_task(void *arg)
 	}
 }
 
+static void adc_task()
+{
+	int x;
+	uint16_t adc_data[100];
+
+	while (1)
+	{
+		if (ESP_OK == adc_read(&adc_data[0]))
+		{
+			ESP_LOGI(TAG, "adc read: %d\r\n", adc_data[0]);
+		}
+
+		ESP_LOGI(TAG, "adc read fast:\r\n");
+
+		if (ESP_OK == adc_read_fast(adc_data, 100))
+		{
+			for (x = 0; x < 100; x++)
+			{
+				printf("%d\n", adc_data[x]);
+			}
+		}
+
+		vTaskDelay(1000 / portTICK_RATE_MS);
+	}
+}
+
 /**
  * Input pin connected to ground
  * TODO Think about external pulldown receiver
@@ -302,21 +329,18 @@ void init_photo_diode_input()
 	gpio_config(&io_config);
 }
 
-void init_moisture_sensor_input()
+void init_moisture_sensor_adc_input()
 {
-	gpio_config_t io_config;
-	io_config.intr_type = GPIO_INTR_DISABLE;
+	adc_config_t adc_config;
 
-	// Mask error
-	// io_config.pin_bit_mask = (1ULL << MOISTURE_SENSOR_A0_INPUT);
+	// Depend on menuconfig -> Component config -> PHY -> vdd33_const value
+	// When measuring system voltage(ADC_READ_VDD_MODE), vdd33_const must be set to 255.
+	adc_config.mode = ADC_READ_TOUT_MODE;
+	// ADC sample collection clock = 89MHz/clk_div = 10MHz
+	adc_config.clk_div = 8;
+	ESP_ERROR_CHECK(adc_init(&adc_config));
 
-	io_config.mode = GPIO_MODE_INPUT;
-	io_config.pull_up_en = 1;
-
-	// No interrupt
-	// => Retrieve moisture info every X seconds or minutes
-
-	gpio_config(&io_config);
+	xTaskCreate(adc_task, "adc_task", 1024, NULL, 5, NULL);
 }
 
 void init_isr()
@@ -334,7 +358,7 @@ void init_gpio()
 	init_moisture_leds_output();
 	init_water_level_sensors_input();
 	init_photo_diode_input();
-	init_moisture_sensor_input();
+	init_moisture_sensor_adc_input();
 	init_pump_output();
 	init_water_level_leds_output();
 }

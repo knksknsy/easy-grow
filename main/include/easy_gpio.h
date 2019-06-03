@@ -24,13 +24,13 @@ void water_level_handler(uint32_t io_num);
 void init_isr();
 void init_gpio();
 
-void init_output_pump();
-void init_input_moisture_buttons();
-void init_output_moisture_leds();
-void init_input_water_level_sensors();
-void init_output_water_level_leds();
-void init_input_photo_diode();
-void init_input_moisture_sensor();
+void init_pump_output();
+void init_moisture_buttons_input();
+void init_moisture_leds_output();
+void init_water_level_sensors_input();
+void init_water_level_leds_output();
+void init_photo_diode_input();
+void init_moisture_sensor_adc_input();
 
 void setMoistureLevel(int *level);
 
