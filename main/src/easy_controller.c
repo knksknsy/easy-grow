@@ -11,6 +11,10 @@
 #include "easy_gpio.h"
 #include "easy_debouncer.h"
 
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+
 #include "driver/gpio.h"
 
 #include "esp_log.h"
@@ -20,9 +24,12 @@
 //#include "ws2812.h"
 
 static const char *TAG = "CONTROLLER";
+// static int water_led_task_initialized = 0;
 
 void moisture_button_handler(uint32_t io_num)
 {
+	/* Set ideal moisture level via hardware buttons. Sets moisture LED outputs for the configured mositure level. */
+
 	static ButtonStates lbutton_states;
 	static ButtonStates rbutton_states;
 
@@ -93,57 +100,111 @@ void moisture_button_handler(uint32_t io_num)
 
 void moisture_leds_handler(uint8_t level)
 {
-
+	/* Set moisture LED outputs for the configured moisture level (server-side configuration of moisture level). */
 }
+
 void set_moisture_level(uint8_t level)
 {
-
+	/* Set the ideal value for moisture. Pump waters plant until its ideal moisture level is reached. */
 }
+
 uint8_t get_moisture_level()
 {
+	/* Read ADC input fast and return the average moisture level */
 	return NULL;
 }
 
 void photo_diode_handler(uint32_t io_num)
 {
-
+	int value = gpio_get_level(io_num);
+	ESP_LOGI(TAG, "photo diode: %d", value);
+	/* Read photo diode input and count the hours of sun for the current day */
 }
 
 uint8_t get_hours_of_sun()
 {
+	/* Return hours of sun registered for the current day */
 	return NULL;
 }
+
+// static void water_low_task(void *arg)
+// {
+// 	int counter = 0;
+// 	while (1)
+// 	{
+// 		counter++;
+// 		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, counter % 2);
+// 		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, counter % 2);
+// 		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", counter % 2, counter % 2);
+// 		vTaskDelay(1000 / portTICK_RATE_MS);
+// 	}
+// }
 
 void water_level_handler(uint32_t io_num)
 {
+	int WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
+	int WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
+
 	int LED_TOP = gpio_get_level(LED_WATER_LEVEL_TOP_D8_OUTPUT);
 	int LED_BOTTOM = gpio_get_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT);
 
-	if (!LED_TOP && !LED_BOTTOM)
-	{
-		/* Replace with blinking LEDs (timer) */
-		LED_TOP = 0, LED_BOTTOM = 0;
-	}
-	else if (!LED_TOP && LED_BOTTOM)
-	{
-		LED_TOP = 1, LED_BOTTOM = 0;
-	}
-	else if (LED_TOP && LED_BOTTOM)
-	{
-		LED_TOP = 1, LED_BOTTOM = 1;
-	}
+	// TaskHandle_t blink_handle;
 
-	gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
-	gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+	if (WATER_TOP && WATER_BOTTOM)
+	{
+		// vTaskSuspend(blink_handle);
+
+		LED_BOTTOM = 1, LED_TOP = 1;
+		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+
+		/* Activate water pump */
+	}
+	else if (!WATER_TOP && WATER_BOTTOM)
+	{
+		// vTaskSuspend(blink_handle);
+
+		LED_BOTTOM = 1, LED_TOP = 0;
+		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+
+		/* Activate water pump */
+	}
+	else if (!WATER_TOP && !WATER_BOTTOM)
+	{
+		/* Create blinking LEDs task */
+		// if (!water_led_task_initialized)
+		// {
+		// 	xTaskCreate(water_low_task, "water_low_task", 2048, NULL, 10, &blink_handle);
+		// 	water_led_task_initialized = 1;
+		// } else {
+		// 	vTaskResume(blink_handle);
+		// }
+
+		/* Deactivate water pump */
+
+		LED_BOTTOM = 0, LED_TOP = 0;
+		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
+		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+	}
 }
 
-uint8_t get_water_level()
+WaterLevel get_water_level()
 {
-	return NULL;
+	/* Read water sensor inputs and return water level */
+	return EMPTY;
 }
-void water_plant(uint32_t ms)
-{
 
+void activate_pump(uint32_t ms)
+{
+	/* Water the plant as long as the provided milliseconds */
+}
+
+void deactivate_pump()
+{
 }
 
 //void setMoistureLevel(int *level)

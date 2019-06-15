@@ -130,7 +130,7 @@ void init_water_level_sensors_input()
 	io_config.pin_bit_mask = ((1ULL << WATER_LEVEL_TOP_D6_INPUT)
 			| (1ULL << WATER_LEVEL_BOTTOM_D7_INPUT));
 	io_config.mode = GPIO_MODE_INPUT;
-	io_config.pull_down_en = 1;
+	// io_config.pull_down_en = 1;
 
 	gpio_isr_handler_add(WATER_LEVEL_TOP_D6_INPUT, gpio_isr_handler,
 			(void *) WATER_LEVEL_TOP_D6_INPUT);
@@ -161,7 +161,7 @@ void init_photo_diode_input()
 	io_config.intr_type = GPIO_INTR_ANYEDGE;
 	io_config.pin_bit_mask = (1ULL << PHOTO_DIODE_RX_INPUT);
 	io_config.mode = GPIO_MODE_INPUT;
-	io_config.pull_up_en = 1;
+	io_config.pull_down_en = 1;
 
 	gpio_isr_handler_add(PHOTO_DIODE_RX_INPUT, gpio_isr_handler,
 			(void *) PHOTO_DIODE_RX_INPUT);
@@ -227,7 +227,7 @@ void init_isr()
 {
 	gpio_install_isr_service(0);
 	gpio_event_queue = xQueueCreate(10, sizeof(uint32_t));
-	xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
+	xTaskCreate(gpio_task, "gpio_task", 8000, NULL, 10, NULL);
 }
 
 void init_gpio()
@@ -240,6 +240,7 @@ void init_gpio()
 	init_pump_output();
 	init_moisture_sensor_adc_input();
 	/* Disable RX and TX GPIOs for monitoring */
-//	init_photo_diode_input();
-//	init_water_level_leds_output();
+	init_photo_diode_input();
+	init_water_level_leds_output();
+	/* // */
 }
