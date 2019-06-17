@@ -42,7 +42,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         esp_wifi_scan_get_ap_num(&apCount);
         if (apCount == 0) {
         	ESP_LOGI(TAG,"No AP found");
-            break;
+            //break;
+        	//TODO Implemtend rescan function
         }
         wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * apCount);
         if (!ap_list) {
@@ -79,6 +80,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         break;
     case SYSTEM_EVENT_STA_CONNECTED:
     	ESP_LOGI(TAG,"Connected to STATION");
+    	//Connected to accesspoint - Start EasyGrow Task
+    	start_easy_grow_http();
     	break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
     	ESP_LOGI(TAG,"Disconnected from STATION");
