@@ -38,6 +38,8 @@
 static const char *TAG = "HTTP_SERVER";
 static uint8_t available_aps[5][33];
 
+webMode mode = EASY_CONFIG;
+
 void decode_url(char *dest, const char *src) {
 	const char *p = src;
 	char code[3] = { 0 };
@@ -55,160 +57,8 @@ void decode_url(char *dest, const char *src) {
 	}
 }
 
-void httpd_task_easy(void *pvParameters) {
-	ESP_LOGI(TAG, "Easy Task Started");
 
-	struct netconn *client = NULL;
-	struct netconn *nc = netconn_new(NETCONN_TCP);
-	if (nc == NULL) {
-		printf("Failed to allocate socket.\n");
-		vTaskDelete(NULL);
-	}
-	netconn_bind(nc, IP_ADDR_ANY, 80);
-	netconn_listen(nc);
-
-	char buf[1024];
-	const char *webpage =
-			{
-					"HTTP/1.1 200 OK\r\n"
-							"Content-type: text/html\r\n\r\n"
-							"<html><head><title>Easy Grow Server</title>"
-							"<style> div.main {"
-							"font-family: Arial;"
-							"padding: 0.01em 16px;"
-							"box-shadow: 2px 2px 1px 1px #d2d2d2;"
-							"background-color: #f1f1f1;}"
-							"</style></head>"
-							"<body><div class='main'>"
-							"<h3>HTTP Server</h3>"
-							"<meter max= 1.0 min= 0.0 value= 0.5 high= .75 low= .25 optimum= 0.5 ></meter>"
-							"<p>URL: %s</p>"
-							"<p>Current Moisture: feucht</p>"
-							"<p>Watertanklevel: voll</p>"
-							"<p>Sun hours: viele</p>"
-							"<p>Uptime: %d seconds</p>"
-							"<p>Free heap: %d bytes</p>"
-							"<button onclick=\"location.href='/higher'\" type='button'>"
-							"Moisture Higher</button></p>"
-							"<button onclick=\"location.href='/lower'\" type='button'>"
-							"Moisture Lower</button></p>"
-							"</div></body></html>" };
-
-	while (1) {
-		err_t err = netconn_accept(nc, &client);
-		if (err == ERR_OK) {
-			struct netbuf *nb;
-			if ((err = netconn_recv(client, &nb)) == ERR_OK) {
-				void *data;
-				u16_t len;
-				netbuf_data(nb, &data, &len);
-				/* check for a GET request */
-				if (!strncmp(data, "GET ", 4)) {
-					char uri[32];
-					const int max_uri_len = 32;
-					char *sp1, *sp2;
-					/* extract URI */
-					sp1 = data + 4;
-					sp2 = memchr(sp1, ' ', max_uri_len);
-					int len = sp2 - sp1;
-					memcpy(uri, sp1, len);
-					uri[len] = '\0';
-					printf("uri: %s\n", uri);
-
-					if (!strncmp(uri, "/higher", max_uri_len)) {
-						ESP_LOGI(TAG, "helloo");
-						//TODO
-						//setMoistureHigher(true);
-					} else if (!strncmp(uri, "/lower", max_uri_len)) {
-						//TODO
-						//setMoistureHigher(false);
-					}
-					snprintf(buf, sizeof(buf), webpage, uri,
-							xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
-							(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
-					netconn_write(client, buf, strlen(buf), NETCONN_COPY);
-				}
-			}
-			netbuf_delete(nb);
-		}
-		printf("Closing connection\n");
-		netconn_close(client);
-		netconn_delete(client);
-	}
-}
-
-void easy_server(struct netconn *nc, struct netconn *client) {
-	char buf[1024];
-	const char *webpage =
-			{
-					"HTTP/1.1 200 OK\r\n"
-							"Content-type: text/html\r\n\r\n"
-							"<html><head><title>Easy Grow Server</title>"
-							"<style> div.main {"
-							"font-family: Arial;"
-							"padding: 0.01em 16px;"
-							"box-shadow: 2px 2px 1px 1px #d2d2d2;"
-							"background-color: #f1f1f1;}"
-							"</style></head>"
-							"<body><div class='main'>"
-							"<h3>HTTP Server</h3>"
-							"<meter max= 1.0 min= 0.0 value= 0.5 high= .75 low= .25 optimum= 0.5 ></meter>"
-							"<p>URL: %s</p>"
-							"<p>Current Moisture: feucht</p>"
-							"<p>Watertanklevel: voll</p>"
-							"<p>Sun hours: viele</p>"
-							"<p>Uptime: %d seconds</p>"
-							"<p>Free heap: %d bytes</p>"
-							"<button onclick=\"location.href='/higher'\" type='button'>"
-							"Moisture Higher</button></p>"
-							"<button onclick=\"location.href='/lower'\" type='button'>"
-							"Moisture Lower</button></p>"
-							"</div></body></html>" };
-
-	while (1) {
-		err_t err = netconn_accept(nc, &client);
-		if (err == ERR_OK) {
-			struct netbuf *nb;
-			if ((err = netconn_recv(client, &nb)) == ERR_OK) {
-				void *data;
-				u16_t len;
-				netbuf_data(nb, &data, &len);
-				/* check for a GET request */
-				if (!strncmp(data, "GET ", 4)) {
-					char uri[32];
-					const int max_uri_len = 32;
-					char *sp1, *sp2;
-					/* extract URI */
-					sp1 = data + 4;
-					sp2 = memchr(sp1, ' ', max_uri_len);
-					int len = sp2 - sp1;
-					memcpy(uri, sp1, len);
-					uri[len] = '\0';
-					printf("uri: %s\n", uri);
-
-					if (!strncmp(uri, "/higher", max_uri_len)) {
-						ESP_LOGI(TAG, "helloo");
-						//TODO
-						//setMoistureHigher(true);
-					} else if (!strncmp(uri, "/lower", max_uri_len)) {
-						//TODO
-						//setMoistureHigher(false);
-					}
-					snprintf(buf, sizeof(buf), webpage, uri,
-							xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
-							(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
-					netconn_write(client, buf, strlen(buf), NETCONN_COPY);
-				}
-			}
-			netbuf_delete(nb);
-		}
-		printf("Closing connection\n");
-		netconn_close(client);
-		netconn_delete(client);
-	}
-}
-
-void httpd_task_config(void *pvParameters, webMode mode) {
+void httpd_task_config(void *pvParameters) {
 	ESP_LOGI(TAG, "CONFIG TASK STARTED");
 
 	struct netconn *client = NULL;
@@ -311,14 +161,12 @@ void httpd_task_config(void *pvParameters, webMode mode) {
 	}
 }
 
-void start_config_http() {
+void start_config_http(webMode webMode) {
+	mode = webMode;
 	ESP_LOGI(TAG, "SERVER STARTED");
 	xTaskCreate(&httpd_task_config, "wifi_config_server", 4096, NULL, 2, NULL);
 }
 
-void start_easy_grow_http() {
-	xTaskCreate(&httpd_task_easy, "easy_grow_server", 4096, NULL, 2, NULL);
-}
 
 /*
  * set access points to display in webpage

@@ -11,11 +11,11 @@
 
 #include "esp_wifi.h"
 
-void start_config_http();
-void start_easy_grow_http();
+typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT } webMode;
+
+void start_config_http(webMode webMode);
 void set_aps(wifi_ap_record_t aps[], uint16_t apCount);
 
-typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT } webMode;
 
 
 #endif /* MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_ */

@@ -55,7 +55,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         esp_wifi_scan_stop();
         free(ap_list);
     	//Start config http server
-        start_config_http();
+        start_config_http(EASY_CONFIG);
         break;
     }
     case SYSTEM_EVENT_STA_START:
@@ -65,7 +65,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "got ip:%s",
                  ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        start_easy_grow_http();
+        //start_easy_grow_http();
 
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
@@ -81,7 +81,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     case SYSTEM_EVENT_STA_CONNECTED:
     	ESP_LOGI(TAG,"Connected to STATION");
     	//Connected to accesspoint - Start EasyGrow Task
-    	start_easy_grow_http();
+    	//start_easy_grow_http();
     	break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
     	ESP_LOGI(TAG,"Disconnected from STATION");
