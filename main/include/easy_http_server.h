@@ -19,3 +19,4 @@ typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT } webMode;
 
 
 #endif /* MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_ */
+

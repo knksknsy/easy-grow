@@ -17,6 +17,8 @@
 #include <lwip/api.h>
 
 #include <easy_wifi_manager.h>
+#include <easy_gpio.h>
+
 #include <easy_http_server.h>
 #include <easy_data.h>
 

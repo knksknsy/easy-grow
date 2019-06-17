@@ -23,10 +23,10 @@
 #include <easy_wifi_manager.h>
 #include <easy_http_server.h>
 
-
 #define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
 #define EXAMPLE_ESP_WIFI_PASS	   "1Love_Ea5yGr0w"
 #define EXAMPLE_MAX_STA_CONN	   5
+
 
 const int WIFI_CONNECTED_BIT = BIT0;
 

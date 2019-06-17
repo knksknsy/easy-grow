@@ -10,10 +10,12 @@
 #include <esp_system.h>
 #include <easy_http_server.h>
 #include <easy_gpio.h>
+// #include <easy_example.h>
 #include <easy_wifi_manager.h>
 
 #include <esp_log.h>
 #define TAG "Main"
+
 
 /******************************************************************************
  * FunctionName : app_main
@@ -25,8 +27,4 @@ void app_main(void)
 {
     ESP_LOGI(TAG, "app_main started");
     initialise_ap();
-
-	//init_gpio();
-
-	//wifi_init();
 }
