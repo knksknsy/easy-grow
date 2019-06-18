@@ -20,9 +20,9 @@
 #include <easy_gpio.h>
 
 #include <easy_http_server.h>
-#include <easy_data.h>
-
 #include <esp_http_server.h>
+
+#include <easy_data.h>
 #include "esp_wifi.h"
 
 /* A simple example that demonstrates how to create GET and POST
@@ -69,7 +69,7 @@ void httpd_task_config(void *pvParameters) {
 	}
 	netconn_bind(nc, IP_ADDR_ANY, 80);
 	netconn_listen(nc);
-
+	mode = EASY_CONFIG;
 	char buf[1024];
 
 	while (1) {
@@ -134,7 +134,7 @@ void httpd_task_config(void *pvParameters) {
 					} else {
 
 					}
-
+/*
 					if (mode == EASY_CONFIG) {
 						snprintf(buf, sizeof(buf),
 								strcat(WEBPAGE_HEAD , WEBPAGE_CONFIG), available_aps[0],
@@ -148,7 +148,13 @@ void httpd_task_config(void *pvParameters) {
 								strcat(WEBPAGE_HEAD,WEBPAGE_MOISTURE), uri,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
-					}
+					}else{
+					*/
+						snprintf(buf, sizeof(buf),
+														strcat(&WEBPAGE_HEAD , &WEBPAGE_CONFIG), available_aps[0],
+														available_aps[1], available_aps[2],
+														available_aps[3], available_aps[4]);
+					//}
 
 					netconn_write(client, buf, strlen(buf), NETCONN_COPY);
 				}
@@ -161,8 +167,7 @@ void httpd_task_config(void *pvParameters) {
 	}
 }
 
-void start_config_http(webMode webMode) {
-	mode = webMode;
+void start_config_http() {
 	ESP_LOGI(TAG, "SERVER STARTED");
 	xTaskCreate(&httpd_task_config, "wifi_config_server", 4096, NULL, 2, NULL);
 }
