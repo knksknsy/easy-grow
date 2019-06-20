@@ -169,42 +169,17 @@ void init_photo_diode_input()
 	gpio_config(&io_config);
 }
 
-static void adc_timer_callback(void *arg)
-{
-	int64_t time_since_boot = esp_timer_get_time();
-	ESP_LOGI(TAG, "ADC timer called, time since boot: (%d)",
-			(int32_t) time_since_boot);
-
-	int x;
-	uint8_t data_size = 20;
-	uint16_t adc_data[data_size];
-	if (ESP_OK == adc_read(&adc_data[0]))
-	{
-		ESP_LOGI(TAG, "adc read: %d\r\n", adc_data[0]);
-	}
-
-	ESP_LOGI(TAG, "adc read fast:\r\n");
-
-	if (ESP_OK == adc_read_fast(adc_data, data_size))
-	{
-		for (x = 0; x < data_size; x++)
-		{
-			printf("%d\n", adc_data[x]);
-		}
-	}
-}
-
 void init_adc_timer()
 {
 	/* Create timer */
 	const esp_timer_create_args_t adc_timer_args =
-	{ .callback = &adc_timer_callback, .name = "adc_timer" };
+	{ .callback = &read_moisture_level, .name = "adc_timer" };
 
 	esp_timer_handle_t adc_timer;
 	ESP_ERROR_CHECK(esp_timer_create(&adc_timer_args, &adc_timer));
 
-	/* Start timer 5s interval */
-	ESP_ERROR_CHECK(esp_timer_start_periodic(adc_timer, 5000000));
+	/* Start timer */
+	ESP_ERROR_CHECK(esp_timer_start_periodic(adc_timer, MOISTURE_READ_INTERVAL));
 	ESP_LOGI(TAG, "Started timer, time since boot: (%d)",
 			(int32_t) esp_timer_get_time());
 }
@@ -239,8 +214,9 @@ void init_gpio()
 	init_water_level_sensors_input();
 	init_pump_output();
 	init_moisture_sensor_adc_input();
+
 	/* Disable RX and TX GPIOs for monitoring */
-	init_photo_diode_input();
-	init_water_level_leds_output();
+	// init_photo_diode_input();
+	// init_water_level_leds_output();
 	/* // */
 }

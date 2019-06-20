@@ -8,12 +8,50 @@
 #ifndef MAIN_INCLUDE_EASY_CONTROLLER_H_
 #define MAIN_INCLUDE_EASY_CONTROLLER_H_
 
-typedef enum { EMPTY, LOW, FULL } WaterLevel;
+typedef enum WaterLevel
+{
+    EMPTY,
+    GOOD,
+    FULL
+} WaterLevel;
+
+typedef enum MoistureLevel
+{
+    OFF,
+    LOW,
+    MID,
+    HIGH
+} MoistureLevel;
+
+typedef enum Status
+{
+    FAILED,
+    SUCCESS
+} Status;
+
+typedef struct
+{
+    Status status;
+    uint16_t level_value;
+    uint8_t level_percentage;
+    MoistureLevel level_target;
+} MoistureValue;
+
+typedef struct
+{
+    uint16_t min;
+    uint16_t max;
+} MoistureLevelRange;
+
+MoistureValue moisture_value_new(Status status, uint16_t level_value, uint8_t level_percentage, MoistureLevel level_target);
+MoistureLevelRange moisture_level_range_new(uint16_t min, uint16_t max);
 
 void moisture_button_handler(uint32_t io_num);
 void moisture_leds_handler(uint8_t level);
+MoistureValue get_moisture_level();
 void set_moisture_level(uint8_t level);
-uint8_t get_moisture_level();
+void read_moisture_level(void *arg);
+static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max);
 
 void photo_diode_handler(uint32_t io_num);
 uint8_t get_hours_of_sun();
