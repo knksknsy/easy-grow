@@ -59,7 +59,7 @@ static void gpio_task(void *arg)
 				break;
 			case WATER_LEVEL_TOP_D6_INPUT:
 			case WATER_LEVEL_BOTTOM_D7_INPUT:
-				water_level_handler(io_num);
+				water_level_handler();
 				break;
 			default:
 				break;

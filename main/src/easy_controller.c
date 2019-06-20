@@ -17,9 +17,9 @@
 
 #include "driver/gpio.h"
 #include "driver/adc.h"
+
 #include "esp_timer.h"
 #include "esp_sleep.h"
-
 #include "esp_log.h"
 #include "esp_system.h"
 #include "sdkconfig.h"
@@ -52,13 +52,39 @@ void read_moisture_level(void *arg)
 {
 	int64_t time_since_boot = esp_timer_get_time();
 
-	ESP_LOGI(TAG, "ADC timer called, time since boot: (%d)",
-			(int32_t) time_since_boot);
+	ESP_LOGI(TAG, "ADC timer called, time since boot: (%d)", (int32_t)time_since_boot);
 
 	MoistureValue mv = get_moisture_level();
 	if (mv.status == SUCCESS)
 	{
 		moisture_value = mv;
+		MoistureLevelRange moisture_level_range = get_moisture_level_target_range(moisture_value.level_target);
+
+		uint8_t moisture_in_range = moisture_value.level_value >= moisture_level_range.min && moisture_value.level_value <= moisture_level_range.max;
+		uint8_t moisture_out_of_min_range = moisture_value.level_value < moisture_level_range.min;
+		uint8_t moisture_out_of_max_range = moisture_value.level_value > moisture_level_range.max;
+		uint8_t moisture_monitoring_off = moisture_value.level_target == OFF;
+
+		if (moisture_in_range || moisture_out_of_min_range || moisture_monitoring_off)
+		{
+			deactivate_pump();
+		}
+		else if (moisture_out_of_max_range)
+		{
+			WaterLevel water_level = get_water_level();
+			switch (water_level)
+			{
+			case EMPTY:
+				deactivate_pump();
+				break;
+			case GOOD:
+			case FULL:
+				activate_pump(PUMP_INTERVAL);
+				break;
+			default:
+				break;
+			}
+		}
 	}
 }
 
@@ -67,19 +93,19 @@ MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)
 	MoistureLevelRange range;
 	switch (level_target)
 	{
-		case HIGH:
-			range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
-			break;
-		case MID:
-			range = moisture_level_range_new(MOISTURE_HIGH + 1, MOISTURE_MID);
-			break;
-		case LOW:
-			range = moisture_level_range_new(MOISTURE_MID + 1, MOISTURE_MAX_LOW - 100);
-			break;
-		case OFF:
-		default:
-			range = moisture_level_range_new(0, 0);
-			break;
+	case HIGH:
+		range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
+		break;
+	case MID:
+		range = moisture_level_range_new(MOISTURE_HIGH + 1, MOISTURE_MID);
+		break;
+	case LOW:
+		range = moisture_level_range_new(MOISTURE_MID + 1, MOISTURE_MAX_LOW - 100);
+		break;
+	case OFF:
+	default:
+		range = moisture_level_range_new(0, 0);
+		break;
 	}
 	return range;
 }
@@ -90,7 +116,7 @@ MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)
  */
 static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max)
 {
-	return (uint8_t) ((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
+	return (uint8_t)((x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min);
 }
 
 void moisture_button_handler(uint32_t io_num)
@@ -100,9 +126,10 @@ void moisture_button_handler(uint32_t io_num)
 	int LED1 = gpio_get_level(LED_MOISTURE_1_D2_OUTPUT);
 	int LED2 = gpio_get_level(LED_MOISTURE_2_D3_OUTPUT);
 	int LED3 = gpio_get_level(LED_MOISTURE_3_D4_OUTPUT);
+
 	MoistureLevel level_target = OFF;
 
-	/* Decrease moisture */
+	/* Decrease moisture level */
 	if (io_num == LBUTTON_D1_INPUT)
 	{
 		lbutton_states = delay_debounce(lbutton_states, LBUTTON_D1_INPUT);
@@ -136,7 +163,7 @@ void moisture_button_handler(uint32_t io_num)
 			}
 		}
 	}
-	/* Increase moisture */
+	/* Increase moisture level */
 	else if (io_num == RBUTTON_D5_INPUT)
 	{
 		rbutton_states = delay_debounce(rbutton_states, RBUTTON_D5_INPUT);
@@ -175,20 +202,50 @@ void moisture_button_handler(uint32_t io_num)
 		gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, LED1);
 		gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, LED2);
 		gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, LED3);
-		
+
 		moisture_value = moisture_value_new(SUCCESS, moisture_value.level_value, moisture_value.level_percentage, level_target);
 		ESP_LOGI(TAG, "moisture_value: %d, %d, %d", moisture_value.level_value, moisture_value.level_percentage, moisture_value.level_target);
 	}
 }
 
-void moisture_leds_handler(uint8_t level)
+/* Set moisture LED outputs for the configured moisture level (server-side configuration of moisture level). */
+static void moisture_leds_handler(MoistureLevel level)
 {
-	/* Set moisture LED outputs for the configured moisture level (server-side configuration of moisture level). */
+	int LED1 = 0;
+	int LED2 = 0;
+	int LED3 = 0;
+	switch (level)
+	{
+	case OFF:
+		LED1 = 0, LED2 = 0, LED3 = 0;
+		break;
+	case LOW:
+		LED1 = 1, LED2 = 0, LED3 = 0;
+		break;
+	case MID:
+		LED1 = 1, LED2 = 1, LED3 = 0;
+		break;
+	case HIGH:
+		LED1 = 1, LED2 = 1, LED3 = 1;
+		break;
+	default:
+		break;
+	}
+
+	gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, LED1);
+	gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, LED2);
+	gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, LED3);
 }
 
-void set_moisture_level(uint8_t level)
+/* Set the ideal value for moisture (server-side configuration of moisture level). */
+void set_moisture_level(MoistureLevel level)
 {
-	/* Set the ideal value for moisture. Pump waters plant until its ideal moisture level is reached. */
+	moisture_leds_handler(level);
+	MoistureValue mv = get_moisture_level();
+	if (mv.status == SUCCESS)
+		moisture_value = moisture_value_new(SUCCESS, mv.level_value, mv.level_percentage, level);
+	else 
+		moisture_value = moisture_value_new(SUCCESS, moisture_value.level_value, moisture_value.level_percentage, level);
 }
 
 /* Read ADC input fast and return the average moisture level */
@@ -211,8 +268,8 @@ MoistureValue get_moisture_level()
 		}
 
 		avg_moisture = avg_moisture / MOISTURE_READ_DEPTH;
-		
-		moisture_level = (uint16_t) avg_moisture;
+
+		moisture_level = (uint16_t)avg_moisture;
 		//ESP_LOGI("moisture_level: %d\r\n", moisture_level);
 
 		moisture_percentage = map(moisture_level, MOISTURE_MAX_LOW, MOISTURE_MAX_HIGH, 0, 100);
@@ -224,16 +281,16 @@ MoistureValue get_moisture_level()
 	return mv;
 }
 
+/* Read photo diode input and count the hours of sun for the current day */
 void photo_diode_handler(uint32_t io_num)
 {
 	int value = gpio_get_level(io_num);
 	ESP_LOGI(TAG, "photo diode: %d", value);
-	/* Read photo diode input and count the hours of sun for the current day */
 }
 
+/* Return hours of sun registered for the current day */
 uint8_t get_hours_of_sun()
 {
-	/* Return hours of sun registered for the current day */
 	return NULL;
 }
 
@@ -250,7 +307,7 @@ static void water_low_task(void *arg)
 	}
 }
 
-void water_level_handler(uint32_t io_num)
+void water_level_handler()
 {
 	int WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
 	int WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
@@ -268,8 +325,6 @@ void water_level_handler(uint32_t io_num)
 		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
 		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
 		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
-
-		/* Activate water pump */
 	}
 	else if (!WATER_TOP && WATER_BOTTOM)
 	{
@@ -279,8 +334,6 @@ void water_level_handler(uint32_t io_num)
 		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
 		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
 		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
-
-		/* Activate water pump */
 	}
 	else if (!WATER_TOP && !WATER_BOTTOM)
 	{
@@ -289,37 +342,54 @@ void water_level_handler(uint32_t io_num)
 		{
 			xTaskCreate(water_low_task, "water_low_task", 2048, NULL, 10, &blink_handle);
 			water_led_task_initialized = 1;
-		} else {
+		}
+		else
+		{
 			vTaskResume(blink_handle);
 		}
-
-		/* Deactivate water pump */
-		// LED_BOTTOM = 0, LED_TOP = 0;
-		// ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
-		// gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
-		// gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+		deactivate_pump();
 	}
 }
 
+/* Read water sensor inputs and return water level */
 WaterLevel get_water_level()
 {
-	/* Read water sensor inputs and return water level */
-	return EMPTY;
+	int WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
+	int WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
+
+	WaterLevel water_level = EMPTY;
+
+	if (WATER_TOP && WATER_BOTTOM)
+	{
+		water_level = FULL;
+	}
+	else if (!WATER_TOP && WATER_BOTTOM)
+	{
+		water_level = GOOD;
+	}
+	else if (!WATER_TOP && !WATER_BOTTOM)
+	{
+		water_level = EMPTY;
+	}
+	return water_level;
 }
 
-/* Water the plant as long as the provided milliseconds */
+/* Water the plant as long as the provided milliseconds. Use ms = 0 for default interval of 5 seconds */
 void activate_pump(uint32_t ms)
 {
+	if (ms == 0)
+	{
+		ms = PUMP_INTERVAL;
+	}
 	gpio_set_level(PUMP_D0_OUTPUT, 1);
+	vTaskDelay(ms / portTICK_RATE_MS);
+	water_level_handler();
+	deactivate_pump();
+	ESP_LOGI(TAG, "activate_pump(%d)", ms);
 }
 
 void deactivate_pump()
 {
 	gpio_set_level(PUMP_D0_OUTPUT, 0);
+	ESP_LOGI(TAG, "deactivate_pump()");
 }
-
-//void setMoistureLevel(int *level)
-//{
-//	uint32_t color = 0x00FF0000;
-//	ws2812_set_many(LED_MOISTURE_2_D3_OUTPUT, &color, (size_t) level);
-//}

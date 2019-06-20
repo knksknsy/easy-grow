@@ -47,9 +47,10 @@ MoistureValue moisture_value_new(Status status, uint16_t level_value, uint8_t le
 MoistureLevelRange moisture_level_range_new(uint16_t min, uint16_t max);
 
 void moisture_button_handler(uint32_t io_num);
-void moisture_leds_handler(uint8_t level);
+static void moisture_leds_handler(MoistureLevel level);
 MoistureValue get_moisture_level();
-void set_moisture_level(uint8_t level);
+MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target);
+void set_moisture_level(MoistureLevel level);
 void read_moisture_level(void *arg);
 static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max);
 
@@ -57,12 +58,10 @@ void photo_diode_handler(uint32_t io_num);
 uint8_t get_hours_of_sun();
 
 static void water_low_task(void *arg);
-void water_level_handler(uint32_t io_num);
+void water_level_handler();
 WaterLevel get_water_level();
 
 void activate_pump(uint32_t ms);
 void deactivate_pump();
-
-//void setMoistureLevel(int *level);
 
 #endif /* MAIN_INCLUDE_EASY_CONTROLLER_H_ */
