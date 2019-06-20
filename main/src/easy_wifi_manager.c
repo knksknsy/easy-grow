@@ -143,33 +143,38 @@ void initialise_ap()
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-    // TODO: Look for saved credentials and in case, immediately connect with wifi
-	wifi_config_t wifi_config = {
-		.ap = {
-			.ssid = EXAMPLE_ESP_WIFI_SSID,
-			.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
-			.password = EXAMPLE_ESP_WIFI_PASS,
-			.max_connection = EXAMPLE_MAX_STA_CONN,
-			.authmode = WIFI_AUTH_WPA_WPA2_PSK
-		},
-	};
-	if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
-		wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+	// Try connecting first, will connect if it has saved credentials
+	esp_wifi_start();
+	esp_err_t err = esp_wifi_connect();
+	// if it doesn't return okay, start ap mode
+	if (err != ESP_OK) {
+		wifi_config_t wifi_config = {
+			.ap = {
+				.ssid = EXAMPLE_ESP_WIFI_SSID,
+				.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+				.password = EXAMPLE_ESP_WIFI_PASS,
+				.max_connection = EXAMPLE_MAX_STA_CONN,
+				.authmode = WIFI_AUTH_WPA_WPA2_PSK
+			},
+		};
+		if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+			wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+		}
+
+		ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+		ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+		ESP_ERROR_CHECK(esp_wifi_start());
+
+		ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
+				 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+		wifi_scan_config_t scanConf = {
+			.ssid = NULL,
+			.bssid = NULL,
+			.channel = 0,
+			.show_hidden = false
+		};
+		ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));
 	}
-
-	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
-	ESP_ERROR_CHECK(esp_wifi_start());
-
-	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
-			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
-
-	wifi_scan_config_t scanConf = {
-		.ssid = NULL,
-		.bssid = NULL,
-		.channel = 0,
-		.show_hidden = false
-	};
-	ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));
 }
 
