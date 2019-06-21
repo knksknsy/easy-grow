@@ -46,6 +46,7 @@ typedef struct
 MoistureValue moisture_value_new(Status status, uint16_t level_value, uint8_t level_percentage, MoistureLevel level_target);
 MoistureLevelRange moisture_level_range_new(uint16_t min, uint16_t max);
 
+static void pump_handler(MoistureValue mv);
 void moisture_button_handler(uint32_t io_num);
 static void moisture_leds_handler(MoistureLevel level);
 MoistureValue get_moisture_level();
