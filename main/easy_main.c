@@ -26,5 +26,5 @@
 void app_main(void)
 {
     ESP_LOGI(TAG, "app_main started");
-    initialise_ap();
+    general_wifi_init();
 }

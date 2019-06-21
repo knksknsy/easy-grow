@@ -113,7 +113,7 @@ void httpd_task_config(void *pvParameters) {
 						ESP_LOGI(TAG, "SUBMITTED");
 
 						mode = EASY_MOISTURE;
-						wifi_init(ssid, pwd);
+						sta_wifi_init(ssid, pwd);
 
 						//start_config_http();
 						//vTaskSuspendAll();
@@ -121,31 +121,38 @@ void httpd_task_config(void *pvParameters) {
 						//vTaskDelete(NULL);
 						//break;
 
-					} else if (!strncmp(uri, "/higher", max_uri_len)) {
+					} else if (!strncmp(ptr, "/higher", max_uri_len)) {
 						ESP_LOGI(TAG, "helloo");
 						//TODO
 						//setMoistureHigher(true);
-					} else if (!strncmp(uri, "/lower", max_uri_len)) {
+					} else if (!strncmp(ptr, "/lower", max_uri_len)) {
 						//TODO
 						//setMoistureHigher(false);
-					} else if (!strncmp(uri, "/ap", max_uri_len)) {
+					} else if (!strncmp(ptr, "/ap", max_uri_len)) {
 						mode = EASY_MOISTURE;
+
+					} else if (!strncmp(ptr, "/reset", max_uri_len)) {
+						reset_wifi_credentials();
 
 					} else {
 
 					}
-
+					char webpage[1024];
+					strcpy(webpage, WEBPAGE_HEAD);
 					if (mode == EASY_CONFIG) {
+						strcat(webpage , WEBPAGE_CONFIG);
 						snprintf(buf, sizeof(buf),
-								strcat(WEBPAGE_HEAD , WEBPAGE_CONFIG), available_aps[0],
+								webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
 					} else if (mode == EASY_REDIRECT) {
+						strcat(webpage , WEBPAGE_CONFIG);
 						snprintf(buf, sizeof(buf),
-								strcat(WEBPAGE_HEAD,WEBPAGE_MOISTURE));
+								webpage);
 					} else if (mode == EASY_MOISTURE) {
+						strcat(webpage , WEBPAGE_MOISTURE);
 						snprintf(buf, sizeof(buf),
-								strcat(WEBPAGE_HEAD,WEBPAGE_MOISTURE), uri,
+								webpage, uri,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 					}

@@ -65,6 +65,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "got ip:%s",
                  ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
+        start_config_http(EASY_MOISTURE);
         //start_easy_grow_http();
 
         break;
@@ -85,8 +86,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     	break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
     	ESP_LOGI(TAG,"Disconnected from STATION");
-        esp_wifi_connect();
-        xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    	ap_wifi_init();
+        //esp_wifi_connect();
+        //xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
         break;
     default:
         break;
@@ -94,7 +96,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     return ESP_OK;
 }
 
-void wifi_init(char ssid[32], char pwd[64])
+void sta_wifi_init(char ssid[32], char pwd[64])
 {
 	esp_err_t err = esp_wifi_stop();
 	if(err == ERR_OK)
@@ -125,7 +127,12 @@ void wifi_init(char ssid[32], char pwd[64])
 	}
 }
 
-void initialise_ap()
+void reset_wifi_credentials()
+{
+	ESP_ERROR_CHECK(esp_wifi_disconnect());
+}
+
+void general_wifi_init()
 {
     //Initialize NVS
     esp_err_t ret = nvs_flash_init();
@@ -144,37 +151,43 @@ void initialise_ap()
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
 	// Try connecting first, will connect if it has saved credentials
-	esp_wifi_start();
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+	ESP_ERROR_CHECK(esp_wifi_start());
 	esp_err_t err = esp_wifi_connect();
-	// if it doesn't return okay, start ap mode
+	// if it doesn't return ESP_OK, start ap mode
 	if (err != ESP_OK) {
-		wifi_config_t wifi_config = {
-			.ap = {
-				.ssid = EXAMPLE_ESP_WIFI_SSID,
-				.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
-				.password = EXAMPLE_ESP_WIFI_PASS,
-				.max_connection = EXAMPLE_MAX_STA_CONN,
-				.authmode = WIFI_AUTH_WPA_WPA2_PSK
-			},
-		};
-		if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
-			wifi_config.ap.authmode = WIFI_AUTH_OPEN;
-		}
-
-		ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
-		ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
-		ESP_ERROR_CHECK(esp_wifi_start());
-
-		ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
-				 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
-
-		wifi_scan_config_t scanConf = {
-			.ssid = NULL,
-			.bssid = NULL,
-			.channel = 0,
-			.show_hidden = false
-		};
-		ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));
+		ap_wifi_init();
 	}
+}
+
+void ap_wifi_init()
+{
+	wifi_config_t wifi_config = {
+		.ap = {
+			.ssid = EXAMPLE_ESP_WIFI_SSID,
+			.ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+			.password = EXAMPLE_ESP_WIFI_PASS,
+			.max_connection = EXAMPLE_MAX_STA_CONN,
+			.authmode = WIFI_AUTH_WPA_WPA2_PSK
+		},
+	};
+	if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
+		wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+	}
+
+	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+	ESP_ERROR_CHECK(esp_wifi_start());
+
+	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
+			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+	wifi_scan_config_t scanConf = {
+		.ssid = NULL,
+		.bssid = NULL,
+		.channel = 0,
+		.show_hidden = false
+	};
+	ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));
 }
 

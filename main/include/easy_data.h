@@ -8,24 +8,6 @@
 #ifndef MAIN_INCLUDE_EASY_DATA_H_
 #define MAIN_INCLUDE_EASY_DATA_H_
 
-static  char *WEBPAGE_MOISTURE =
-{
-						"<h3>HTTP Server</h3>"
-						"<meter max= 1.0 min= 0.0 value= 0.5 high= .75 low= .25 optimum= 0.5 ></meter>"
-						"<p>URL: %s</p>"
-						"<p>Current Moisture: feucht</p>"
-						"<p>Watertanklevel: voll</p>"
-						"<p>Sun hours: viele</p>"
-						"<p>Uptime: %d seconds</p>"
-						"<p>Free heap: %d bytes</p>"
-						"<button onclick=\"location.href='/higher'\" type='button'>"
-						"Moisture Higher</button></p>"
-						"<button onclick=\"location.href='/lower'\" type='button'>"
-						"Moisture Lower</button></p>"
-						"</div></body></html>"
-};
-
-
 static  char *WEBPAGE_HEAD =
 {
     "HTTP/1.1 200 OK\r\n"
@@ -39,6 +21,26 @@ static  char *WEBPAGE_HEAD =
     "</style></head>"
     "<body><div class='main'>"
 };
+
+static  char *WEBPAGE_MOISTURE =
+{
+	"<h3>HTTP Server</h3>"
+	"<meter max= 1.0 min= 0.0 value= 0.5 high= .75 low= .25 optimum= 0.5 ></meter>"
+	"<p>URL: %s</p>"
+	"<p>Current Moisture: feucht</p>"
+	"<p>Watertanklevel: voll</p>"
+	"<p>Sun hours: viele</p>"
+	"<p>Uptime: %d seconds</p>"
+	"<p>Free heap: %d bytes</p>"
+	"<button onclick=\"location.href='/higher'\" type='button'>"
+	"Moisture Higher</button></p>"
+	"<button onclick=\"location.href='/lower'\" type='button'>"
+	"Moisture Lower</button></p>"
+	"<button onclick=\"location.href='/reset'\" type='button'>"
+	"Reset Wifi Credentials</button></p>"
+	"</div></body></html>"
+};
+
 static  char *WEBPAGE_REDIRECT =
 {
 	"HTTP/1.1 200 OK\r\n"
