@@ -117,8 +117,8 @@ void httpd_task_config(void *pvParameters) {
 
 						//start_config_http();
 						//vTaskSuspendAll();
-
-						//vTaskDelete(NULL);
+						//TODO delet dns task
+						//vTaskDelete("dns_task");
 						//break;
 
 					} else if (!strncmp(ptr, "/higher", max_uri_len)) {

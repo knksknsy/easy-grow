@@ -22,6 +22,8 @@
 
 #include <easy_wifi_manager.h>
 #include <easy_http_server.h>
+#include <easy_dns.h>
+
 
 #define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
 #define EXAMPLE_ESP_WIFI_PASS	   "1Love_Ea5yGr0w"
@@ -66,6 +68,8 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                  ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
         start_config_http(EASY_MOISTURE);
+
+
         //start_easy_grow_http();
 
         break;
@@ -73,6 +77,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
                  MAC2STR(event->event_info.sta_connected.mac),
                  event->event_info.sta_connected.aid);
+        startDNS();
         break;
     case SYSTEM_EVENT_AP_STADISCONNECTED:
         ESP_LOGI(TAG, "station:"MACSTR"leave, AID=%d",
@@ -178,6 +183,7 @@ void ap_wifi_init()
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
 	ESP_ERROR_CHECK(esp_wifi_start());
+
 
 	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
 			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);

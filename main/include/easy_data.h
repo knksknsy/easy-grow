@@ -63,8 +63,9 @@ static  char *WEBPAGE_CONFIG =
 	"<p>Wlan-Name eingeben: <input type='text' name='SSID' /></p>"
 	"<p>Passwort eingeben: <input type='password' name='PW' /></p>"
 	"<input type='submit' value='Abschicken' />"
-	"<input type='ap' value='AP-Modus' />"
-	"</form>"
+		"</form>"
+	"<button onclick=\"location.href='/ap'\" type='button'>"
+	"AP Mode</button></p>"
     "</div></body></html>"
 };
 
