@@ -25,11 +25,6 @@
 *******************************************************************************/
 void app_main(void)
 {
-	init_gpio();
-    // init_example();
-	wifi_init();
-
-    website_interface website = EASY_GROW_MODE;
-    start_http(&website);
-
+    ESP_LOGI(TAG, "app_main started");
+    general_wifi_init();
 }

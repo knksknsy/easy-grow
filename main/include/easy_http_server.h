@@ -9,13 +9,13 @@
 
 #define MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_
 
-typedef enum {
-    EASY_AP_MODE,     /**< AccessPoint Website */
-    EASY_GROW_MODE          /**< Easy Grow Webseite */
-} website_interface;
+#include "esp_wifi.h"
 
-void start_http(const website_interface *website);
-void init_server();
+typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT } webMode;
+
+void start_config_http(webMode webMode);
+void set_aps(wifi_ap_record_t aps[], uint16_t apCount);
+
 
 
 #endif /* MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_ */
