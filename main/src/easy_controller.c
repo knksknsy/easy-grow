@@ -304,6 +304,7 @@ void water_level_handler()
 		{
 			vTaskResume(blink_handle);
 		}
+		ESP_LOGI(TAG, "deactivate_pump() inside of water_level_handler EMPTY WATER LEVEL");
 		deactivate_pump();
 	}
 }
@@ -345,6 +346,7 @@ static void pump_handler(MoistureValue mv)
 
 		if (moisture_in_range || moisture_out_of_min_range || moisture_monitoring_off)
 		{
+			ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler IN_RANGE || OUT_MIN_RANGE || MONITORING OFF");
 			deactivate_pump();
 		}
 		else if (moisture_out_of_max_range)
@@ -353,6 +355,7 @@ static void pump_handler(MoistureValue mv)
 			switch (water_level)
 			{
 			case EMPTY:
+				ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler EMPTY WATER LEVEL");
 				deactivate_pump();
 				break;
 			case GOOD:
@@ -374,10 +377,11 @@ void activate_pump(uint32_t ms)
 		ms = PUMP_INTERVAL;
 	}
 	gpio_set_level(PUMP_D0_OUTPUT, 1);
+	ESP_LOGI(TAG, "activate_pump(%d)", ms);
 	vTaskDelay(ms / portTICK_RATE_MS);
 	water_level_handler();
+	ESP_LOGI(TAG, "deactivate_pump() inside of activate_pump");
 	deactivate_pump();
-	ESP_LOGI(TAG, "activate_pump(%d)", ms);
 }
 
 void deactivate_pump()
