@@ -25,8 +25,8 @@
 #define PHOTO_DIODE_RX_INPUT				3
 #define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
 
-// 2 minutes interval: 60 * 2 * 1000000 = 120000000
-#define MOISTURE_READ_INTERVAL              5000000
+// 2 minutes interval: 60 * 1000000 * 2 = 120000000
+#define MOISTURE_READ_INTERVAL              120000000
 #define MOISTURE_READ_DEPTH                 100
 
 #define MOISTURE_MAX_HIGH                   253
@@ -36,8 +36,8 @@
 #define MOISTURE_MID                        733
 #define MOISTURE_LOW                        923
 
-// 5 seconds interval: 1000 * 5
-#define PUMP_INTERVAL                       5000
+// 2.5 seconds interval: 1000 * 2.5
+#define PUMP_INTERVAL                       2500
 
 static void gpio_isr_handler(void *arg);
 static void gpio_task(void *arg);
