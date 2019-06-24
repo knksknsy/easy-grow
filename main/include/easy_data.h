@@ -53,7 +53,7 @@ static  char *WEBPAGE_REDIRECT =
 static  char *WEBPAGE_CONFIG =
 {
     "<h2>EasyGrow Config Page</h2>"
-	"<h4>Verf�gbare WLAN:</h4>"
+	"<h4>Verfuegbare WLAN:</h4>"
 	"<p>%s</p>"
 	"<p>%s</p>"
 	"<p>%s</p>"

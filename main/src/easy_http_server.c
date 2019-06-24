@@ -25,22 +25,12 @@
 #include <esp_http_server.h>
 #include "esp_wifi.h"
 
-/* A simple example that demonstrates how to create GET and POST
- * handlers for the web server.
- * The examples use simple WiFi configuration that you can set via
- * 'make menuconfig'.
- * If you'd rather not, just change the below entries to strings
- * with the config you want -
- * ie. #define EXAMPLE_WIFI_SSID "mywifissid"
- */
-//#define EXAMPLE_WIFI_SSID "MartinRouterKing"
-//#define EXAMPLE_WIFI_PASS "VgEp#x+c2d7MnVzK,;_="
 static const char *TAG = "HTTP_SERVER";
 static uint8_t available_aps[5][33];
 
 webMode mode = EASY_CONFIG;
 
-void decode_url(char *dest, const char *src) {
+void decode(char *dest, const char *src) {
 	const char *p = src;
 	char code[3] = { 0 };
 	unsigned long ascii = 0;
@@ -52,6 +42,9 @@ void decode_url(char *dest, const char *src) {
 			ascii = strtoul(code, &end, 16);
 			*dest++ = (char) ascii;
 			p += 2;
+		} else if (*p == '+') {
+			// space gets encoded as +, has to be decoded
+	        *dest++ = ' ';
 		} else
 			*dest++ = *p++;
 	}
@@ -92,25 +85,25 @@ void httpd_task_config(void *pvParameters) {
 					memcpy(uri, sp1, len);
 					uri[len] = '\0';
 					printf("uri: %s\n", uri);
-					char url_decoded[sizeof uri] = { 0 };
-					decode_url(url_decoded, uri);
 					char delimiter[] = "?=&";
 					char *ptr;
 					// initialisieren und ersten Abschnitt (URL) auslesen
-					ptr = strtok(url_decoded, delimiter);
+					ptr = strtok(uri, delimiter);
 					if (!strncmp(ptr, "/submit", max_uri_len)) {
-						// �bern�chsten Abschnitt (SSID) auslesen
+						// uebernaechsten Abschnitt (SSID) auslesen
 						ptr = strtok(NULL, delimiter);
 						ptr = strtok(NULL, delimiter);
 						char ssid[32];
-						memcpy(ssid, ptr, 32);
-						// �bernaechsten Abschnitt (PW) auslesen
+						char ptr_ssid_decoded[sizeof ssid] = { 0 };
+						decode(ptr_ssid_decoded, ptr);
+						memcpy(ssid, ptr_ssid_decoded, 32);
+						// uebernaechsten Abschnitt (PW) auslesen
 						ptr = strtok(NULL, delimiter);
 						ptr = strtok(NULL, delimiter);
 						char pwd[64];
-						memcpy(pwd, ptr, 64);
-
-						ESP_LOGI(TAG, "SUBMITTED");
+						char ptr_pwd_decoded[sizeof pwd] = { 0 };
+						decode(ptr_pwd_decoded, ptr);
+						memcpy(pwd, ptr_pwd_decoded, 64);
 
 						mode = EASY_MOISTURE;
 						sta_wifi_init(ssid, pwd);
