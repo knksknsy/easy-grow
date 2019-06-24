@@ -21,8 +21,6 @@
 #include "tcpip_adapter.h"
 #include "esp_smartconfig.h"
 
-#include "easy_access_point.h"
-
 /* FreeRTOS event group to signal when we are connected & ready to make a request */
 static EventGroupHandle_t wifi_event_group;
 
