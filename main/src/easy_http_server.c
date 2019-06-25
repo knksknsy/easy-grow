@@ -21,6 +21,7 @@
 
 #include <easy_http_server.h>
 #include <easy_data.h>
+#include <easy_dns.h>
 
 #include <esp_http_server.h>
 #include "esp_wifi.h"
@@ -108,10 +109,7 @@ void httpd_task_config(void *pvParameters) {
 						mode = EASY_MOISTURE;
 						sta_wifi_init(ssid, pwd);
 
-						//start_config_http();
-						//vTaskSuspendAll();
-						//TODO delet dns task
-						//vTaskDelete("dns_task");
+						vTaskDelete(dns_handle);
 						//break;
 
 					} else if (!strncmp(ptr, "/higher", max_uri_len)) {

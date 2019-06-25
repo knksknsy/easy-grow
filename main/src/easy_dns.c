@@ -95,6 +95,10 @@ typedef struct __attribute__ ((packed)) {
 #define QCLASS_URI 256
 
 #define DNS_LEN 512
+
+volatile int dns_task_initialized;
+volatile TaskHandle_t dns_handle;
+
 //Function to put unaligned 16-bit network values
 static void   setn16(void *pp, int16_t n) {
 	char *p=pp;
@@ -342,9 +346,13 @@ dns_task(void *pvParameters)
 
 void startDNS(void)
 {
-    ESP_LOGI(TAG,"DNS Task started.");
-    xTaskCreate(&dns_task, "dns_task", 1024, NULL, 3, NULL);//1024,866,192
 
+    ESP_LOGI(TAG,"DNS Task started.");
+	if (!dns_task_initialized)
+	{
+    	xTaskCreate(&dns_task, "dns_task", 1024, NULL, 3, &dns_handle);
+		dns_task_initialized = 1;
+	}
 }
 
 
