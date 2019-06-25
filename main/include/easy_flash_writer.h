@@ -12,7 +12,8 @@
 #define CONFIG_ADDRESS = (CONFIG_SECTOR * 4096)
 
 void initFlashWriter();
-void flash_write(int const address, uint8_t const value);
+void flash_write(int const address, void* value, size_t size);
+uint8_t flash_read(void* value, size_t size);
 
 
 #endif /* MAIN_INCLUDE_EASY_PERSISTENCE_H_ */

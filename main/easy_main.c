@@ -25,9 +25,9 @@
 *******************************************************************************/
 void app_main(void)
 {
-    ESP_LOGI(TAG, "app_main started");
+   // ESP_LOGI(TAG, "app_main started");
 
-	initialise_ap();
+	//initialise_ap();
 
 
 
@@ -38,8 +38,8 @@ void app_main(void)
 	//wifi_init();
 
 	//Change website to start ESP with AP Screen
-    website_interface website = EASY_GROW_MODE;
-    start_http(&website);
+   // website_interface website = EASY_GROW_MODE;
+   // start_http(&website);
 
 
 }

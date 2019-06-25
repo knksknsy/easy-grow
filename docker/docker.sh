@@ -12,7 +12,7 @@ function script_usage {
     echo ""
 
     # echo "Provide the --device parameter for exporting a serial port from your local machine to the Docker container."
-    # echo "Usage: ./docker.sh --device /dev/ttyUSB0"
+    # echo "Usage: ./docker.sh --device /dev/tty.SLAB_USBtoUART"
 }
 
 if [[ $DOCKER_IMAGE -eq 0 ]]; then
@@ -23,7 +23,7 @@ fi
 
 if [[ "$#" -eq 0 ]]; then
     # echo -e "Error: Provide the missing --device parameter for exporting a serial port to the Docker container."
-    # echo -e "Usage: ./docker.sh --device /dev/ttyUSB0"
+    # echo -e "Usage: ./docker.sh --device /dev/tty.SLAB_USBtoUART"
     # exit 1
     FULL_PATH="$PWD"
 elif [[ "$#" -gt 0 ]]; then
@@ -32,7 +32,7 @@ elif [[ "$#" -gt 0 ]]; then
             # -d | --device )         shift
             #                         if [[ "$1" == "" ]]; then
             #                             echo -e "Error: Provide the missing --device parameter for exporting a serial port to the Docker container."
-            #                             echo -e "Usage: ./docker.sh --device /dev/ttyUSB0"
+            #                             echo -e "Usage: ./docker.sh --device /dev/tty.SLAB_USBtoUART"
             #                             exit 1
             #                         fi
             #                         SERIAL_PORT=$1
@@ -58,17 +58,17 @@ fi
 
 #if [[ $DOCKER_CONTAINER -eq 0 ]]; then
     # -v `${FULL_PATH}:/easy-grow` (mount project path to container)
-    docker run -ti --rm --name esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
+    docker run -ti --rm --name esp8266 --device /dev/tty.SLAB_USBtoUART -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
 #else
-    #docker run -ti esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
+    #docker run -ti esp8266 --device /dev/tty.SLAB_USBtoUART -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
 #fi
 
 ### NO WINDOWS SUPPORT... ###
 
 #if [[ $IS_MAC_OS -eq 1 ]]; then
 #    # Run container on MacOS
-#    docker run -ti --rm --name esp8266 --device /dev/ttyUSB0:/dev/ttyUSB0 -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
+#    docker run -ti --rm --name esp8266 --device /dev/tty.SLAB_USBtoUART -v ${FULL_PATH}:/easy-grow docker-esp8266 /bin/bash
 #else
 #    # Run container on Windows
-#    docker run -ti --rm --name esp8266 --privileged -v ${SERIAL_PORT}:/dev/ttyUSB0 -v %cd%:/easy-grow docker-esp8266 /bin/bash
+#    docker run -ti --rm --name esp8266 --privileged -v ${SERIAL_PORT}:/dev/tty.SLAB_USBtoUART -v %cd%:/easy-grow docker-esp8266 /bin/bash
 #fi
