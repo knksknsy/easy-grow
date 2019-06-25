@@ -214,8 +214,10 @@ void set_moisture_level(MoistureLevel level)
 	MoistureValue mv = get_moisture_level();
 	if (mv.status == SUCCESS)
 		moisture_value = moisture_value_new(SUCCESS, mv.level_value, mv.level_percentage, level);
+		ESP_LOGI(TAG, "moisture_value: %d, %d, %d", moisture_value.level_value, moisture_value.level_percentage, moisture_value.level_target);
 	else 
 		moisture_value = moisture_value_new(SUCCESS, moisture_value.level_value, moisture_value.level_percentage, level);
+		ESP_LOGI(TAG, "moisture_value: %d, %d, %d", moisture_value.level_value, moisture_value.level_percentage, moisture_value.level_target);
 }
 
 /* Read ADC input fast and return the average moisture level */
