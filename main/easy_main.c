@@ -10,12 +10,12 @@
 #include <esp_system.h>
 #include <easy_http_server.h>
 #include <easy_gpio.h>
-#include <easy_access_point.h>
 #include <easy_wifi_manager.h>
 #include <easy_flash_writer.h>
 
 
 #define TAG "Main"
+
 
 /******************************************************************************
  * FunctionName : app_main
@@ -25,23 +25,10 @@
 *******************************************************************************/
 void app_main(void)
 {
-   // ESP_LOGI(TAG, "app_main started");
-
-	//initialise_ap();
-
-
-
-	//init_gpio();
-	initFlashWriter();
-
-
-	//wifi_init();
-
-	//Change website to start ESP with AP Screen
-   // website_interface website = EASY_GROW_MODE;
-   // start_http(&website);
-
-
+   ESP_LOGI(TAG, "app_main started");
+   initFlashWriter();
+   init_gpio();
+   general_wifi_init();
 }
 
 
