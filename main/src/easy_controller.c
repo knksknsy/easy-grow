@@ -62,7 +62,9 @@ MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)
 	switch (level_target)
 	{
 	case HIGH:
-		range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
+		// test case: moisture level is actually in the range of 250 to 450 if the sensor is placed in water (100% moisture)
+		range = moisture_level_range_new(0, MOISTURE_HIGH);
+		// range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
 		break;
 	case MID:
 		range = moisture_level_range_new(MOISTURE_HIGH + 1, MOISTURE_MID);
