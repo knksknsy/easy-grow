@@ -62,7 +62,9 @@ MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)
 	switch (level_target)
 	{
 	case HIGH:
-		range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
+		// test case: moisture level is actually in the range of 250 to 450 if the sensor is placed in water (100% moisture)
+		range = moisture_level_range_new(0, MOISTURE_HIGH);
+		// range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
 		break;
 	case MID:
 		range = moisture_level_range_new(MOISTURE_HIGH + 1, MOISTURE_MID);
@@ -385,8 +387,8 @@ void activate_pump(uint32_t ms)
 	}
 	gpio_set_level(PUMP_D0_OUTPUT, 1);
 	ESP_LOGI(TAG, "activate_pump(%d)", ms);
-	vTaskDelay(ms / portTICK_RATE_MS);
-	water_level_handler();
+	vTaskDelay(ms / portTICK_PERIOD_MS);
+	//water_level_handler();
 	ESP_LOGI(TAG, "deactivate_pump() inside of activate_pump");
 	deactivate_pump();
 }

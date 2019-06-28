@@ -1,0 +1,106 @@
+
+<html><head>
+<title>Easy Grow Setup</title>
+<style>
+body{
+  background: #F5F7F9;
+  font-family: Helvetica, sans-serif;
+
+}
+div.main {
+font-family: Helvetica, sans-serif;
+padding: 0.01em 16px;
+border-radius: 5px;
+display: flex;
+align-content: center;
+justify-content: center;
+flex-direction: column;
+}
+div.panel {
+  display: flex;
+  background: white;
+  margin:5px;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.05);
+  border-radius:5px;
+  flex-direction: column;
+}
+h3{
+  margin-left:10px;
+}
+p{
+  margin-left:15px;
+}
+.wifiLink{
+  cursor: pointer;
+}
+.wifiLink:hover{
+  opacity: 0.8;
+}
+
+div.button-container{
+  background: #F5F7F9;
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  justify-content: center;
+}
+input{
+  border-radius: 3px;
+  width: 300px;
+  height: 30px;
+  border:none;
+}
+button{
+  height: 40px;
+  width: 100px;
+  border:none;
+  color: white;
+  border-radius: 5px;
+  margin:10px;
+}
+button:hover{
+  cursor: pointer;
+  box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+}
+button:active{
+  opacity: 0.9;
+}
+</style>
+<meta http-equiv='Refresh' content='5; url=192.168.4.1' />
+</head>
+<body>
+  <div class='main'>
+    <h2>EasyGrow Config Page</h2>
+     <div class="panel">
+       <h3>Verf&uuml;gbare WLAN:</h3>
+       <p class="wifiLink" id="ssid1">%s test1</p>
+       <p class="wifiLink" id="ssid2">%s test2</p>
+       <p class="wifiLink" id="ssid3">%s test3</p>
+       <p class="wifiLink" id="ssid4">%s test4</p>
+       <p class="wifiLink" id="ssid5">%s test5</p>
+     </div>
+   </div>
+
+   <div class="button-container">
+      <form action="/submit">
+        <p>Wlan-Name eingeben: <input id="selectedWifi" type='text' name='SSID' /></p>
+        <p>Passwort eingeben: <input type='password' name='PW' /></p>
+        <button type='submit' value='Abschicken'>Abschicken</button>
+        <button onclick=\"location.href='/ap'\" type='button'>AP Mode</button>
+      </form>
+    </div>
+<script type="text/javascript">
+var selectWifi = function()
+{
+  console.log(this.id + this.innerHTML);
+  document.getElementById('selectedWifi').value = this.innerHTML;
+}
+document.getElementById('ssid1').onclick = selectWifi;
+document.getElementById('ssid2').onclick = selectWifi;
+document.getElementById('ssid3').onclick = selectWifi;
+document.getElementById('ssid4').onclick = selectWifi;
+document.getElementById('ssid5').onclick = selectWifi;
+
+
+</script>
+</body></html>
