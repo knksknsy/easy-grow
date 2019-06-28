@@ -78,8 +78,6 @@ void init_pump_output()
 	io_config.intr_type = GPIO_INTR_DISABLE;
 	io_config.pin_bit_mask = (1ULL << PUMP_D0_OUTPUT);
 	io_config.mode = GPIO_MODE_OUTPUT;
-	io_config.pull_down_en = 1;
-
 	gpio_set_level(PUMP_D0_OUTPUT, 0);
 
 	gpio_config(&io_config);
@@ -114,8 +112,6 @@ void init_moisture_leds_output()
 			| (1ULL << LED_MOISTURE_2_D3_OUTPUT)
 			| (1ULL << LED_MOISTURE_3_D4_OUTPUT));
 	io_config.mode = GPIO_MODE_OUTPUT;
-	io_config.pull_up_en = 1;
-
 	gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 0);
 	gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 0);
 	gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 0);
@@ -147,7 +143,6 @@ void init_water_level_leds_output()
 	io_config.pin_bit_mask = ((1ULL << LED_WATER_LEVEL_TOP_D8_OUTPUT)
 			| (1ULL << LED_WATER_LEVEL_BOTTOM_TX_OUTPUT));
 	io_config.mode = GPIO_MODE_OUTPUT;
-	io_config.pull_up_en = 1;
 
 	gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, 0);
 	gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, 0);

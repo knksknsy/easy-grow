@@ -26,7 +26,7 @@
 #define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
 
 // 2 minutes interval: 60 * 1000000 * 2 = 120000000
-#define MOISTURE_READ_INTERVAL              120000000
+#define MOISTURE_READ_INTERVAL              30000000
 #define MOISTURE_READ_DEPTH                 100
 
 #define MOISTURE_MAX_HIGH                   253

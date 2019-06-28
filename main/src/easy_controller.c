@@ -386,7 +386,7 @@ void activate_pump(uint32_t ms)
 	}
 	gpio_set_level(PUMP_D0_OUTPUT, 1);
 	ESP_LOGI(TAG, "activate_pump(%d)", ms);
-	vTaskDelay(ms / portTICK_PERIOD_MS);
+	vTaskDelay(ms / portTICK_RATE_MS);
 	//water_level_handler();
 	ESP_LOGI(TAG, "deactivate_pump() inside of activate_pump");
 	deactivate_pump();
