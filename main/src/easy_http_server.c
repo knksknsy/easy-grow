@@ -17,6 +17,7 @@
 #include <lwip/api.h>
 
 #include <easy_wifi_manager.h>
+#include <easy_controller.h>
 #include <easy_gpio.h>
 
 #include <easy_http_server.h>
@@ -64,7 +65,7 @@ void httpd_task_config(void *pvParameters) {
 	netconn_bind(nc, IP_ADDR_ANY, 80);
 	netconn_listen(nc);
 
-	char buf[1024];
+	char buf[2048];
 
 	while (1) {
 		err_t err = netconn_accept(nc, &client);
@@ -112,13 +113,14 @@ void httpd_task_config(void *pvParameters) {
 						vTaskDelete(dns_handle);
 						//break;
 
-					} else if (!strncmp(ptr, "/higher", max_uri_len)) {
-						ESP_LOGI(TAG, "helloo");
-						//TODO
-						//setMoistureHigher(true);
-					} else if (!strncmp(ptr, "/lower", max_uri_len)) {
-						//TODO
-						//setMoistureHigher(false);
+					} else if (!strncmp(ptr, "/high", max_uri_len)) {
+						set_moisture_level(HIGH);
+					} else if (!strncmp(ptr, "/medium", max_uri_len)) {
+						set_moisture_level(MID);
+					} else if (!strncmp(ptr, "/low", max_uri_len)) {
+						set_moisture_level(LOW);
+					} else if (!strncmp(ptr, "/off", max_uri_len)) {
+						set_moisture_level(OFF);
 					} else if (!strncmp(ptr, "/ap", max_uri_len)) {
 						mode = EASY_MOISTURE;
 
@@ -128,16 +130,16 @@ void httpd_task_config(void *pvParameters) {
 					} else {
 
 					}
-					char webpage[1024];
+					char webpage[2048];
 					strcpy(webpage, WEBPAGE_HEAD);
 					if (mode == EASY_CONFIG) {
-						strcat(webpage , WEBPAGE_CONFIG);
+						strcat(webpage , WEBPAGE_NEW_CONFIG);
 						snprintf(buf, sizeof(buf),
 								webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
 					} else if (mode == EASY_REDIRECT) {
-						strcat(webpage , WEBPAGE_CONFIG);
+						strcat(webpage , WEBPAGE_NEW_CONFIG);
 						snprintf(buf, sizeof(buf),
 								webpage);
 					} else if (mode == EASY_MOISTURE) {
@@ -162,7 +164,7 @@ void httpd_task_config(void *pvParameters) {
 void start_config_http(webMode webMode) {
 	mode = webMode;
 	ESP_LOGI(TAG, "SERVER STARTED");
-	xTaskCreate(&httpd_task_config, "wifi_config_server", 4096, NULL, 2, NULL);
+	xTaskCreate(&httpd_task_config, "wifi_config_server", 6096, NULL, 2, NULL);
 }
 
 
