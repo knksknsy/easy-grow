@@ -210,6 +210,7 @@ static void moisture_leds_handler(MoistureLevel level)
 /* Set the ideal value for moisture (server-side configuration of moisture level). */
 void set_moisture_level(MoistureLevel level)
 {
+	ESP_LOGI(TAG, "Changing Moisture level: %d", level);
 	moisture_leds_handler(level);
 	MoistureValue mv = get_moisture_level();
 	if (mv.status == SUCCESS)

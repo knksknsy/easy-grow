@@ -25,7 +25,7 @@
 #include <easy_dns.h>
 
 
-#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
+#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config_tim"
 #define EXAMPLE_ESP_WIFI_PASS	   "1Love_Ea5yGr0w"
 #define EXAMPLE_MAX_STA_CONN	   5
 
