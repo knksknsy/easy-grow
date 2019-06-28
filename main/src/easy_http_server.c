@@ -52,7 +52,6 @@ void decode(char *dest, const char *src) {
 	}
 }
 
-
 void httpd_task_config(void *pvParameters) {
 	ESP_LOGI(TAG, "CONFIG TASK STARTED");
 
