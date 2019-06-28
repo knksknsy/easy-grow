@@ -14,9 +14,9 @@
  *
  */
 #define PUMP_D0_OUTPUT						16
-#define LBUTTON_D1_INPUT					5
+#define LBUTTON_D1_INPUT					0
 #define LED_MOISTURE_1_D2_OUTPUT			4
-#define LED_MOISTURE_2_D3_OUTPUT			0
+#define LED_MOISTURE_2_D3_OUTPUT			5
 #define LED_MOISTURE_3_D4_OUTPUT			2
 #define RBUTTON_D5_INPUT					14
 #define WATER_LEVEL_TOP_D6_INPUT			12

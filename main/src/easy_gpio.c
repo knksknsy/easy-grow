@@ -216,7 +216,7 @@ void init_gpio()
 	init_moisture_sensor_adc_input();
 
 	/* Disable RX and TX GPIOs for monitoring */
-	// init_photo_diode_input();
-	// init_water_level_leds_output();
+	 init_photo_diode_input();
+	 init_water_level_leds_output();
 	/* // */
 }
