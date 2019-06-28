@@ -197,7 +197,7 @@ void init_isr()
 {
 	gpio_install_isr_service(0);
 	gpio_event_queue = xQueueCreate(10, sizeof(uint32_t));
-	xTaskCreate(gpio_task, "gpio_task", 8000, NULL, 10, NULL);
+	xTaskCreate(gpio_task, "gpio_task", 4096, NULL, 10, NULL);
 }
 
 void init_gpio()
