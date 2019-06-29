@@ -25,7 +25,6 @@
 #include "sdkconfig.h"
 
 static const char *TAG = "CONTROLLER";
-volatile int water_led_task_initialized = 0;
 static volatile ButtonStates lbutton_states;
 static volatile ButtonStates rbutton_states;
 volatile MoistureValue moisture_value;
@@ -62,9 +61,9 @@ MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)
 	switch (level_target)
 	{
 	case HIGH:
+		range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
 		// test case: moisture level is actually in the range of 250 to 450 if the sensor is placed in water (100% moisture)
-		range = moisture_level_range_new(0, MOISTURE_HIGH);
-		// range = moisture_level_range_new(MOISTURE_MAX_HIGH + 100, MOISTURE_HIGH);
+		// range = moisture_level_range_new(0, MOISTURE_HIGH);
 		break;
 	case MID:
 		range = moisture_level_range_new(MOISTURE_HIGH + 1, MOISTURE_MID);
@@ -260,85 +259,37 @@ MoistureValue get_moisture_level()
 	return mv;
 }
 
-static void water_low_task(void *arg)
-{
-	int counter = 0;
-	while (1)
-	{
-		counter++;
-		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, counter % 2);
-		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, counter % 2);
-		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", counter % 2, counter % 2);
-		vTaskDelay(1000 / portTICK_RATE_MS);
-	}
-}
-
-void water_level_handler()
-{
-	int WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
-	int WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
-
-	int LED_TOP = gpio_get_level(LED_WATER_LEVEL_TOP_D8_OUTPUT);
-	int LED_BOTTOM = gpio_get_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT);
-
-	static TaskHandle_t blink_handle;
-
-	if (WATER_TOP && WATER_BOTTOM)
-	{
-		vTaskSuspend(blink_handle);
-
-		LED_BOTTOM = 1, LED_TOP = 1;
-		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
-		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
-		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
-	}
-	else if (!WATER_TOP && WATER_BOTTOM)
-	{
-		vTaskSuspend(blink_handle);
-
-		LED_BOTTOM = 1, LED_TOP = 0;
-		ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
-		gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
-		gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
-	}
-	else if (!WATER_TOP && !WATER_BOTTOM)
-	{
-		/* Create blinking LEDs task */
-		if (!water_led_task_initialized)
-		{
-			xTaskCreate(water_low_task, "water_low_task", 2048, NULL, 10, &blink_handle);
-			water_led_task_initialized = 1;
-		}
-		else
-		{
-			vTaskResume(blink_handle);
-		}
-		ESP_LOGI(TAG, "deactivate_pump() inside of water_level_handler EMPTY WATER LEVEL");
-		deactivate_pump();
-	}
-}
-
 /* Read water sensor inputs and return water level */
 WaterLevel get_water_level()
 {
-	int WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
-	int WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
+	uint8_t WATER_TOP = gpio_get_level(WATER_LEVEL_TOP_D6_INPUT) == 0 ? 1 : 0;
+	uint8_t WATER_BOTTOM = gpio_get_level(WATER_LEVEL_BOTTOM_D7_INPUT) == 0 ? 1 : 0;
 
 	WaterLevel water_level = EMPTY;
 
 	if (WATER_TOP && WATER_BOTTOM)
 	{
 		water_level = FULL;
+		water_level_leds_handler(1, 1);
 	}
 	else if (!WATER_TOP && WATER_BOTTOM)
 	{
 		water_level = GOOD;
+		water_level_leds_handler(1, 0);
 	}
 	else if (!WATER_TOP && !WATER_BOTTOM)
 	{
 		water_level = EMPTY;
+		water_level_leds_handler(0, 0);
 	}
 	return water_level;
+}
+
+void water_level_leds_handler(uint8_t LED_BOTTOM, uint8_t LED_TOP)
+{
+	gpio_set_level(LED_WATER_LEVEL_BOTTOM_TX_OUTPUT, LED_BOTTOM);
+	gpio_set_level(LED_WATER_LEVEL_TOP_D8_OUTPUT, LED_TOP);
+	ESP_LOGI(TAG, "WATER LEVEL LEDS: (%d|%d)", LED_BOTTOM, LED_TOP);
 }
 
 static void pump_handler(MoistureValue mv)
@@ -353,9 +304,20 @@ static void pump_handler(MoistureValue mv)
 		uint8_t moisture_out_of_max_range = moisture_value.level_value > moisture_level_range.max;
 		uint8_t moisture_monitoring_off = moisture_value.level_target == OFF;
 
+		if (moisture_in_range)
+		{
+			ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler IN_RANGE");
+		}
+		if (moisture_out_of_min_range)
+		{
+			ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler OUT_MIN_RANGE");
+		}
+		if (moisture_monitoring_off)
+		{
+			ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler MONITORING OFF");
+		}
 		if (moisture_in_range || moisture_out_of_min_range || moisture_monitoring_off)
 		{
-			ESP_LOGI(TAG, "deactivate_pump() inside of pump_handler IN_RANGE || OUT_MIN_RANGE || MONITORING OFF");
 			deactivate_pump();
 		}
 		else if (moisture_out_of_max_range)

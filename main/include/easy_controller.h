@@ -58,9 +58,8 @@ static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min
 void photo_diode_handler(uint32_t io_num);
 uint8_t get_hours_of_sun();
 
-static void water_low_task(void *arg);
-void water_level_handler();
 WaterLevel get_water_level();
+void water_level_leds_handler(uint8_t LED_BOTTOM, uint8_t LED_TOP);
 
 void activate_pump(uint32_t ms);
 void deactivate_pump();

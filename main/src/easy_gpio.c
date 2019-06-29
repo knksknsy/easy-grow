@@ -57,10 +57,6 @@ static void gpio_task(void *arg)
 			case PHOTO_DIODE_RX_INPUT:
 				photo_diode_handler(io_num);
 				break;
-			case WATER_LEVEL_TOP_D6_INPUT:
-			case WATER_LEVEL_BOTTOM_D7_INPUT:
-				water_level_handler();
-				break;
 			default:
 				break;
 			}
@@ -78,6 +74,7 @@ void init_pump_output()
 	io_config.intr_type = GPIO_INTR_DISABLE;
 	io_config.pin_bit_mask = (1ULL << PUMP_D0_OUTPUT);
 	io_config.mode = GPIO_MODE_OUTPUT;
+
 	gpio_set_level(PUMP_D0_OUTPUT, 0);
 
 	gpio_config(&io_config);
@@ -90,11 +87,6 @@ void init_moisture_buttons_input()
 	io_config.pin_bit_mask = ((1ULL << LBUTTON_D1_INPUT)
 			| (1ULL << RBUTTON_D5_INPUT));
 	io_config.mode = GPIO_MODE_INPUT;
-	io_config.pull_down_en = 1;
-
-	// Individual interrupt edge
-	// gpio_set_intr_type(LBUTTON_D1_INPUT, GPIO_INTR_POSEDGE);
-	// gpio_set_intr_type(RBUTTON_D5_INPUT, GPIO_INTR_NEGEDGE);
 
 	gpio_isr_handler_add(LBUTTON_D1_INPUT, gpio_isr_handler,
 			(void *) LBUTTON_D1_INPUT);
@@ -112,6 +104,7 @@ void init_moisture_leds_output()
 			| (1ULL << LED_MOISTURE_2_D3_OUTPUT)
 			| (1ULL << LED_MOISTURE_3_D4_OUTPUT));
 	io_config.mode = GPIO_MODE_OUTPUT;
+
 	gpio_set_level(LED_MOISTURE_1_D2_OUTPUT, 0);
 	gpio_set_level(LED_MOISTURE_2_D3_OUTPUT, 0);
 	gpio_set_level(LED_MOISTURE_3_D4_OUTPUT, 0);
@@ -126,12 +119,6 @@ void init_water_level_sensors_input()
 	io_config.pin_bit_mask = ((1ULL << WATER_LEVEL_TOP_D6_INPUT)
 			| (1ULL << WATER_LEVEL_BOTTOM_D7_INPUT));
 	io_config.mode = GPIO_MODE_INPUT;
-	// io_config.pull_down_en = 1;
-
-	gpio_isr_handler_add(WATER_LEVEL_TOP_D6_INPUT, gpio_isr_handler,
-			(void *) WATER_LEVEL_TOP_D6_INPUT);
-	gpio_isr_handler_add(WATER_LEVEL_BOTTOM_D7_INPUT, gpio_isr_handler,
-			(void *) WATER_LEVEL_BOTTOM_D7_INPUT);
 
 	gpio_config(&io_config);
 }
@@ -156,7 +143,6 @@ void init_photo_diode_input()
 	io_config.intr_type = GPIO_INTR_ANYEDGE;
 	io_config.pin_bit_mask = (1ULL << PHOTO_DIODE_RX_INPUT);
 	io_config.mode = GPIO_MODE_INPUT;
-	io_config.pull_down_en = 1;
 
 	gpio_isr_handler_add(PHOTO_DIODE_RX_INPUT, gpio_isr_handler,
 			(void *) PHOTO_DIODE_RX_INPUT);
