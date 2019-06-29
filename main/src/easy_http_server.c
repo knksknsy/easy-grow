@@ -123,7 +123,8 @@ void httpd_task_config(void *pvParameters) {
 						set_moisture_level(OFF);
 					} else if (!strncmp(ptr, "/ap", max_uri_len)) {
 						mode = EASY_MOISTURE;
-
+					} else if (!strncmp(ptr, "/pump", max_uri_len)) {
+						activate_pump(0);
 					} else if (!strncmp(ptr, "/reset", max_uri_len)) {
 						reset_wifi_credentials();
 
@@ -143,9 +144,11 @@ void httpd_task_config(void *pvParameters) {
 						snprintf(buf, sizeof(buf),
 								webpage);
 					} else if (mode == EASY_MOISTURE) {
+						MoistureValue mv = get_moisture_level();
+						WaterLevel wl = get_water_level();
 						strcat(webpage , WEBPAGE_MOISTURE);
 						snprintf(buf, sizeof(buf),
-								webpage, uri,
+								webpage, mv.level_target, mv.level_target, mv.level_percentage, wl,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 					}

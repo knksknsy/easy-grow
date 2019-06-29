@@ -30,6 +30,8 @@
 #include "lwip/mem.h"
 #include <stdlib.h>
 #include <esp_log.h>
+#include <easy_dns.h>
+
 
 #define TAG "EASY_DNS"
 
@@ -256,7 +258,7 @@ static void   dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata, unsigned
 			setn16(&rf->rdlength, 4+16);
 			setn16(&uh->prio, 10);
 			setn16(&uh->weight, 1);
-			memcpy(rend, "192.168.4.1", 16);
+			memcpy(rend, ESP_IP, 16);
 			rend+=16;
 			setn16(&rhdr->ancount, local_ntohs(&rhdr->ancount)+1);
 //			printf("Added NS rec to resp. Resp len is %d\n", (rend-reply));
