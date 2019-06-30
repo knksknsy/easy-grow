@@ -7,8 +7,10 @@
 #include <string.h>
 #include <FreeRTOS.h>
 #include <task.h>
+#include "freertos/task.h"
 #include <event_groups.h>
 #include "rom/ets_sys.h"
+#include <time.h>
 
 
 #include <esp_wifi.h>
@@ -31,6 +33,8 @@
 
 
 const int WIFI_CONNECTED_BIT = BIT0;
+bool IS_CONNECTED = false;
+TaskHandle_t check_conn_handle;
 
 #define TAG "Wifi_Manager"
 
@@ -68,8 +72,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
                  ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
         start_config_http(EASY_MOISTURE);
-
-
+        IS_CONNECTED = true;
         //start_easy_grow_http();
 
         break;
@@ -104,7 +107,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 void sta_wifi_init(char ssid[32], char pwd[64])
 {
 	esp_err_t err = esp_wifi_stop();
-	if(err == ERR_OK)
+	if(err == ESP_OK)
 	{
 		uint8_t ssid_int[32];
 		memcpy(ssid_int, ssid, sizeof(uint8_t) * 32);
@@ -119,10 +122,10 @@ void sta_wifi_init(char ssid[32], char pwd[64])
 	    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_STA, &wifi_config_sta) );
 	    esp_err_t err = esp_wifi_start();
-	    if(err == ERR_OK)
+	    if(err == ESP_OK)
 	    {
 	    	esp_err_t err = esp_wifi_disconnect();
-	    	if(err == ERR_OK) {
+	    	if(err == ESP_OK) {
 	    		ESP_ERROR_CHECK(esp_wifi_connect());
 	    	}
 		    ESP_LOGI(TAG, "wifi_init_sta finished.");
@@ -137,6 +140,16 @@ void reset_wifi_credentials()
 	ESP_ERROR_CHECK(esp_wifi_disconnect());
 }
 
+void check_conn_task(void *pvParameters) {
+	int time =  xTaskGetTickCount() * portTICK_PERIOD_MS / 1000;
+	while(time < 10){
+		time =  xTaskGetTickCount() * portTICK_PERIOD_MS / 1000;
+	}
+	if(IS_CONNECTED == false) {
+		ap_wifi_init();
+	}
+	vTaskDelete(check_conn_handle);
+}
 void general_wifi_init()
 {
     //Initialize NVS
@@ -162,6 +175,8 @@ void general_wifi_init()
 	// if it doesn't return ESP_OK, start ap mode
 	if (err != ESP_OK) {
 		ap_wifi_init();
+	} else {
+		xTaskCreate(&check_conn_task, "wifi_config_server", 4096, NULL, 2, &check_conn_handle);
 	}
 }
 
