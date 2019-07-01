@@ -350,7 +350,7 @@ void startDNS(void)
     ESP_LOGI(TAG,"DNS Task started.");
 	if (!dns_task_initialized)
 	{
-    	xTaskCreate(&dns_task, "dns_task", 1024, NULL, 3, &dns_handle);
+    	xTaskCreate(&dns_task, "dns_task", 4096, NULL, 3, &dns_handle);
 		dns_task_initialized = 1;
 	}
 }
