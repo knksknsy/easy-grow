@@ -164,3 +164,8 @@ Open a new terminal window and paste the following commands in order to trigger 
 8. Configure the ESP IDF serial flasher. For reference see: [2. Configuring the Espressif IoT Development Framework](#idf_config).
 9. Build the project, flash the nodeMCU, and monitor with:<br>```$ make && make flash && make monitor```.<br> If an error happens during flashing then rerun the following ```$ make flash && make monitor```.
 
+#Dokumentation
+
+[##Stromversorgung](documentation/stromversorgung.md)
+
+
