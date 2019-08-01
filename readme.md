@@ -166,6 +166,7 @@ Open a new terminal window and paste the following commands in order to trigger 
 
 # Dokumentation
 
-[## Stromversorgung](DOCUMENTATION/stromversorgung.md)
+## Stromversorgung
+[Stromversorgung](DOCUMENTATION/stromversorgung.md)
 
 
