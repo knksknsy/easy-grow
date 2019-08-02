@@ -27,9 +27,3 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 + Deaktivieren der LEDs nach wenigen Sekunden und Aktivierung erst wieder bei Knopfdruck
 + Deaktivieren der WiFi-Schnittstelle, wenn in einem gewissen Zeitraum keine SSID/Passworteingabe erfolgt ist.
 + Kompletter Headless-Modus (Keine Web- oder LED-Interface) nach einmaliger Feuchtigkeitseingabe über das Webinterface
-
-
-
-
-
-Das System vebraucht im Schnitt
