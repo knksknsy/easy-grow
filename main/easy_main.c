@@ -16,6 +16,11 @@
 
 #define TAG "Main"
 
+/*
+  Uncomment to enable logging
+ */
+#define DEBUG
+
 
 /******************************************************************************
  * FunctionName : app_main
@@ -26,7 +31,9 @@
 void app_main(void)
 {
    ESP_LOGI(TAG, "app_main started");
+#ifndef DEBUG
    init_gpio();
+#endif
    general_wifi_init();
 }
 

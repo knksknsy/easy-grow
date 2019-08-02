@@ -11,6 +11,9 @@
 
 volatile TaskHandle_t dns_handle;
 
+/*
+ * Starts the DNS Server with the captive portal
+ */
 void   startDNS(void);
 
 
