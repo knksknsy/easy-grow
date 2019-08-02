@@ -27,7 +27,7 @@
 #include <easy_dns.h>
 
 
-#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
+#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config_Miro"
 #define EXAMPLE_ESP_WIFI_PASS	   "1Love_Ea5yGr0w"
 #define EXAMPLE_MAX_STA_CONN	   5
 
@@ -174,6 +174,7 @@ void general_wifi_init()
 	esp_err_t err = esp_wifi_connect();
 	// if it doesn't return ESP_OK, start ap mode
 	if (err != ESP_OK) {
+    	ESP_LOGI(TAG,"Start in AP Mode");
 		ap_wifi_init();
 	} else {
 		xTaskCreate(&check_conn_task, "wifi_config_server", 4096, NULL, 2, &check_conn_handle);
