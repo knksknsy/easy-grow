@@ -166,13 +166,11 @@ Open a new terminal window and paste the following commands in order to trigger 
 
 # Dokumentation
 
-## Stromversorgung
-[Stromversorgung](DOCUMENTATION/stromversorgung.md)
-## Includierung von Dateien mit Make
-[Make](DOCUMENTATION/make.md)
+### Stromversorgung [LINK](DOCUMENTATION/stromversorgung.md)
+### Includierung von Dateien mit Make [LINK](DOCUMENTATION/make.md)
 
 # Changelog
-[Eine zeitliche Abfolge der Änderungen](DOCUMENTATION/changelog.md)
+[Eine zeitliche Abfolge der Änderungen](changelog.md)
 
 
 
