@@ -1,7 +1,0 @@
-# Component makefile for ws2812
-
-COMPONENT_ADD_LDFLAGS=-lstdc++ -l$(COMPONENT_NAME)
-
-COMPONENT_ADD_INCLUDEDIRS := include
-
-COMPONENT_SRCDIRS := src
