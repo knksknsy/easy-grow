@@ -176,7 +176,7 @@ Open a new terminal window and paste the following commands in order to trigger 
 9. Build the project, flash the nodeMCU, and monitor with:<br>```$ make && make flash && make monitor```.<br> If an error happens during flashing then rerun the following ```$ make flash && make monitor```.
 
 <a name="changelog"></a>
-## 6. [Changelog]
+## 6. [Changelog](changelog.md)
 
 
 
