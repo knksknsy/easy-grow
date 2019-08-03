@@ -10,5 +10,6 @@ In diesem können weitere Include-Pfade spezifiziert werden, dies funktioniert i
 ```COMPONENT_ADD_INCLUDEDIRS```
 ```COMPONENT_SRCDIRS```
 
-Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner eingefügt. Diese werden im Buildprozess erkannt und hinzugefügt.
+Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner eingefügt. Diese leeren ```component.mk``` Dateien werden im Buildprozess erkannt und Dateien auf gleiche Dateiebene hinzugefügt.
+
 

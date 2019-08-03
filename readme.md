@@ -22,7 +22,7 @@ Easy Grow is a C++ Program to take care of your plants.
 - [3. Configuring the Espressif IoT Development Framework](#idf_config)
 - [4. Building, flashing, and monitoring](#build)
 - [5. Build and flash LED example](#led_example)
-- [6. Changelog] (#changelog)
+- [6. Changelog](#changelog)
 <!-- toc -->
 
 <a name="docu"></a>
@@ -176,7 +176,7 @@ Open a new terminal window and paste the following commands in order to trigger 
 9. Build the project, flash the nodeMCU, and monitor with:<br>```$ make && make flash && make monitor```.<br> If an error happens during flashing then rerun the following ```$ make flash && make monitor```.
 
 <a name="changelog"></a>
-## 6. [Changelog](changelog.md)
+## 6. [Changelog]
 
 
 
