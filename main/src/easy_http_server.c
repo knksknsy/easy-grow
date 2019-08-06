@@ -50,6 +50,7 @@ void decode(char *dest, const char *src) {
 		} else if (*p == '+') {
 			// space gets encoded as +, has to be decoded
 	        *dest++ = ' ';
+	        p++;
 		} else
 			*dest++ = *p++;
 	}
