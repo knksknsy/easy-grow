@@ -19,8 +19,6 @@
 
 ## 0.3.0 (08.05.2019)
 - GPIO: Added Input Methods
-
-## 0.3.1 (08.05.2019)
 - GPIO: Fixed wrong declaration
 
 ## 0.4.x (xxxxxx)
@@ -32,13 +30,9 @@ KAAN gpio
 ## 0.6.0 (21.05.2019)
 - Gitlab CI: Added automated build jobs
 
-## 0.6.1 (22.05.2019)
+## 0.6.1 (24.05.2019)
 - Gitlab CI: Added docker container to CI buildjob
-
-## 0.6.2 (23.05.2019)
 - Gitlab CI: Added SDK Test
-
-## 0.6.4 (24.05.2019)
 - HttpServer: Finished implementation
 
 ## 0.7.0 (xxxx)

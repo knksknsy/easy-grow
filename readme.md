@@ -2,6 +2,11 @@
 
 Easy Grow is a C++ Program to take care of your plants.
 
+## External Components
+The project uses modified parts of the dns server from libesphttpd.
+See the file easy_dns.c for the licence and https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c for the original file.
+
+
 ## Table of Contents
 - [1. Dokumentation](#docu) 
     * [1.1 Power supply](#powersupply)

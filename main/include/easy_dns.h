@@ -9,12 +9,59 @@
 #define MAIN_INCLUDE_EASY_DNS_H_
 #define ESP_IP "192.168.4.1"
 
+
+volatile int dns_task_initialized;
 volatile TaskHandle_t dns_handle;
+
+typedef struct __attribute__ ((packed)) {
+	uint16_t id;
+	uint8_t flags;
+	uint8_t rcode;
+	uint16_t qdcount;
+	uint16_t ancount;
+	uint16_t nscount;
+	uint16_t arcount;
+} DnsHeader;
+
+
+typedef struct __attribute__ ((packed)) {
+	//before: label
+	uint16_t type;
+	uint16_t class;
+} DnsQuestionFooter;
+
+
+typedef struct __attribute__ ((packed)) {
+	//before: label
+	uint16_t type;
+	uint16_t class;
+	uint32_t ttl;
+	uint16_t rdlength;
+	//after: rdata
+} DnsResourceFooter;
+
+
+#define FLAG_QR (1<<7)
+#define FLAG_TC (1<<1)
+
+/*
+ * List of used DNS record types
+ */
+#define RECORD_TYPE_A  1
+#define RECORD_TYPE_NS 2
+#define RECORD_TYPE_URI 256
+
+#define DNS_CLASS_IN 1
+#define DNS_CLASS_ANY 255
+#define DNS_CLASS_URI 256
+
+#define LENGTH_DNS 512
+
 
 /*
  * Starts the DNS Server with the captive portal
  */
-void   startDNS(void);
+void startDNS(void);
 
 
 
