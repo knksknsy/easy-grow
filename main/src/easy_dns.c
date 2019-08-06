@@ -354,6 +354,8 @@ void startDNS(void)
 	{
     	xTaskCreate(&dns_task, "dns_task", 4096, NULL, 3, &dns_handle);
 		dns_task_initialized = 1;
+	} else {
+		vTaskResume(dns_handle);
 	}
 }
 

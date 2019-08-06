@@ -35,6 +35,7 @@
 const int WIFI_CONNECTED_BIT = BIT0;
 bool GOT_IP = false;
 bool AP_ALREADY_INITIALIZED = false;
+bool TRYING_TO_CONNECT_TO_STA = false;
 TaskHandle_t check_conn_handle;
 
 #define TAG "Wifi_Manager"
@@ -91,9 +92,13 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     	break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
     	ESP_LOGI(TAG,"Disconnected from STATION");
-    	AP_ALREADY_INITIALIZED = true;
-    	ap_wifi_init();
-        //xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    	xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    	// Sometimes, while esp is trying to connect to other station, the saved station disconnects,
+    	// which starts access point and leads to a stack overflow. This prevents it
+    	if(TRYING_TO_CONNECT_TO_STA == false) {
+    		AP_ALREADY_INITIALIZED = true;
+    		ap_wifi_init();
+    	}
         break;
     default:
         break;
@@ -106,6 +111,7 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
  */
 void sta_wifi_init(char ssid[32], char pwd[64])
 {
+	TRYING_TO_CONNECT_TO_STA = true;
 	esp_err_t err = esp_wifi_stop();
 	if(err == ESP_OK)
 	{
@@ -124,13 +130,11 @@ void sta_wifi_init(char ssid[32], char pwd[64])
 	    esp_err_t err = esp_wifi_start();
 	    if(err == ESP_OK)
 	    {
-	    	esp_err_t err = esp_wifi_disconnect();
-	    	if(err == ESP_OK) {
-	    		ESP_ERROR_CHECK(esp_wifi_connect());
-	    	}
+	    	ESP_ERROR_CHECK(esp_wifi_connect());
 		    ESP_LOGI(TAG, "sta_wifi_init finished.");
 		    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
 		             (char* )&ssid_int, (char* )&pwd_int);
+	    	TRYING_TO_CONNECT_TO_STA = false;
 	    }
 	}
 }
@@ -149,7 +153,7 @@ void check_conn_task(void *pvParameters) {
 	while(time < 10){
 		time =  xTaskGetTickCount() * portTICK_PERIOD_MS / 1000;
 	}
-	if(GOT_IP == false) {
+	if(GOT_IP == false && AP_ALREADY_INITIALIZED == false) {
 		ap_wifi_init();
 	}
 	vTaskDelete(check_conn_handle);

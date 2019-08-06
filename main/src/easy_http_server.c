@@ -31,7 +31,9 @@ static const char *TAG = "HTTP_SERVER";
 static uint8_t available_aps[5][33];
 
 webMode mode = EASY_CONFIG;
+int httpd_task_initialized = 0;
 
+TaskHandle_t httpd_task_handle;
 /*
  * Decode used for URL
  */
@@ -57,8 +59,8 @@ void decode(char *dest, const char *src) {
 }
 
 
-void httpd_task_config(void *pvParameters) {
-	ESP_LOGI(TAG, "CONFIG TASK STARTED");
+void httpd_task(void *pvParameters) {
+	ESP_LOGI(TAG, "HTTPD TASK STARTED");
 
 	struct netconn *client = NULL;
 	struct netconn *nc = netconn_new(NETCONN_TCP);
@@ -99,31 +101,29 @@ void httpd_task_config(void *pvParameters) {
 					if (!strncmp(ptr, "/submit", max_uri_len)) {
 						// extract value of next part (SSID)
 						ptr = strtok(NULL, delimiter);
-						// Nur weitermachen wenn User eine SSID eingegeben hat
 						ptr = strtok(NULL, delimiter);
+						// Only continue if user actually entered a SSID (otherwise it immediately gets to 'PW' query parameter)
 						if(strcmp(ptr, "PW")!=0) {
 							char ssid[32];
 							char ptr_ssid_decoded[sizeof ssid] = { 0 };
 							decode(ptr_ssid_decoded, ptr);
 							memcpy(ssid, ptr_ssid_decoded, 32);
-							// uebernaechsten Abschnitt (PW) auslesen
+							// extract value of next part (PW)
 							ptr = strtok(NULL, delimiter);
 							char pwd[64];
 							pwd[0] = '\0';
 							char ptr_pwd_decoded[sizeof pwd] = { 0 };
-							// Nur auslesen wenn User wirklich ein PW eingegeben hat
-							ESP_LOGI(TAG, ptr);
+							// Only read pwd if user actually entered something
 							while(ptr != NULL) {
-								ESP_LOGI(TAG, ptr);
 								if(strcmp(ptr, "PW")!=0) {
 									decode(ptr_pwd_decoded, ptr);
 									memcpy(pwd, ptr_pwd_decoded, 64);
 								}
 								ptr = strtok(NULL, delimiter);
 							}
-							mode = EASY_MOISTURE;
 							sta_wifi_init(ssid, pwd);
-							vTaskDelete(dns_handle);
+							vTaskSuspend(dns_handle);
+							vTaskSuspend(httpd_task_handle);
 						}
 					} else if (!strncmp(ptr, "/high", max_uri_len)) {
 						set_moisture_level(HIGH);
@@ -174,8 +174,12 @@ void httpd_task_config(void *pvParameters) {
 
 void start_http(webMode webMode) {
 	mode = webMode;
-	ESP_LOGI(TAG, "SERVER STARTED");
-	xTaskCreate(&httpd_task_config, "wifi_config_server", 6096, NULL, 2, NULL);
+	if(httpd_task_initialized) {
+		vTaskResume(httpd_task_handle);
+	} else {
+		xTaskCreate(&httpd_task, "wifi_config_server", 6096, NULL, 2, &httpd_task_handle);
+		httpd_task_initialized = 1;
+	}
 }
 
 
@@ -190,7 +194,7 @@ void set_aps(wifi_ap_record_t aps[], uint16_t apCount) {
 		ESP_LOGI(TAG, "SSID: %s", (char *)&aps[i].ssid);
 		// if no aps found in scan, fill first entry with error message
 		if (i == 0 && apCount == 0) {
-			memcpy(available_aps[i], "Kein Wlan gefunden. Versuche die Seite neu zu laden!",
+			memcpy(available_aps[i], "Kein Wlan gefunden. Reset?",
 					sizeof(available_aps[i]));
 		}
 		// if less than 5 aps found in scan, fill rest with empty strings
