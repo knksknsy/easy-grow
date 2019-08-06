@@ -32,6 +32,9 @@ static uint8_t available_aps[5][33];
 
 webMode mode = EASY_CONFIG;
 
+/*
+ * Decode used for URL
+ */
 void decode(char *dest, const char *src) {
 	const char *p = src;
 	char code[3] = { 0 };
@@ -87,32 +90,40 @@ void httpd_task_config(void *pvParameters) {
 					memcpy(uri, sp1, len);
 					uri[len] = '\0';
 					printf("uri: %s\n", uri);
+					// slice url at delimiters to extract ssid and pwd
 					char delimiter[] = "?=&";
 					char *ptr;
-					// initialisieren und ersten Abschnitt (URL) auslesen
+					// initialise and extract first part (URL)
 					ptr = strtok(uri, delimiter);
 					if (!strncmp(ptr, "/submit", max_uri_len)) {
-						// uebernaechsten Abschnitt (SSID) auslesen
+						// extract value of next part (SSID)
 						ptr = strtok(NULL, delimiter);
+						// Nur weitermachen wenn User eine SSID eingegeben hat
 						ptr = strtok(NULL, delimiter);
-						char ssid[32];
-						char ptr_ssid_decoded[sizeof ssid] = { 0 };
-						decode(ptr_ssid_decoded, ptr);
-						memcpy(ssid, ptr_ssid_decoded, 32);
-						// uebernaechsten Abschnitt (PW) auslesen
-						ptr = strtok(NULL, delimiter);
-						ptr = strtok(NULL, delimiter);
-						char pwd[64];
-						char ptr_pwd_decoded[sizeof pwd] = { 0 };
-						decode(ptr_pwd_decoded, ptr);
-						memcpy(pwd, ptr_pwd_decoded, 64);
-
-						mode = EASY_MOISTURE;
-						sta_wifi_init(ssid, pwd);
-
-						vTaskDelete(dns_handle);
-						//break;
-
+						if(strcmp(ptr, "PW")!=0) {
+							char ssid[32];
+							char ptr_ssid_decoded[sizeof ssid] = { 0 };
+							decode(ptr_ssid_decoded, ptr);
+							memcpy(ssid, ptr_ssid_decoded, 32);
+							// uebernaechsten Abschnitt (PW) auslesen
+							ptr = strtok(NULL, delimiter);
+							char pwd[64];
+							pwd[0] = '\0';
+							char ptr_pwd_decoded[sizeof pwd] = { 0 };
+							// Nur auslesen wenn User wirklich ein PW eingegeben hat
+							ESP_LOGI(TAG, ptr);
+							while(ptr != NULL) {
+								ESP_LOGI(TAG, ptr);
+								if(strcmp(ptr, "PW")!=0) {
+									decode(ptr_pwd_decoded, ptr);
+									memcpy(pwd, ptr_pwd_decoded, 64);
+								}
+								ptr = strtok(NULL, delimiter);
+							}
+							mode = EASY_MOISTURE;
+							sta_wifi_init(ssid, pwd);
+							vTaskDelete(dns_handle);
+						}
 					} else if (!strncmp(ptr, "/high", max_uri_len)) {
 						set_moisture_level(HIGH);
 					} else if (!strncmp(ptr, "/medium", max_uri_len)) {
@@ -139,10 +150,6 @@ void httpd_task_config(void *pvParameters) {
 								webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
-					} else if (mode == EASY_REDIRECT) {
-						strcat(webpage , WEBPAGE_NEW_CONFIG);
-						snprintf(buf, sizeof(buf),
-								webpage);
 					} else if (mode == EASY_MOISTURE) {
 						MoistureValue mv = get_moisture_level();
 						WaterLevel wl = get_water_level();
@@ -164,7 +171,7 @@ void httpd_task_config(void *pvParameters) {
 	}
 }
 
-void start_config_http(webMode webMode) {
+void start_http(webMode webMode) {
 	mode = webMode;
 	ESP_LOGI(TAG, "SERVER STARTED");
 	xTaskCreate(&httpd_task_config, "wifi_config_server", 6096, NULL, 2, NULL);
@@ -179,13 +186,13 @@ void start_config_http(webMode webMode) {
  */
 void set_aps(wifi_ap_record_t aps[], uint16_t apCount) {
 	for (int i = 0; i < 5; i++) {
-		ESP_LOGI(TAG, &aps[i].ssid);
+		ESP_LOGI(TAG, "SSID: %s", (char *)&aps[i].ssid);
 		// if no aps found in scan, fill first entry with error message
 		if (i == 0 && apCount == 0) {
-			memcpy(available_aps[i], "Kein Wlan gefunden!",
+			memcpy(available_aps[i], "Kein Wlan gefunden. Versuche die Seite neu zu laden!",
 					sizeof(available_aps[i]));
 		}
-		// if less than 5 aps found in scan, fill with empty strings
+		// if less than 5 aps found in scan, fill rest with empty strings
 		else if (i >= apCount) {
 			memcpy(available_aps[i], "", sizeof(available_aps[i]));
 		} else {
