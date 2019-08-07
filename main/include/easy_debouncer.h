@@ -8,6 +8,7 @@
 #ifndef MAIN_INCLUDE_EASY_DEBOUNCER_H_
 #define MAIN_INCLUDE_EASY_DEBOUNCER_H_
 
+// Enum for button push states.
 typedef enum {
     UP,
     DOWN,

@@ -8,6 +8,7 @@
 #ifndef MAIN_INCLUDE_EASY_CONTROLLER_H_
 #define MAIN_INCLUDE_EASY_CONTROLLER_H_
 
+// Enum signaling the level of the water tank
 typedef enum WaterLevel
 {
     EMPTY,
@@ -15,6 +16,7 @@ typedef enum WaterLevel
     FULL
 } WaterLevel;
 
+// Enum signaling the target soil moisture level setting
 typedef enum MoistureLevel
 {
     OFF,
@@ -23,12 +25,14 @@ typedef enum MoistureLevel
     HIGH
 } MoistureLevel;
 
+// Enum signaling if the soil moisture level was read successfully or not
 typedef enum Status
 {
     FAILED,
     SUCCESS
 } Status;
 
+// Struct for soil moisture level information and the target MoistureLevel
 typedef struct
 {
     Status status;
@@ -37,6 +41,7 @@ typedef struct
     MoistureLevel level_target;
 } MoistureValue;
 
+// Struct holding the min and max value of a MoistureLevel
 typedef struct
 {
     uint16_t min;
