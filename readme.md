@@ -1,27 +1,29 @@
 ## Easy Grow Code Page
 
-Easy Grow is a C++ Program to take care of your plants.
+Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
 
-## Table of Contents
+Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit eurer Pflanzen.
+
+## Inhaltsverzeichnis
 - [1. Dokumentation](#docu) 
-    * [1.1 Power supply](#powersupply)
-    * [1.2 File includes with make](#make)
-- [2. Setting up the software environment](#sw_env)  
-    * [2.1 ESP8266 toolchain setup using Docker](#tool_docker)
-        + [2.1.1 Install Docker](#inst_docker)
+    * [1.1 Stromversorgung](#powersupply)
+    * [1.2 Inkludierung von Dateien mit Make](#make)
+- [2. Aufsetzen der Softwareumgebung](#sw_env)  
+    * [2.1 ESP8266 Toolchain-Setup mit Docker](#tool_docker)
+        + [2.1.1 Installierung von Docker](#inst_docker)
             - [2.1.1.1 MacOS](#inst_docker_mac)
             - [2.1.1.2 Windows](#inst_docker_win)
-        + [2.1.2 Build Docker image](#build_docker)
-        + [2.1.3 Export host's serial port to container](#serial_port)
+        + [2.1.2 Bauen des Docker-Images](#build_docker)
+        + [2.1.3 Freigeben des seriellen Ports vom Hosts zum Docker-Container](#serial_port)
             - [2.1.3.1 MacOS](#serial_port_mac)
             - [2.1.3.2 Windows](#serial_port_windows)
-        + [2.1.4 Run the Docker container](#cont_docker)
+        + [2.1.4 Ausführen des Docker-Containers](#cont_docker)
             - [2.1.4.1 MacOS](#cont_docker_mac)
             - [2.1.4.2 Windows](#cont_docker_win)
-    * [2.2 ESP8266 toolchain setup to your local machine (MacOS only)](#local)
-- [3. Configuring the Espressif IoT Development Framework](#idf_config)
-- [4. Building, flashing, and monitoring](#build)
-- [5. Build and flash LED example](#led_example)
+    * [2.2 ESP8266 Toolchain-Setup auf einer lokalen Maschine (Nur MacOS)](#local)
+- [3. Konfigurierung des Espressif IoT Development Frameworks](#idf_config)
+- [4. Bauen, Flashen und Monitoring](#build)
+- [5. Bauen und Flashen des LED-Beispiels](#led_example)
 - [6. Changelog](#changelog)
 <!-- toc -->
 
@@ -30,156 +32,154 @@ Easy Grow is a C++ Program to take care of your plants.
 <a name="powersupply"></a>
 ### 1.1 [Stromversorgung](DOCUMENTATION/stromversorgung.md)
 <a name="make"></a>
-### 1.2 [Includierung von Dateien mit Make](DOCUMENTATION/make.md)
+### 1.2 [Inkludierung von Dateien mit Make](DOCUMENTATION/make.md)
 
 <a name="sw_env"></a>
-## 2. Setting up the software environment
+## 2. Aufsetzen der Softwareumgebung
 
-There are two options for setting up the esp8266 software environment:
-1. Docker image (Linux Ubuntu 16.04 64bit)
-2. Local machine (MacOS only)
+Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:
 
-It's recommended to use Docker for the setup.
+1. Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)
+2. Installierung auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
+
+Für die Installation wird Docker empfohlen.
 
 <a name="tool_docker"></a>
-### 2.1. ESP8266 toolchain setup using Docker
+### 2.1. ESP8266 Toolchain-Setup mit Docker
 
 <a name="inst_docker"></a>
-#### 2.1.1 Install Docker
+#### 2.1.1 Installierung von Docker
 
 <a name="inst_docker_mac"></a>
 ##### 2.1.1.1 MacOs
 
-1. Install Brew: https://brew.sh
-2. Install Docker Engine and Docker-Machine:<br/>```$ brew install docker```
-3. Add Cask to your brew tap:<br/>```$ brew tap caskroom/cask```
-3. Install Docker Client:<br/>```$ brew cask install docker```
-4. Optional: If virtualbox is missing after step 2, install virtualbox with:<br/>```$ brew cask install virtualbox```
+1. Brew installieren: https://brew.sh
+2. Docker Engine und Docker-Machine installieren:<br/>```$ brew install docker```
+3. Cask zum Brew Tap hinzufügen:<br/>```$ brew tap caskroom/cask```
+3. Docker Client installieren:<br/>```$ brew cask install docker```
+4. Optional: Falls Virtualbox nach dem 2. Schritt fehlt. Virtualbox installieren mit:<br/>```$ brew cask install virtualbox```
 
 <a name="inst_docker_win"></a>
 ##### 2.1.1.2 Windows
 
-Follow the guide on https://docs.docker.com/docker-for-windows.
+Folge den Anweisungen auf https://docs.docker.com/docker-for-windows.
 
 <a name="build_docker"></a>
-#### 2.1.2 Build Docker image
+#### 2.1.2 Bauen des Docker-Images
 
-The Docker Image only needs to be built once. You can check if the Image is already installed with the following line: ```$ docker images```
+Das Docker-Image muss nur einmal gebaut werden. Mit ```$ docker images``` kann überprüft werden, ob das Image bereits installiert wurde.
 
-If it prints the ```docker-esp8266``` image, you can skip the build step.
-If not continue with the following steps:
+Das Image muss nicht installiert werden, falls die Zeile ```docker-esp8266``` im Terminal ausgegeben wird.
 
-1. Change your directory to where the ```Dockerfile``` is placed:<br/>```$ cd <project_path>/docker```
-2. Build the Docker image: ```$ docker build -t docker-esp8266 .```
+Falls ```docker-esp8266``` im Terminal nicht erscheint, müssen die folgenden Schritte ausgeführt werden:
 
-Step 2 will build an Ubuntu image and install the required packages for the esp8266 toolchain. Afterwards it will also run a script, which installs the toolchain.
+1. Wechsle das Verzeichnis indem sich die ```Dockerfile``` befindet:<br/>```$ cd <project_path>/docker```
+2. Baue das Docker-Image: ```$ docker build -t docker-esp8266 .```
+
+Im 2. Schritt wird ein Ubuntu-Image gebaut und die vorausgesetzten Packages für den ESP8266 Toolchain installiert. Der Befehl führt nach der Ausführung einen Script aus, der die Toolchain installiert.
 
 <a name="serial_port"></a>
-#### 2.1.3 Export host's serial port to container
+#### 2.1.3 Freigeben des seriellen Ports vom Hosts zum Docker-Container
 
 <a name="serial_port_mac"></a>
 ##### 2.1.3.1 MacOS
 
-If you're working on MacOS make sure you have installed the CP210x USB to UART Bridge VCP Driver.
+Für MacOS muss der "CP210x USB to UART Bridge VCP" Treiber installiert werden.
 
-Get the driver from https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers and follow the instructions on Silicon Labs website.
+Lade den Treiber herunter und folge den Anweisungen auf der Silicon Labs Website (https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers).
 
-Check if the driver was installed properly. The following line ```$ ls /dev/tty.*``` should print ```/dev/tty.SLAB_USBtoUART```.
+Überprüfe ob der Treiber erfolgreich installiert wurde. Die folgende Zeile ```$ ls /dev/tty.*``` sollte ```/dev/tty.SLAB_USBtoUART``` ausgeben.
 
-After the installation you are ready to export this serial port to the container. The next step is to create a virtualbox driver for your docker-machine.
+Die nächsten Schritte zeigen, wie ein serieller Port vom Host an den Docker-Container freigegeben werden kann.
+Hierfür muss zunächst ein Virtualbox Treiber für die Docker-Maschine erzeugt werden.
 
 1. ```$ docker-machine create --driver virtualbox default```
-2. Check if it's created with: ```$ docker-machine ls```
-3. Stop docker-machine with: ```$ docker-machine stop```
-4. Now you are able to configure the VM and export the serial port. Open the virtualbox application. Select the 'default' VM and click on the 'Settings' icon to configure the USB settings.
-5. Select 'Ports' then the 'USB' tab. Activate the 'Enable USB Controller' checkbox. Select 'USB 2.0 (EHCI) Controller'. Add a new USB filter (USB icon with green plus sign). Select 'Silicon Labs CP2102 USB to UART Bridge Controller [0100]'.
-6. You may have to install the 'Oracle VM VirtualBox Extension Pack' for enabling the USB 2.0 settings. Follow the instructions on https://www.virtualbox.org/wiki/Downloads for the installation.
-7. Start docker-machine with: ```$ docker-machine start```
-8. We need to set a few environment variables to tell Docker to use the new VM instead of the native mode. ```$ docker-machine env```command tells us how to do that. All you have to do is: ```& eval "$(docker-machine env default)"```
+2. Überprüfe ob der Treiber erzeugt wurde: ```$ docker-machine ls```
+3. Stoppe die Docker-Maschine: ```$ docker-machine stop```
+4. Jetzt kann die VM konfiguriert und der serielle Port exportiert werden. Öffne die Virtualbox Anwendung. Wähle die 'default' VM aus und klicke auf den 'Settings' Button, um die USB Einstellungen vorzunehmen.
+![Virtualbox 'default' VM Einstellungen](images/virtualbox_default_settings.png)
+5. Klicke auf 'Ports' und anschließend auf den 'USB' Tab. Aktiviere die 'Enable USB Controller' Checkbox. Wähle 'USB 2.0 (EHCI) Controller' aus. Füge einen USB Filter hinzu (USB Icon mit grünem Plus Symbol). Wähle den 'Silicon Labs CP2102 USB to UART Bridge Controller [0100]' Treiber aus.
+![Virtualbox serieller Port](images/virtualbox_port_usb.png)
+6. Falls USB 2.0 nicht ausgewählt werden kann, muss der 'Oracle VM VirtualBox Extension Pack' installiert werden. Die Anweisungen für die Installation befindet sich hier: https://www.virtualbox.org/wiki/Downloads
+7. Starte die Docker-Maschine mit: ```$ docker-machine start```
+8. Es müssen einige Umgebungsvariablen gesetzt werden, damit Docker die VM verwendet anstelle des nativen Modus. Das ```$ docker-machine env``` Kommando gibt die notwendigen Schritte für das Setzen der Variablen an. Führe folgenden Befehl aus um diese zu setzen: ```& eval "$(docker-machine env default)"```
 
-You are now able to export the host's serial port to the Docker container.
+Der serielle Port des Hosts ist nun vom Docker-Container aus ansprechbar.
 
 <a name="serial_port_win"></a>
 ##### 2.1.3.2 Windows
 
-Unfortunately there is no support yet for device assignment and sharing workloads in Hyper-V-isolated Windows containers.
+Leider gibt es bis auf Weiteres keine Unterstüztung der 'Device Assignment' und 'Sharing Workloads' in Hyper-V-isolierte Windows Containern. 
 
 <a name="cont_docker"></a>
-#### 2.1.4 Run the Docker container
+#### 2.1.4 Ausführen des Docker-Containers
 
-Make sure you have installed Docker, built the ```docker-esp8266``` image, and enabled exporting the host's serial ports to the container before you continue with running a Docker container.
+Stelle sicher, dass Docker installiert, das ```docker-esp8266``` Image gebaut und der serielle Port des Hosts an den Docker-Container freigegeben wurde, bevor der Docker container gestartet werden soll.
 
-There are two options for instantiating a container from the ```docker-esp8266``` image:
+Es gibt zwei Möglichkeiten einen Container vom ```docker-esp8266``` Image zu instanziieren:
 
-1. Conveniently with the the ```docker.sh``` script.<br/>(MacOS only)
-2. Over with the ```docker run``` command.<br/>(Windows only)
+1. Über den ```docker.sh``` Script.<br/>(Nur MacOS)
+2. Über den ```docker run``` Befehl.<br/>(Empfohlen für Windows)
 
 <a name="cont_docker_mac"></a>
 ##### 2.1.4.1 MacOS
 
-1. Change your directory to: ```$ cd <project_path>/docker```
-2. Start the container with the script: ```$ ./docker.sh```. This script enables you to start a container from the ```docker-esp8266``` image. It also mounts the project directory to the ```/easy-grow``` directory of the container. It also exports the host's ```/dev/ttyUSB0``` port to the container's ```/dev/ttyUSB0``` port.
+1. Wechsle in den ```docker``` Ordner im Projektverzeichnis: ```$ cd <project_path>/docker```
+2. Starte den Container mit dem Script: ```$ ./docker.sh```. Dieser Script startet einen Container für das ```docker-esp8266``` Image. Der Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert er den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
 
 <a name="cont_docker_win"></a>
 ##### 2.1.4.2 Windows
 
-Just run the following line with the respective ```<project_path>```:<br/>
+Führe folgendes Befehl im Projektverzeichnis ```<project_path>``` aus:<br/>
 ```docker run -ti --rm --name esp8266 -v <project_path>:/easy-grow docker-esp8266 /bin/bash```
 
 <a name="local"></a>
-### 2.2 ESP8266 toolchain setup to your local machine (MacOS only)
+### 2.2 ESP8266 Toolchain-Setup auf einer lokalen Maschine (Nur MacOS)
 
-Navigate into the ```setup``` directory in the project's root in order to set up the software environment for the ESP8266.
+Wechsle in das ```setup``` Verzeichnis im Projektverzeichnis um die Softwareumgebung für den ESP8266 aufzusetzen.
+Dort befindet sich der ```initial_setup.sh``` Script, der folgendes automatisch aufsetzt:
 
-There you'll find the ```initial_setup.sh``` script which will automatically set up the followings:
+- Die Toolchain um Applikationen für den ESP8266 zu bauen.
+- Die ESP8266_RTOS_SDK, die die API und Scripte beinhaltet um die Toolchain zu betreiben.
 
-- Toolchain to build the application for ESP8266
-- ESP8266_RTOS_SDK that contains the API and scripts to operate the toolchain.
+Übergebe das ```--dir <path>``` Argument, um die Softwareumgebung in einem beliebigen Verzeichnis zu installieren. 
+Wird dieses Argument nicht gesetzt, wird standardmäßig die Softwareumgebung im ```ESP``` Ordner des Projektverzeichnis installiert.
 
-Pass the ```--dir <path>``` command argument to install the software environment to an arbitrary path.
-If this argument is omitted the software environment will be installed in the ```ESP``` directory of the project's root by default.
+Die Toolchain befindet sich im Pfad ```<path>/ESP/xtensa-lx106-elf``` wohingegen die SDK sich im Pfad ```<path>/ESP/ESP8266_RTOS_SDK``` befindet.
 
-The toolchain is placed in ```<path>/ESP/xtensa-lx106-elf``` whereas the SDK is placed in ```<path>/ESP/ESP8266_RTOS_SDK```.
-
-Open a new terminal window and paste the following commands in order to trigger the setup:
-- Navigate into the ```setup``` directory in the project's root:<br>```$ cd setup```
-- Execute the script as user (not root):<br>```$ ./initial-setup.sh```
-- Wait until the setup is completed
-- Don't forget to source your ```bash_profile``` after the setup:<br> ```$ source ~/.bash_profile```
+Öffne ein neues Terminalfenster und füge den folgende Befehl ein um das Setup zu starten:
+- Wechsle in das ```setup``` Verzeichnis im Projektpfad:<br>```$ cd setup```
+- Führe den Script als ein User aus (nicht als Root):<br>```$ ./initial-setup.sh```
+- Warte bis das Setup beendet ist.
+- Vergiss nicht dein ```bash_profile``` nach dem Setup zu sourcen:<br> ```$ source ~/.bash_profile```
 
 <a name="idf_config"></a>
-## 3. Configuring the Espressif IoT Development Framework
+## 3. Konfigurierung des Espressif IoT Development Frameworks
 
-1. Run ```$ make menuconfig``` in the project's root directory to configure the framework.
-2. Select 'Serial flasher config'. Then change the 'Default serial port' to ```/dev/ttyUSB0```. This is only required if you're using MacOS or Linux. This is not required on Windows host since there is no support for device assignments.
-3. Select 'Flash SPI mode' and change it to 'DIO'.
-4. Save the settings and exit the configuration menu.
+1. Führe ```$ make menuconfig``` im Projektverzeichnis aus um das Framework zu konfigurieren.
+2. Wähle 'Serial flasher config' aus. Ändere den 'Default serial port' zu ```/dev/ttyUSB0```. Das wird nur vorausgesetzt, wenn MacOS or Linux verwendet wird. Unter Windows Hosts wird es nicht benötigt, da es keine Unterstützung für 'Device Assignments' gibt.
+3. Wähle 'Flash SPI mode' aus und wähle anschließend 'DIO' aus.
+4. Speichere die Einstellungen und verlasse das Konfigurationsmenü.
 
 <a name="build"></a>
-## 4. Building, flashing, and monitoring
+## 4. Bauen, Flashen und Monitoring
 
-1. Build the project with ```$ make``` from the projects root directory.
-2. Execute ```$ make flash``` for flashing the nodeMCU. This is only possible with MacOS and Linux hosts and not on Windows.
-3. If it's finished and connected to the nodeMCU you can monitor the nodeMCU with ```$ make monitor```. This is only possible with MacOS and Linux hosts and not on Windows.
+1. Baue das Projekt mit ```$ make``` aus dem Projektverzeichnis.
+2. Führe ```$ make flash``` aus, um den nodeMCU zu flashen. Dieser Schritt funktioniert nur unter MacOS und Linux, jedoch nicht unter Windows Hosts.
+3. Verbinde den nodeMCU nach dem Flashen. Um das Monitoring auszuführen führe ```$ make monitor``` aus. Dieser Schritt funktioniert nur unter MacOS und Linux, jedoch nicht unter Windows Hosts.
 
 <a name="led_example"></a>
-## 5. Build and flash LED example
+## 5. Bauen und Flashen des LED-Beispiels
 
-1. Clone the Git repository:<br>```$ git clone git@gitlab.mi.hdm-stuttgart.de:embedded/ss19/easy-grow.git```
-2. Navigate to the ```easy-grow``` directory:<br>```$ cd easy-grow```
-3. Checkout the ```example```branch:<br>```$ git checkout example```
-4. Navigate to the ```docker```directory:<br>```$ cd docker```
-5. Plug your ESP8266 nodeMCU into your USB port
-6. Run the ```docker.sh``` script inside of the directory. This will create the Docker image ```docker-esp8266``` and initialize a container with the ESP IDF environment.<br>```$ ./docker.sh```
-7. Inside the container navigate to the ```easy-grow``` project directory:<br>```$ cd easy-grow```
-8. Configure the ESP IDF serial flasher. For reference see: [2. Configuring the Espressif IoT Development Framework](#idf_config).
-9. Build the project, flash the nodeMCU, and monitor with:<br>```$ make && make flash && make monitor```.<br> If an error happens during flashing then rerun the following ```$ make flash && make monitor```.
+1. Klone das Git Repository:<br>```$ git clone git@gitlab.mi.hdm-stuttgart.de:embedded/ss19/easy-grow.git```
+2. Wechsle in das Projektverzeichnis ```easy-grow```:<br>```$ cd easy-grow```
+3. Checke den ```example``` Branch aus:<br>```$ git checkout example```
+4. Wechsle in das ```docker``` Verzeichnis:<br>```$ cd docker```
+5. Verbinde den ESP8266 nodeMCU mittels USB.
+6. Führe den ```docker.sh``` Script aus. Dieser Script erzeugt das Docker Image ```docker-esp8266``` und initialisier einen Container mit der ESP IDF Umgebung.<br>```$ ./docker.sh```
+7. Wechsle innerhalb des Containers zum ```easy-grow``` Projektverzeichnis:<br>```$ cd easy-grow```
+8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [2. Configuring the Espressif IoT Development Framework](#idf_config).
+9. Baue das Projekt, flashe den nodeMCU, und aktiviere das Monitoring mit:<br>```$ make && make flash && make monitor```.<br> Falls eine Fehlermeldung erscheint, führe den folgenden Befehl erneut aus: ```$ make flash && make monitor```.
 
 <a name="changelog"></a>
 ## 6. [Changelog](changelog.md)
-
-
-
-
-
-
