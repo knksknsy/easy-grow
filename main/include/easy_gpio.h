@@ -27,16 +27,22 @@
 
 // 2 minutes interval: 60 * 1000000 * 2 = 120000000
 #define MOISTURE_READ_INTERVAL              5000000
+// Number of values retrieved from moisture sensor
 #define MOISTURE_READ_DEPTH                 100
 
+// Max moisture value (high): 100% moisture
 #define MOISTURE_MAX_HIGH                   253
+// Max moisture value (low):    0% moisture
 #define MOISTURE_MAX_LOW                    1023
 
+/**
+ * 3 moisture level modes
+ */
 #define MOISTURE_HIGH                       543
 #define MOISTURE_MID                        733
 #define MOISTURE_LOW                        923
 
-// 2.5 seconds interval: 1000 * 2.5
+// 2 seconds interval: 1000 * 2
 #define PUMP_INTERVAL                       2000
 
 static void gpio_isr_handler(void *arg);

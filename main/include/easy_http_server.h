@@ -13,7 +13,7 @@
 
 typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT, EASY_DOCUMENTATION } webMode;
 
-void start_config_http(webMode webMode);
+void start_http(webMode webMode);
 void set_aps(wifi_ap_record_t aps[], uint16_t apCount);
 
 

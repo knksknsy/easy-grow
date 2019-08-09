@@ -33,7 +33,9 @@
 
 
 const int WIFI_CONNECTED_BIT = BIT0;
-bool IS_CONNECTED = false;
+bool GOT_IP = false;
+bool AP_ALREADY_INITIALIZED = false;
+bool TRYING_TO_CONNECT_TO_STA = false;
 TaskHandle_t check_conn_handle;
 
 #define TAG "Wifi_Manager"
@@ -44,24 +46,23 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
 {
     switch(event->event_id) {
     case SYSTEM_EVENT_SCAN_DONE: {
-        uint16_t apCount = 0;
-        esp_wifi_scan_get_ap_num(&apCount);
-        if (apCount == 0) {
+        uint16_t ap_count = 0;
+        //get number of available access points
+        esp_wifi_scan_get_ap_num(&ap_count);
+        if (ap_count == 0) {
         	ESP_LOGI(TAG,"No AP found");
-            //break;
-        	//TODO Implemtend rescan function
         }
-        wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * apCount);
+        wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
         if (!ap_list) {
         	ESP_LOGI(TAG, "malloc error, ap_list is NULL");
             break;
         }
-        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&apCount, ap_list));
-        set_aps(ap_list, apCount);
+        ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_list));
+        set_aps(ap_list, ap_count);
         esp_wifi_scan_stop();
         free(ap_list);
     	//Start config http server
-        start_config_http(EASY_CONFIG);
+        start_http(EASY_CONFIG);
         break;
     }
     case SYSTEM_EVENT_STA_START:
@@ -71,10 +72,9 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         ESP_LOGI(TAG, "got ip:%s",
                  ip4addr_ntoa(&event->event_info.got_ip.ip_info.ip));
         xEventGroupSetBits(wifi_event_group, WIFI_CONNECTED_BIT);
-        start_config_http(EASY_MOISTURE);
-        IS_CONNECTED = true;
-        //start_easy_grow_http();
-
+        //Start moisture control http server
+        start_http(EASY_MOISTURE);
+        GOT_IP = true;
         break;
     case SYSTEM_EVENT_AP_STACONNECTED:
         ESP_LOGI(TAG, "station:"MACSTR" join, AID=%d",
@@ -89,14 +89,16 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
         break;
     case SYSTEM_EVENT_STA_CONNECTED:
     	ESP_LOGI(TAG,"Connected to STATION");
-    	//Connected to accesspoint - Start EasyGrow Task
-    	//start_easy_grow_http();
     	break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
     	ESP_LOGI(TAG,"Disconnected from STATION");
-    	ap_wifi_init();
-        //esp_wifi_connect();
-        //xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    	xEventGroupClearBits(wifi_event_group, WIFI_CONNECTED_BIT);
+    	// Sometimes, while esp is trying to connect to other station, the saved station disconnects,
+    	// which starts access point and leads to a stack overflow. This prevents it
+    	if(TRYING_TO_CONNECT_TO_STA == false) {
+    		AP_ALREADY_INITIALIZED = true;
+    		ap_wifi_init();
+    	}
         break;
     default:
         break;
@@ -104,8 +106,12 @@ static esp_err_t event_handler(void *ctx, system_event_t *event)
     return ESP_OK;
 }
 
+/*
+ * Start wifi in STA-Mode (Connect to station)
+ */
 void sta_wifi_init(char ssid[32], char pwd[64])
 {
+	TRYING_TO_CONNECT_TO_STA = true;
 	esp_err_t err = esp_wifi_stop();
 	if(err == ESP_OK)
 	{
@@ -124,13 +130,11 @@ void sta_wifi_init(char ssid[32], char pwd[64])
 	    esp_err_t err = esp_wifi_start();
 	    if(err == ESP_OK)
 	    {
-	    	esp_err_t err = esp_wifi_disconnect();
-	    	if(err == ESP_OK) {
-	    		ESP_ERROR_CHECK(esp_wifi_connect());
-	    	}
-		    ESP_LOGI(TAG, "wifi_init_sta finished.");
+	    	ESP_ERROR_CHECK(esp_wifi_connect());
+		    ESP_LOGI(TAG, "sta_wifi_init finished.");
 		    ESP_LOGI(TAG, "connect to ap SSID:%s password:%s",
 		             (char* )&ssid_int, (char* )&pwd_int);
+	    	TRYING_TO_CONNECT_TO_STA = false;
 	    }
 	}
 }
@@ -140,16 +144,25 @@ void reset_wifi_credentials()
 	ESP_ERROR_CHECK(esp_wifi_disconnect());
 }
 
+/*
+ * Task that waits for 10 seconds to check if esp actually connected to a station
+ * inits ap mode if not
+ */
 void check_conn_task(void *pvParameters) {
 	int time =  xTaskGetTickCount() * portTICK_PERIOD_MS / 1000;
 	while(time < 10){
 		time =  xTaskGetTickCount() * portTICK_PERIOD_MS / 1000;
 	}
-	if(IS_CONNECTED == false) {
+	if(GOT_IP == false && AP_ALREADY_INITIALIZED == false) {
 		ap_wifi_init();
 	}
 	vTaskDelete(check_conn_handle);
 }
+
+/*
+ * Entry point for Wifi, connects to station if there are saved credentials,
+ * otherwise opens up an access point
+ */
 void general_wifi_init()
 {
     //Initialize NVS
@@ -168,7 +181,7 @@ void general_wifi_init()
     wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
     ESP_ERROR_CHECK(esp_wifi_init(&cfg));
 
-	// Try connecting first, will connect if it has saved credentials
+	// Try connecting first, will connect to station if it has saved credentials
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
 	ESP_ERROR_CHECK(esp_wifi_start());
 	esp_err_t err = esp_wifi_connect();
@@ -177,10 +190,15 @@ void general_wifi_init()
     	ESP_LOGI(TAG,"Start in AP Mode");
 		ap_wifi_init();
 	} else {
+		// BUG: After erase_flash, esp_wifi_connect returns ESP_OK but never actually connects
+		// create task to wait and check if it really connected -> https://github.com/esp8266/Arduino/issues/2235
 		xTaskCreate(&check_conn_task, "wifi_config_server", 4096, NULL, 2, &check_conn_handle);
 	}
 }
 
+/*
+ * Start wifi in AP-Mode (Access Point)
+ */
 void ap_wifi_init()
 {
 	wifi_config_t wifi_config = {
@@ -195,7 +213,7 @@ void ap_wifi_init()
 	if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0) {
 		wifi_config.ap.authmode = WIFI_AUTH_OPEN;
 	}
-
+	//Has to be AP + Station mode, in order to scan for available aps
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
 	ESP_ERROR_CHECK(esp_wifi_start());
@@ -203,12 +221,12 @@ void ap_wifi_init()
 	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
 			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 
-	wifi_scan_config_t scanConf = {
+	wifi_scan_config_t scan_conf = {
 		.ssid = NULL,
 		.bssid = NULL,
 		.channel = 0,
 		.show_hidden = false
 	};
-	ESP_ERROR_CHECK(esp_wifi_scan_start(&scanConf, true));
+	ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_conf, true));
 }
 

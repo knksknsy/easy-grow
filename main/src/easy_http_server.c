@@ -33,7 +33,12 @@ static const char *TAG = "HTTP_SERVER";
 static uint8_t available_aps[5][33];
 
 webMode mode = EASY_CONFIG;
+int httpd_task_initialized = 0;
 
+TaskHandle_t httpd_task_handle;
+/*
+ * Decode used for URL
+ */
 void decode(char *dest, const char *src) {
 	const char *p = src;
 	char code[3] = { 0 };
@@ -48,15 +53,16 @@ void decode(char *dest, const char *src) {
 			p += 2;
 		} else if (*p == '+') {
 			// space gets encoded as +, has to be decoded
-			*dest++ = ' ';
+	        *dest++ = ' ';
+	        p++;
 		} else
 			*dest++ = *p++;
 	}
 }
 
-void httpd_task_config(void *pvParameters) {
-	ESP_LOGI(TAG, "CONFIG TASK STARTED");
 
+void httpd_task(void *pvParameters) {
+	ESP_LOGI(TAG, "HTTPD TASK STARTED");
 	struct netconn *client = NULL;
 	struct netconn *nc = netconn_new(NETCONN_TCP);
 	if (nc == NULL) {
@@ -87,32 +93,38 @@ void httpd_task_config(void *pvParameters) {
 					memcpy(uri, sp1, len);
 					uri[len] = '\0';
 					printf("uri: %s\n", uri);
+					// slice url at delimiters to extract ssid and pwd
 					char delimiter[] = "?=&";
 					char *ptr;
-					// initialisieren und ersten Abschnitt (URL) auslesen
+					// initialise and extract first part (URL)
 					ptr = strtok(uri, delimiter);
 					if (!strncmp(ptr, "/submit", max_uri_len)) {
-						// uebernaechsten Abschnitt (SSID) auslesen
+						// extract value of next part (SSID)
 						ptr = strtok(NULL, delimiter);
 						ptr = strtok(NULL, delimiter);
-						char ssid[32];
-						char ptr_ssid_decoded[sizeof ssid] = { 0 };
-						decode(ptr_ssid_decoded, ptr);
-						memcpy(ssid, ptr_ssid_decoded, 32);
-						// uebernaechsten Abschnitt (PW) auslesen
-						ptr = strtok(NULL, delimiter);
-						ptr = strtok(NULL, delimiter);
-						char pwd[64];
-						char ptr_pwd_decoded[sizeof pwd] = { 0 };
-						decode(ptr_pwd_decoded, ptr);
-						memcpy(pwd, ptr_pwd_decoded, 64);
-
-						mode = EASY_MOISTURE;
-						sta_wifi_init(ssid, pwd);
-
-						vTaskDelete(dns_handle);
-						//break;
-
+						// Only continue if user actually entered a SSID (otherwise it immediately gets to 'PW' query parameter)
+						if(strcmp(ptr, "PW")!=0) {
+							char ssid[32];
+							char ptr_ssid_decoded[sizeof ssid] = { 0 };
+							decode(ptr_ssid_decoded, ptr);
+							memcpy(ssid, ptr_ssid_decoded, 32);
+							// extract value of next part (PW)
+							ptr = strtok(NULL, delimiter);
+							char pwd[64];
+							pwd[0] = '\0';
+							char ptr_pwd_decoded[sizeof pwd] = { 0 };
+							// Only read pwd if user actually entered something
+							while(ptr != NULL) {
+								if(strcmp(ptr, "PW")!=0) {
+									decode(ptr_pwd_decoded, ptr);
+									memcpy(pwd, ptr_pwd_decoded, 64);
+								}
+								ptr = strtok(NULL, delimiter);
+							}
+							sta_wifi_init(ssid, pwd);
+							vTaskSuspend(dns_handle);
+							vTaskSuspend(httpd_task_handle);
+						}
 					} else if (!strncmp(ptr, "/high", max_uri_len)) {
 						set_moisture_level(HIGH);
 					} else if (!strncmp(ptr, "/medium", max_uri_len)) {
@@ -167,10 +179,15 @@ void httpd_task_config(void *pvParameters) {
 	}
 }
 
-void start_config_http(webMode webMode) {
+void start_http(webMode webMode) {
 	mode = webMode;
-	ESP_LOGI(TAG, "SERVER STARTED");
-	xTaskCreate(&httpd_task_config, "wifi_config_server", 15000, NULL, 2, NULL);
+
+	if(httpd_task_initialized) {
+		vTaskResume(httpd_task_handle);
+	} else {
+		xTaskCreate(&httpd_task, "wifi_config_server", 14096, NULL, 2, &httpd_task_handle);
+		httpd_task_initialized = 1;
+	}
 }
 
 /*
@@ -181,13 +198,13 @@ void start_config_http(webMode webMode) {
  */
 void set_aps(wifi_ap_record_t aps[], uint16_t apCount) {
 	for (int i = 0; i < 5; i++) {
-		ESP_LOGI(TAG, &aps[i].ssid);
+		ESP_LOGI(TAG, "SSID: %s", (char *)&aps[i].ssid);
 		// if no aps found in scan, fill first entry with error message
 		if (i == 0 && apCount == 0) {
-			memcpy(available_aps[i], "Kein Wlan gefunden!",
+			memcpy(available_aps[i], "Kein Wlan gefunden. Reset?",
 					sizeof(available_aps[i]));
 		}
-		// if less than 5 aps found in scan, fill with empty strings
+		// if less than 5 aps found in scan, fill rest with empty strings
 		else if (i >= apCount) {
 			memcpy(available_aps[i], "", sizeof(available_aps[i]));
 		} else {
