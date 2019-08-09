@@ -75,7 +75,7 @@ static char* labelToStr(char *packet, char *labelPtr, int packetSz, char *res,
 		if ((labelPtr - packet) > packetSz)
 			return NULL;
 	} while (*labelPtr != 0);
-	res[i] = 0;ewwwe
+	res[i] = 0;
 	if (endPtr == NULL)
 		endPtr = labelPtr + 1;
 	return endPtr;
@@ -155,10 +155,12 @@ static void dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata,
 			writeUInt32(&rf->ttl, 0);
 			writeUInt16(&rf->rdlength, 4);
 			//Klient benötigt die DNS Server Adresse -> ESP IP
-			*rend++ = 192;
-			*rend++ = 168;
-			*rend++ = 4;
-			*rend++ = 1;
+			tcpip_adapter_ip_info_t ipInfo;
+			tcpip_adapter_get_ip_info(TCPIP_ADAPTER_IF_AP, &ipInfo);
+			*rend++ = ip4_addr1(&ipInfo.ip);
+			*rend++ = ip4_addr2(&ipInfo.ip);
+			*rend++ = ip4_addr3(&ipInfo.ip);
+			*rend++ = ip4_addr4(&ipInfo.ip);
 
 			writeUInt16(&rhdr->ancount, local_ntohs(&rhdr->ancount) + 1);
 		}

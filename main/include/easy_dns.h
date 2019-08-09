@@ -7,7 +7,6 @@
 
 #ifndef MAIN_INCLUDE_EASY_DNS_H_
 #define MAIN_INCLUDE_EASY_DNS_H_
-#define ESP_IP "192.168.4.1"
 
 
 volatile int dns_task_initialized;
