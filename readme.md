@@ -3,13 +3,14 @@
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
 Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
 
-![EasyGrow](images/overview.jpg | width=80)
+![EasyGrow](images/overview.jpg)
 
 ## Features
 - Gießen der Pflanze (Automatisiert und Manuell)
 - Einstellen der gewünschten Feuchtigkeit                                      
 ![](images/crop_states.gif)
 - Verbinden zum heimischen Wlan oder Steuerung über eigenes Wifi Netzwerk
+![](images/wifi_all.gif)
 - Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit 
 ![](images/wifi_setup.gif)
 
