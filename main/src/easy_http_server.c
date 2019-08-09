@@ -22,6 +22,8 @@
 
 #include <easy_http_server.h>
 #include <easy_data.h>
+#include "easy_documentation.h"
+
 #include <easy_dns.h>
 
 #include <esp_http_server.h>
@@ -46,12 +48,11 @@ void decode(char *dest, const char *src) {
 			p += 2;
 		} else if (*p == '+') {
 			// space gets encoded as +, has to be decoded
-	        *dest++ = ' ';
+			*dest++ = ' ';
 		} else
 			*dest++ = *p++;
 	}
 }
-
 
 void httpd_task_config(void *pvParameters) {
 	ESP_LOGI(TAG, "CONFIG TASK STARTED");
@@ -64,8 +65,7 @@ void httpd_task_config(void *pvParameters) {
 	}
 	netconn_bind(nc, IP_ADDR_ANY, 80);
 	netconn_listen(nc);
-
-	char buf[2048];
+	char buf[5500];
 
 	while (1) {
 		err_t err = netconn_accept(nc, &client);
@@ -123,6 +123,8 @@ void httpd_task_config(void *pvParameters) {
 						set_moisture_level(OFF);
 					} else if (!strncmp(ptr, "/ap", max_uri_len)) {
 						mode = EASY_MOISTURE;
+					} else if (!strncmp(ptr, "/docu", max_uri_len)) {
+						mode = EASY_DOCUMENTATION;
 					} else if (!strncmp(ptr, "/pump", max_uri_len)) {
 						activate_pump(0);
 					} else if (!strncmp(ptr, "/reset", max_uri_len)) {
@@ -131,24 +133,25 @@ void httpd_task_config(void *pvParameters) {
 					} else {
 
 					}
-					char webpage[2048];
+					char webpage[5500];
 					strcpy(webpage, WEBPAGE_HEAD);
 					if (mode == EASY_CONFIG) {
-						strcat(webpage , WEBPAGE_NEW_CONFIG);
-						snprintf(buf, sizeof(buf),
-								webpage, available_aps[0],
+						strcat(webpage, WEBPAGE_NEW_CONFIG);
+						snprintf(buf, sizeof(buf), webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
 					} else if (mode == EASY_REDIRECT) {
-						strcat(webpage , WEBPAGE_NEW_CONFIG);
-						snprintf(buf, sizeof(buf),
-								webpage);
+						strcat(webpage, WEBPAGE_NEW_CONFIG);
+						snprintf(buf, sizeof(buf), webpage);
+					} else if (mode == EASY_DOCUMENTATION) {
+						strcat(webpage, WEBPAGE_DOCUMENTATION);
+						snprintf(buf, sizeof(buf), webpage);
 					} else if (mode == EASY_MOISTURE) {
 						MoistureValue mv = get_moisture_level();
 						WaterLevel wl = get_water_level();
-						strcat(webpage , WEBPAGE_MOISTURE);
-						snprintf(buf, sizeof(buf),
-								webpage, mv.level_target, mv.level_target, mv.level_percentage, wl,
+						strcat(webpage, WEBPAGE_MOISTURE);
+						snprintf(buf, sizeof(buf), webpage, mv.level_target,
+								mv.level_target, mv.level_percentage, wl,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 					}
@@ -167,9 +170,8 @@ void httpd_task_config(void *pvParameters) {
 void start_config_http(webMode webMode) {
 	mode = webMode;
 	ESP_LOGI(TAG, "SERVER STARTED");
-	xTaskCreate(&httpd_task_config, "wifi_config_server", 6096, NULL, 2, NULL);
+	xTaskCreate(&httpd_task_config, "wifi_config_server", 15000, NULL, 2, NULL);
 }
-
 
 /*
  * set access points to display in webpage

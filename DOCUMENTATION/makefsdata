@@ -1,0 +1,14 @@
+#!/bin/bash
+#Replace " with'
+tr '"' "'"  <easy_documentation.h > temp && mv temp easy_documentation.h
+
+# " At start and end for each line
+sed 's/\(.*\)/"\1"/g'  easy_documentation.h  > temp && mv temp easy_documentation.h
+
+# Add the needed C Lines
+(echo "static  char *WEBPAGE_DOCUMENTATION = {" && cat easy_documentation.h) > temp && mv temp easy_documentation.h
+(echo "#define MAIN_INCLUDE_EASY_DOCUMENTATION_H_" && cat easy_documentation.h) > temp && mv temp easy_documentation.h
+(echo "#ifndef MAIN_INCLUDE_EASY_DOCUMENTATION_H_" && cat easy_documentation.h) > temp && mv temp easy_documentation.h
+echo "};" >> easy_documentation.h
+echo "#endif /* MAIN_INCLUDE_EASY_DOCUMENTATION_H_ */" >> easy_documentation.h
+

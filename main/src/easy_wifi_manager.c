@@ -27,7 +27,7 @@
 #include <easy_dns.h>
 
 
-#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
+#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config_Miro"
 #define EXAMPLE_ESP_WIFI_PASS	   ""
 #define EXAMPLE_MAX_STA_CONN	   5
 
@@ -199,7 +199,6 @@ void ap_wifi_init()
 	ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
 	ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
 	ESP_ERROR_CHECK(esp_wifi_start());
-
 
 	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
 			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);

@@ -29,13 +29,15 @@ PANDOC_HTML_OPTIONS=--to html5
 
 .PHONY: all clean
 
-documentation : $(EXPORTED_DOCS)
-				$(EXPORTED_DOCS): $(INCLUDE_DIR)/$$@
+documentation :	$(EXPORTED_DOCS)
+				mv readme.html  documentation/easy_documentation.h
+				cd documentation && ./makefsdata
+				mv documentation/easy_documentation.h main/include/easy_documentation.h
+				
 				
 	
 
-clean_documentation:
-	- $(RM) $(EXPORTED_DOCS)
+clean_documentation: $(RM) $(EXPORTED_DOCS)
 
 
 

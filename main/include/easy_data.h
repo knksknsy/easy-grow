@@ -106,7 +106,8 @@ static  char *WEBPAGE_NEW_CONFIG =
 		        "<p>Passwort eingeben: <input type='password' name='PW' /></p>"
 		        "<button type='submit' value='Abschicken'>Abschicken</button>"
 		        "<button onclick=\"location.href='/ap'\" type='button'>AP Mode</button>"
-		      "</form>"
+		"<button onclick=\"location.href='/docu'\" type='button'>Documentation</button>"
+		"</form>"
 	"</div>"
 		"<script type='text/javascript'>"
 		"window.onload = function () {"
@@ -135,7 +136,9 @@ static  char *WEBPAGE_CONFIG =
 	"<input type='submit' value='Abschicken' />"
 		"</form>"
 	"<button onclick=\"location.href='/ap'\" type='button'>"
-	"AP Mode</button></p>"
+	"AP Mode</button>"
+	"<button onclick=\"location.href='/docu'\" type='button'>"
+		"Documentation</button>"
     "</div></body></html>"
 };
 

@@ -9,8 +9,18 @@ See the file easy_dns.c for the licence and https://github.com/Spritetm/libespht
 
 ## Table of Contents
 - [1. Dokumentation](#docu) 
-    * [1.1 Power supply](#powersupply)
+    * [1.1 Stromversorgung](#stromversorgung)
+    * [1.1.1 Stromverbrauch](#stromvebrauch)
+    * [1.1.2 Batteriebetrieb](#batteriebetrieb)
     * [1.2 File includes with make](#make)
+        * [1.2.1 Flash-Argumente](#flash_argumente)
+        * [1.2.2 Building Documentation with make](#make_documentation)
+    * [1.3 Systembausteine](#systembausteine)
+        * [1.3.3 Easy_DNS](#dns)
+    
+ 
+    
+    
 - [2. Setting up the software environment](#sw_env)  
     * [2.1 ESP8266 toolchain setup using Docker](#tool_docker)
         + [2.1.1 Install Docker](#inst_docker)
@@ -32,10 +42,79 @@ See the file easy_dns.c for the licence and https://github.com/Spritetm/libespht
 
 <a name="docu"></a>
 ## 1. Dokumentation
-<a name="powersupply"></a>
-### 1.1 [Stromversorgung](DOCUMENTATION/stromversorgung.md)
+<a name="stromversorgung"></a>
+### 1.1 [Stromversorgung]
+
+Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Microkontroller verbunden. Pin 2,3,4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden.
+Zum FLashen ist daher der Microkontroller abnehmbar.
+
+Neben der kompletten Abschaltung des Systems über den Kippschalter, wird diese Schaltung ebenfalls für den Pumpenbetrieb benötigt.
+Mit einem Verbauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.
+
+Mit der Betriebsart über den Vin-Pin (Vin-PIn, Micro-USB-Anschluss, sowie 3.3V-Pin werden unterstützt) lassen sich nur um die 800mA aus der V-Pins beziehen. Daher wird die Pumpe über die von uns entwickelte Platine mit Strom versorgt. 
+Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt.  Die 3.3V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Vebraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3.3V zu schwach. 
+
+<a name="stromvebrauch"></a>
+#### 1.1.1 Stromvebrauch
+Der Stromvebrauch des Microkontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Vebrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87mA.
+Pro eingeschaltete LED kommen 13mA (rote LED,mit 2V Flussspannung und 100 Ohm Vorwiderstand) hinzu. Die Pumpe verbraucht im Schnitt 1.2A.
+
+<a name="batteriebetrieb"></a>
+#### 1.1.2 Batteriebetrieb
+Für Evaluation des Batteriebetriebs muss zunächst der Verbrauch in Amperestunden ermittelt werden. Als typisches Beispiel wird daher angenommen, dass:
+1. Der Kontroller mit einem Wlan verbunden ist (87mA)
+2. Neben den zwei TankLEDs eine weitere LED eingeschalten ist (39mA)
+3. Die Pumpe 20 Sekunden pro Tag pumpt (0.012 mA)
+
+Ein 5V Akku mit 2000mAh wäre schon nach 15 Stunden leer.
+
+Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen werden:
+
++ Deaktivieren der LEDs nach wenigen Sekunden und Aktivierung erst wieder bei Knopfdruck
++ Deaktivieren der WiFi-Schnittstelle, wenn in einem gewissen Zeitraum keine SSID/Passworteingabe erfolgt ist.
++ Kompletter Headless-Modus (Keine Web- oder LED-Interface) nach einmaliger Feuchtigkeitseingabe über das Webinterface
+
+
 <a name="make"></a>
-### 1.2 [Includierung von Dateien mit Make](DOCUMENTATION/make.md)
+### 1.2 Includierung von Dateien mit Make
+
+Das vordefinierte Make-File des SDKs bietet verschiedene Möglichkeiten Dateien einzubinden. Dafür benötigt jedes Projekt ein eigenes Makefile, das auf das SDK-Makefile verweist:
+```
+PROJECT_NAME := easy_grow
+
+include $(IDF_PATH)/make/project.mk
+```
+In diesem können weitere Include-Pfade spezifiziert werden, dies funktioniert in Abhängigkeit der Commitversion sowie des Pfades dennoch nicht zuverlässig. 
+```COMPONENT_ADD_INCLUDEDIRS```
+```COMPONENT_SRCDIRS```
+
+Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner eingefügt. Diese leeren ```component.mk``` Dateien werden im Buildprozess erkannt und Dateien auf gleiche Dateiebene hinzugefügt.
+
+<a name="flash_argumente"></a>
+#### 1.2.1 Flash-Argumente
+```make build``` ruft den Buildprozess auf und die erzeugte Firmware kann mit  ```make flash``` auf den Microkontroller übertragen werden. 
+```make flash``` nutzt hierbei die Einstellungen aus der sdkconfig. Diese Datei kann manuell erzeugt oder mit ```make menuconfig``` generiert werden. In ihr sind Daten wie die Baudrate und der USB-Port enthalten. 
+Diese Einstellungen können mit ```make print_flash_cmd``` ausgegeben werden und bei direktem flashen über das Phyton -Programm esptool.py direkt gesetzt werden:
+```python esptool.py --chip esp8266 --port /dev/ttyUSB0 --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode qio --flash_freq 40m --flash_size detect 0 bootloader/bootloader.bin 0x10000 example_app.bin 0x8000 partitions_singleapp.bin
+```
+Der Aufruf über das esptool erfolgt innerhalb des Makefiles und bildet somit keinen differenten Flashprozess ab.
+
+<a name="make_documentation"></a>
+
+#### 1.2.2 
+```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei readme.md in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird Pandoc https://pandoc.org/ benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
+
+
+<a name="systembausteine"></a>
+### 1.3 [Systembausteine]
+
+<a name="dns"></a>
+#### [1.3.3 Easy_DNS]
+
+
+
+
+
 
 <a name="sw_env"></a>
 ## 2. Setting up the software environment
