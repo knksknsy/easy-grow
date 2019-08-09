@@ -45,7 +45,7 @@ typedef struct __attribute__ ((packed)) {
 #define FLAG_TC (1<<1)
 
 /*
- * List of used DNS record types
+ * Genutze DNS RECORD Typen
  */
 #define RECORD_TYPE_A  1
 #define RECORD_TYPE_NS 2
@@ -59,7 +59,7 @@ typedef struct __attribute__ ((packed)) {
 
 
 /*
- * Starts the DNS Server with the captive portal
+ * Starten des DNS Servers mit der Weiterleitung
  */
 void startDNS(void);
 

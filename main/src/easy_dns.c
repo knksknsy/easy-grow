@@ -46,8 +46,9 @@ static uint16_t local_ntohs(uint16_t *in) {
 	return ((p[0] << 8) & 0xff00) | (p[1] & 0xff);
 }
 
-//Parses a label into a C-string containing a dotted
-//Returns pointer to start of next fields in packet
+/*
+ * Parsen des DNS Format in eine C String
+ */
 static char* labelToStr(char *packet, char *labelPtr, int packetSz, char *res,
 		int resMaxLen) {
 	int i, j, k;
@@ -55,11 +56,9 @@ static char* labelToStr(char *packet, char *labelPtr, int packetSz, char *res,
 	i = 0;
 	do {
 		if ((*labelPtr & 0xC0) == 0) {
-			j = *labelPtr++; //skip past length
-			//Add separator period if there already is data in res
+			j = *labelPtr++;
 			if (i < resMaxLen && i != 0)
 				res[i++] = '.';
-			//Copy label to res
 			for (k = 0; k < j; k++) {
 				if ((labelPtr - packet) > packetSz)
 					return NULL;
@@ -67,55 +66,53 @@ static char* labelToStr(char *packet, char *labelPtr, int packetSz, char *res,
 					res[i++] = *labelPtr++;
 			}
 		} else if ((*labelPtr & 0xC0) == 0xC0) {
-			//Compressed label pointer
 			endPtr = labelPtr + 2;
 			int offset = local_ntohs(((uint16_t *) labelPtr)) & 0x3FFF;
-			//Check if offset points to somewhere outside of the packet
 			if (offset > packetSz)
 				return NULL;
 			labelPtr = &packet[offset];
 		}
-		//check for out-of-bound-ness
 		if ((labelPtr - packet) > packetSz)
 			return NULL;
 	} while (*labelPtr != 0);
-	res[i] = 0; //zero-terminate
+	res[i] = 0;ewwwe
 	if (endPtr == NULL)
 		endPtr = labelPtr + 1;
 	return endPtr;
 }
 
-//Converts a dotted hostname to the weird label form dns uses.
+/*
+ * Parsen des Strings in den DNS Format
+ */
 static char *strToLabel(char *str, char *label, int maxLen) {
-	char *len = label; //ptr to len byte
-	char *p = label + 1; //ptr to next label byte to be written
+	char *len = label;
+	char *p = label + 1;
 	while (1) {
 		if (*str == '.' || *str == 0) {
-			*len = ((p - len) - 1);	//write len of label bit
-			len = p;				//pos of len for next part
-			p++;				//data ptr is one past len
+			*len = ((p - len) - 1);
+			len = p;
+			p++;
 			if (*str == 0)
-				break;	//done
+				break;
 			str++;
 		} else {
-			*p++ = *str++;	//copy byte
-//			if ((p-label)>maxLen) return NULL;	//check out of bounds
+			*p++ = *str++;
 		}
 	}
 	*len = 0;
-	return p; //ptr to first free byte in resp
+	return p;
 }
 
-#define DNS_SERVER_PORT     53
+#define DNS_SERVER_PORT   53
 
 int sock_fd;
-//LOCAL xQueueHandle QueueStop = NULL;
-
-//Receive a DNS packet and maybe send a response back
+/*
+ * Erhalt einer DNS Nachricht
+ */
 static void dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata,
 		unsigned short length) {
 
-	ESP_LOGI(TAG, "DNS request received.");
+	ESP_LOGI(TAG, "DNS Request received.");
 	char *buff = (char*) pvPortMalloc(LENGTH_DNS);
 	char *reply = (char*) pvPortMalloc(LENGTH_DNS);
 	char *rend = reply + length;
@@ -124,18 +121,17 @@ static void dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata,
 	DnsHeader *rhdr = (DnsHeader*) reply;
 	p += sizeof(DnsHeader);
 
+	//DNS Implementaiton ist zu lang
 	if (length > 512)
 		goto finish;
-	//Packet is longer than DNS implementation allows,512
+	//DNS Implementaiton ist zu kurz
 	if (length < sizeof(DnsHeader))
 		goto finish;
-	//Packet is too short
+	//DNS Antworten werden nicht bearbeitet
 	if (hdr->ancount || hdr->nscount || hdr->arcount)
 		goto finish;
-	//this is a reply, don't know what to do with it
 	if (hdr->flags & FLAG_TC)
 		goto finish;
-	//truncated, can't use this
 
 	memcpy(reply, pusrdata, length);
 	rhdr->flags |= FLAG_QR;
@@ -147,19 +143,18 @@ static void dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata,
 		DnsQuestionFooter *qf = (DnsQuestionFooter*) p;
 		p += sizeof(DnsQuestionFooter);
 		if (local_ntohs(&qf->type) == RECORD_TYPE_A) {
-			//They want to know the IPv4 address of something.
-			//Build the response.
+			//Erstellen der Antwort
 			rend = strToLabel(buff, rend, LENGTH_DNS - (rend - reply)); //Add the label
 			if (rend == NULL)
 				goto finish;
+			//Initieren des DNS Footer
 			DnsResourceFooter *rf = (DnsResourceFooter *) rend;
 			rend += sizeof(DnsResourceFooter);
 			writeUInt16(&rf->type, RECORD_TYPE_A);
 			writeUInt16(&rf->class, DNS_CLASS_IN);
 			writeUInt32(&rf->ttl, 0);
-			writeUInt16(&rf->rdlength, 4); //IPv4 addr is 4 bytes;
-			//Grab the current IP of the softap interface
-
+			writeUInt16(&rf->rdlength, 4);
+			//Klient benötigt die DNS Server Adresse -> ESP IP
 			*rend++ = 192;
 			*rend++ = 168;
 			*rend++ = 4;
@@ -169,7 +164,7 @@ static void dnsRecv(struct sockaddr_in *premote_addr, char *pusrdata,
 		}
 	}
 
-	//Send the response
+	//Senden der Antwort
 	sendto(sock_fd, reply, rend - reply, 0, (struct sockaddr * )premote_addr,
 			sizeof(struct sockaddr_in));
 
@@ -235,7 +230,7 @@ void dns_task(void *pvParameters) {
 			dnsRecv(&from, udp_msg, ret);
 		}
 
-		ESP_LOGI(TAG, "captdns stack %d, heap %d\n",
+		ESP_LOGI(TAG, "DNS stack %d, HEAP %d\n",
 				(int)uxTaskGetStackHighWaterMark(NULL),
 				(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 	}
