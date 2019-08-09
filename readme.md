@@ -1,28 +1,27 @@
 ## Easy Grow Code Page
 
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
+Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
 
-<<<<<<< HEAD
-## External Components
-The project uses modified parts of the dns server from libesphttpd.
-See the file easy_dns.c for the licence and https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c for the original file.
+## Externe Komponenten
+Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle libesphttpd.
+In der Datei easy_dns.c ist die Lizenz und der Author vermerkt, weitere Informationen sowie das Original finden sich unter  https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c.
 
-Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit eurer Pflanzen.
 
 
 ## Table of Contents
 - [1. Dokumentation](#docu) 
     * [1.1 Stromversorgung](#stromversorgung)
-    * [1.1.1 Stromverbrauch](#stromvebrauch)
-    * [1.1.2 Batteriebetrieb](#batteriebetrieb)
-    * [1.2 File includes with make](#make)
-        * [1.2.1 Flash-Argumente](#flash_argumente)
-        * [1.2.2 Building Documentation with make](#make_documentation)
+     + [1.1.1 Stromverbrauch](#stromvebrauch)
+     + [1.1.2 Batteriebetrieb](#batteriebetrieb)
+    * [1.2 File includes mit make](#make)
+     + [1.2.1 Flash-Argumente](#flash_argumente)
+     + [1.2.2 Erstellen der Dokumentation mit make](#make_documentation)
     * [1.3 Systembausteine](#systembausteine)
         * [1.3.3 Easy_DNS](#dns)
             - [2.1.1.1 MacOS](#inst_docker_mac)
             - [2.1.1.2 Windows](#inst_docker_win)
-        + [2.1.2 Bauen des Docker-Images](#build_docker)
+    + [2.1.2 Bauen des Docker-Images](#build_docker)
         + [2.1.3 Freigeben des seriellen Ports vom Hosts zum Docker-Container](#serial_port)
             - [2.1.3.1 MacOS](#serial_port_mac)
             - [2.1.3.2 Windows](#serial_port_windows)
@@ -39,7 +38,7 @@ Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht un
 <a name="docu"></a>
 ## 1. Dokumentation
 <a name="stromversorgung"></a>
-### 1.1 [Stromversorgung]
+### 1.1 Stromversorgung
 
 Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Microkontroller verbunden. Pin 2,3,4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden.
 Zum FLashen ist daher der Microkontroller abnehmbar.
@@ -72,7 +71,6 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 
 
 <a name="make"></a>
-<<<<<<< HEAD
 ### 1.2 Includierung von Dateien mit Make
 
 Das vordefinierte Make-File des SDKs bietet verschiedene Möglichkeiten Dateien einzubinden. Dafür benötigt jedes Projekt ein eigenes Makefile, das auf das SDK-Makefile verweist:
@@ -98,7 +96,7 @@ Der Aufruf über das esptool erfolgt innerhalb des Makefiles und bildet somit ke
 
 <a name="make_documentation"></a>
 
-#### 1.2.2 
+#### 1.2.2 Erstellen der Dokumentation mit make
 ```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei readme.md in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird Pandoc https://pandoc.org/ benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
 
 
@@ -107,14 +105,6 @@ Der Aufruf über das esptool erfolgt innerhalb des Makefiles und bildet somit ke
 
 <a name="dns"></a>
 #### [1.3.3 Easy_DNS]
-
-
-
-
-
-=======
-### 1.2 [Inkludierung von Dateien mit Make](DOCUMENTATION/make.md)
->>>>>>> 483f1995a49c4200b83d2f8b4a79fdb5f13c1d3b
 
 <a name="sw_env"></a>
 ## 2. Aufsetzen der Softwareumgebung
