@@ -267,7 +267,6 @@ Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung 
 | RX    | 3     | <span style="color: yellow;">OK</span> | <span style="color: red;">RX pin</span> | HIGH beim Boot. |
 | TX    | 1     | <span style="color: red;">TX pin</span> | <span style="color: yellow;">OK</span> | HIGH beim Boot.<br>Debug-Ausgabe beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
 | A0    | ADC0     | <span style="color: green;">Analog Input</span> | <span style="color: red;">X</span> | - |
->>>>>>> Stashed changes
 
 <a name="sw_env"></a>
 ## 5. Aufsetzen der Softwareumgebung
