@@ -247,26 +247,26 @@ Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung 
 <a name="gpio_mapping_esp"></a>
 ### 4.6 NodeMCU GPIO-Mapping auf ESP8266
 
-<span style="color: green;">OK = Zur Verwendung empfohlen</span>
+![](https://via.placeholder.com/15/00FF00/808080?text=+) = Zur Verwendung empfohlen
 
-<span style="color: yellow;">OK = Kann zu unerwartetes Verhalten führen (vor allem beim Booten)</span>
+![](https://via.placeholder.com/15/FFCC00/808080?text=+) = Kann zu unerwartetes Verhalten führen (vor allem beim Booten)
 
-<span style="color: red;">OK = Nicht zur Verwendung empfohlen</span>
+![](https://via.placeholder.com/15/FF0000/808080?text=+) = Nicht zur Verwendung empfohlen
 
 | Label | GPIO | Input          | Output                    | Bemerkung                                                        |
 | :---  | :--- | :---           | :---                      | :---                                                             |
 | D0    | 16   | Kein Interrupt | Kein PWM oder I2C Support | HIGH beim Boot.<br>Wird verwendet um vom Deep-Sleep aufzuwecken. |
-| D1    | 5    | <span style="color: green;">OK</span> | <span style="color: green;">OK</span> | Oft als SCL (I2C) verwendet.  |
-| D2    | 4    | <span style="color: green;">OK</span> | <span style="color: green;">OK</span> | Oft als SCL (I2C) verwendet.  |
-| D3    | 0    | Pulled UP | <span style="color: green;">OK</span> | Verbunden mit dem FLASH-Taster.<br>Boot schlägt fehl wenn auf LOW gezogen. |
-| D4    | 2    | Pulled UP | <span style="color: green;">OK</span> | HIGH beim Boot.<br>Mit dem On-Board-LED verbunden.<br>Boot schlägt fehl wenn auf LOW gezogen. |
-| D5    | 14    | <span style="color: green;">OK</span> | <span style="color: green;">OK</span> | SPI (SCLK) |
-| D6    | 12    | <span style="color: green;">OK</span> | <span style="color: green;">OK</span> | SPI (MISO) |
-| D7    | 13    | <span style="color: green;">OK</span> | <span style="color: green;">OK</span> | SPI (MOSI) |
-| D8    | 15    | Pulled to GND | <span style="color: yellow;">OK</span> | SPI (CS)<br>Boot schlägt fehl wenn auf HIGH gezogen. |
-| RX    | 3     | <span style="color: yellow;">OK</span> | <span style="color: red;">RX pin</span> | HIGH beim Boot. |
-| TX    | 1     | <span style="color: red;">TX pin</span> | <span style="color: yellow;">OK</span> | HIGH beim Boot.<br>Debug-Ausgabe beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
-| A0    | ADC0     | <span style="color: green;">Analog Input</span> | <span style="color: red;">X</span> | - |
+| D1    | 5    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | Oft als SCL (I2C) verwendet.  |
+| D2    | 4    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | Oft als SCL (I2C) verwendet.  |
+| D3    | 0    | Pulled UP | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | Verbunden mit dem FLASH-Taster.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| D4    | 2    | Pulled UP | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | HIGH beim Boot.<br>Mit dem On-Board-LED verbunden.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| D5    | 14    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | SPI (SCLK) |
+| D6    | 12    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | SPI (MISO) |
+| D7    | 13    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | SPI (MOSI) |
+| D8    | 15    | Pulled to GND | ![](https://via.placeholder.com/15/FFCC00/808080?text=+) | SPI (CS)<br>Boot schlägt fehl wenn auf HIGH gezogen. |
+| RX    | 3     | ![](https://via.placeholder.com/15/FFCC00/808080?text=+) | ![](https://via.placeholder.com/15/FF0000/808080?text=+)<br>RX pin | HIGH beim Boot. |
+| TX    | 1     | ![](https://via.placeholder.com/15/FF0000/808080?text=+)<br>TX pin | ![](https://via.placeholder.com/15/FFCC00/808080?text=+) | HIGH beim Boot.<br>Debug-Ausgabe beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| A0    | ADC0     | ![](https://via.placeholder.com/15/00FF00/808080?text=+)<br> | ![](https://via.placeholder.com/15/FF0000/808080?text=+) | Analog Input |
 
 <a name="sw_env"></a>
 ## 5. Aufsetzen der Softwareumgebung
