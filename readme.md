@@ -182,8 +182,8 @@ Die Features des NodeMCU Development Boards sind folgende:
 -	Einen Flash-Speicher mit 4 MB Kapazität
 
 | __GPIO__ | __3,3V Vreg__ | __USB-to-Serial__ | __Auto-Reset__ | __Auto-Program__ | __Flash__      | __ADC Range__ |
-| :--- |  :---     | :---          | :---       | :---         | :---       | :---      |
-| 11   | +         | +             | +          | +            | 4MB (32Mb) | 0-3,3 V   |
+| :---: |  :---:     | :---:          | :---:       | :---:         | :---:       | :---:      |
+| 11   | ✓         | ✓             | ✓          | ✓            | 4MB (32Mb) | 0-3,3 V   |
 
 Dieses Board wird im Gerätemanager (Windows) oder in ```lsusb``` (Linux) angezeigt, sobald es angeschlossen wird. Es verfügt über einen integrierten 3,3 V-Regler und kann direkt über USB programmiert werden, so dass keine externen Komponenten benötigt werden, um es zu betreiben.
 
@@ -373,7 +373,7 @@ Hierfür muss zunächst ein Virtualbox Treiber für die Docker-Maschine erzeugt 
 
 6. Falls USB 2.0 nicht ausgewählt werden kann, muss der 'Oracle VM VirtualBox Extension Pack' installiert werden. Die Anweisungen für die Installation befindet sich hier: https://www.virtualbox.org/wiki/Downloads
 7. Starte die Docker-Maschine mit: ```$ docker-machine start```
-8. Es müssen einige Umgebungsvariablen gesetzt werden, damit Docker die VM verwendet anstelle des nativen Modus. Das ```$ docker-machine env``` Kommando gibt die notwendigen Schritte für das Setzen der Variablen an. Führe folgenden Befehl aus um diese zu setzen: ```& eval "$(docker-machine env default)"```
+8. Es müssen einige Umgebungsvariablen gesetzt werden, damit Docker die VM verwendet anstelle des nativen Modus. Das ```$ docker-machine env``` Kommando gibt die notwendigen Schritte für das Setzen der Variablen an. Führe folgenden Befehl aus um diese zu setzen: ```$ eval "$(docker-machine env default)"```
 
 Der serielle Port des Hosts ist nun vom Docker-Container aus ansprechbar.
 
