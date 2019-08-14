@@ -3,16 +3,21 @@
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
 Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
 
-![EasyGrow](images/overview.jpg)
+<img src="images/overview.jpg" width="500">
 
 ## Features
 - Gießen der Pflanze (Automatisiert und Manuell)
-- Einstellen der gewünschten Feuchtigkeit                                      
-![](images/crop_states.gif)
+- Einstellen der gewünschten Feuchtigkeit
+
+<img src="images/crop_states.gif" width="500">   
+
 - Verbinden zum heimischen Wlan oder Steuerung über eigenes Wifi Netzwerk
-![](images/wifi_all.gif)
-- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit 
-![](images/wifi_setup.gif)
+
+<img src="images/wifi_all.gif" width="500">
+
+- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
+
+<img src="images/wifi_setup.gif" width="500">
 
 ## Externe Komponenten
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
@@ -331,9 +336,13 @@ Hierfür muss zunächst ein Virtualbox Treiber für die Docker-Maschine erzeugt 
 2. Überprüfe ob der Treiber erzeugt wurde: ```$ docker-machine ls```
 3. Stoppe die Docker-Maschine: ```$ docker-machine stop```
 4. Jetzt kann die VM konfiguriert und der serielle Port exportiert werden. Öffne die Virtualbox Anwendung. Wähle die 'default' VM aus und klicke auf den 'Settings' Button, um die USB Einstellungen vorzunehmen.
-![Virtualbox 'default' VM Einstellungen](images/virtualbox_default_settings.png)
+
+<img src="images/virtualbox_default_settings.png" width="500" alt="Virtualbox 'default' VM Einstellungen">
+
 5. Klicke auf 'Ports' und anschließend auf den 'USB' Tab. Aktiviere die 'Enable USB Controller' Checkbox. Wähle 'USB 2.0 (EHCI) Controller' aus. Füge einen USB Filter hinzu (USB Icon mit grünem Plus Symbol). Wähle den 'Silicon Labs CP2102 USB to UART Bridge Controller [0100]' Treiber aus.
-![Virtualbox serieller Port](images/virtualbox_port_usb.png)
+
+<img src="images/virtualbox_port_usb.png" width="500" alt="Virtualbox serieller Port">
+
 6. Falls USB 2.0 nicht ausgewählt werden kann, muss der 'Oracle VM VirtualBox Extension Pack' installiert werden. Die Anweisungen für die Installation befindet sich hier: https://www.virtualbox.org/wiki/Downloads
 7. Starte die Docker-Maschine mit: ```$ docker-machine start```
 8. Es müssen einige Umgebungsvariablen gesetzt werden, damit Docker die VM verwendet anstelle des nativen Modus. Das ```$ docker-machine env``` Kommando gibt die notwendigen Schritte für das Setzen der Variablen an. Führe folgenden Befehl aus um diese zu setzen: ```& eval "$(docker-machine env default)"```
@@ -419,7 +428,7 @@ TODO @Tim
 5. Verbinde den ESP8266 nodeMCU mittels USB.
 6. Führe den ```docker.sh``` Script aus. Dieser Script erzeugt das Docker Image ```docker-esp8266``` und initialisier einen Container mit der ESP IDF Umgebung.<br>```$ ./docker.sh```
 7. Wechsle innerhalb des Containers zum ```easy-grow``` Projektverzeichnis:<br>```$ cd easy-grow```
-8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [2. Configuring the Espressif IoT Development Framework](#idf_config).
+8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [6. Konfiguration des Espressif IoT Development Frameworks](#idf_config).
 9. Baue das Projekt, flashe den nodeMCU, und aktiviere das Monitoring mit:<br>```$ make && make flash && make monitor```.<br> Falls eine Fehlermeldung erscheint, führe den folgenden Befehl erneut aus: ```$ make flash && make monitor```.
 
 <a name="changelog"></a>
