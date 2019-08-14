@@ -492,18 +492,18 @@ TODO @Tim
 
 | __Label__ | __GPIO__ | __Sensor__ | __Input__ | __Output__ | __ISR__ | __Bemerkung__ |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| D0    | 16   | Pumpe | x | ✔ | x | HIGH beim Boot. |
-| D1    | 5    | LED Feuchtigkeit 2 (MID) | x | ✔ | x | - |
-| D2    | 4    | LED Feuchtigkeit 1 (LOW) | x | ✔ | x | - |
-| D3    | 0    | Decrease-Button | ✔ | x | ✔ | Boot schlägt fehl wenn auf LOW gezogen. |
-| D4    | 2    | LED Feuchtigkeit 3 (HIGH) | x | ✔ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
-| D5    | 14   | Increase-Button | ✔ | x | ✔ | - |
-| D6    | 12   | Wasserstandsensor 1 (Oben) | ✔ | x | ✔ | - |
-| D7    | 13   | Wasserstandsensor 2 (Unten) | ✔ | x | ✔ | - |
-| D8    | 15   | LED Wasserstand 1 (Oben) | x | ✔ | x | Boot schlägt fehl wenn auf HIGH gezogen. |
-| RX    | 3    | Photodiode | ✔ | x | ✔ | HIGH beim Boot. |
-| TX    | 1    | LED Wasserstand 2 (Unten) | x | ✔ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
-| A0    | ADC0 | Feuchtigkeitssensor | ✔ | x | x | Analog Input |
+| D0    | 16   | Pumpe | x | ✓ | x | HIGH beim Boot. |
+| D1    | 5    | LED Feuchtigkeit 2 (MID) | x | ✓ | x | - |
+| D2    | 4    | LED Feuchtigkeit 1 (LOW) | x | ✓ | x | - |
+| D3    | 0    | Decrease-Button | ✓ | x | ✓ | Boot schlägt fehl wenn auf LOW gezogen. |
+| D4    | 2    | LED Feuchtigkeit 3 (HIGH) | x | ✓ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| D5    | 14   | Increase-Button | ✓ | x | ✓ | - |
+| D6    | 12   | Wasserstandsensor 1 (Oben) | ✓ | x | ✓ | - |
+| D7    | 13   | Wasserstandsensor 2 (Unten) | ✓ | x | ✓ | - |
+| D8    | 15   | LED Wasserstand 1 (Oben) | x | ✓ | x | Boot schlägt fehl wenn auf HIGH gezogen. |
+| RX    | 3    | Photodiode | ✓ | x | ✓ | HIGH beim Boot. |
+| TX    | 1    | LED Wasserstand 2 (Unten) | x | ✓ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| A0    | ADC0 | Feuchtigkeitssensor | ✓ | x | x | Analog Input |
 
 <a name="eg_circuit"></a>
 ### 10.3 Schaltbild
