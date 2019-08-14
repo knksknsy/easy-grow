@@ -168,7 +168,7 @@ Die Features des NodeMCU Development Boards sind folgende:
 -	Spannungsteiler zur Skalierung des Analogeingangs
 -	Einen Flash-Speicher mit 4 MB Kapazität
 
-| GPIO | 3,3V Vreg | USB-to-Serial | Auto-Reset | Auto-Program | Flash      | ADC Range |
+| __GPIO__ | __3,3V Vreg__ | __USB-to-Serial__ | __Auto-Reset__ | __Auto-Program__ | __Flash__      | __ADC Range__ |
 | :--- |  :---     | :---          | :---       | :---         | :---       | :---      |
 | 11   | +         | +             | +          | +            | 4MB (32Mb) | 0-3,3 V   |
 
@@ -200,7 +200,7 @@ GPIO 1 und 3 werden als TX und RX der seriellen Hardware-Schnittstelle (UART) ve
 
 Einige I/O-Pins haben eine spezielle Funktion beim Booten. Sie wählen einen von 3 Boot-Modi:
 
-| GPIO15 | GPIO0 | GPIO2 | Modus                      |
+| __GPIO15__ | __GPIO0__ | __GPIO2__ | __Modus__                      |
 | :---   | :---  | :---  | :---                       |
 | 0 V    | 0 V   | 3,3 V | UART Bootloader            |
 | 0 V    | 3,3 V | 3,3 V | Boot Sketch<br>(SPI Flash) |
@@ -258,7 +258,7 @@ Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung 
 
 ![](https://via.placeholder.com/15/FF0000/808080?text=+) = Nicht zur Verwendung empfohlen
 
-| Label | GPIO | Input          | Output                    | Bemerkung                                                        |
+| __Label__ | __GPIO__ | __Input__          | __Output__                    | __Bemerkung__                                                        |
 | :---  | :--- | :---           | :---                      | :---                                                             |
 | D0    | 16   | Kein Interrupt | Kein PWM oder I2C Support | HIGH beim Boot.<br>Wird verwendet um vom Deep-Sleep aufzuwecken. |
 | D1    | 5    | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | ![](https://via.placeholder.com/15/00FF00/808080?text=+) | Oft als SCL (I2C) verwendet.  |
