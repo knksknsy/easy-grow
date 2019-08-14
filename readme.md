@@ -11,7 +11,7 @@ Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht un
 
 <img src="images/crop_states.gif" width="500">   
 
-- Verbinden zum heimischen Wlan oder Steuerung über eigenes Wifi Netzwerk
+- Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk
 
 <img src="images/wifi_all.gif" width="500">
 
@@ -65,33 +65,46 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [6.2 ESP IDF](#esp_idf)
 - [7. Bauen, Flashen und Monitoring](#build)
 - [8. Bauen und Flashen des LED-Beispiels](#led_example)
-- [9. Changelog](#changelog)
+- [9. ESP8266 RTOS SDK](#rtos_sdk)
+    * [9.1 Überblick](#rtos_overview)
+    * [9.2 Konzepte](#rtos_concept)
+    * [9.3 xTasks](#rtos_xtasks)
+    * [9.4 GPIO](#rtos_gpio)
+    * [9.5 WiFi](#rtos_wifi)
+    * [9.6 HTTP Server](#rtos_http_server)
+    * [9.7 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
+- [10. Easy Grow Projekt](#easy_grow)
+    * [10.1 Hardware-Komponenten](#eg_hardware)
+    * [10.2 GPIO-Mapping](#eg_gpio)
+    * [10.3 Schaltbild](#eg_circuit)
+    * [10.4 Funktionsweise](#eg_functionality)
+- [11. Changelog](#changelog)
 <!-- toc -->
 
 <a name="stromversorgung"></a>
 ## 1. Stromversorgung
 
-Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Microkontroller verbunden. Pin 2,3,4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden.
-Zum FLashen ist daher der Microkontroller abnehmbar.
+Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Mikrocontroller verbunden. Pin 2,3,4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden.
+Zum Flashen ist daher der Mikrocontroller abnehmbar.
 
 Neben der kompletten Abschaltung des Systems über den Kippschalter, wird diese Schaltung ebenfalls für den Pumpenbetrieb benötigt.
-Mit einem Verbauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.
+Mit einem Verbrauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.
 
 Mit der Betriebsart über den Vin-Pin (Vin-PIn, Micro-USB-Anschluss, sowie 3.3V-Pin werden unterstützt) lassen sich nur um die 800 mA aus der V-Pins beziehen. Daher wird die Pumpe über die von uns entwickelte Platine mit Strom versorgt. 
-Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt.  Die 3.3 V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Vebraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3.3 V zu schwach. 
+Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt.  Die 3.3 V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Verbraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3.3 V zu schwach. 
 
 <a name="stromvebrauch"></a>
-### 1.1 Stromvebrauch
+### 1.1 Stromverbrauch
 
-Der Stromvebrauch des Microkontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Vebrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87 mA.
+Der Stromverbrauch des Mikrocontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Verbrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87 mA.
 Pro eingeschaltete LED kommen 13 mA (rote LED,mit 2 V Flussspannung und 100 Ohm Vorwiderstand) hinzu. Die Pumpe verbraucht im Schnitt 1.2 A.
 
 <a name="batteriebetrieb"></a>
 ### 1.2 Batteriebetrieb
 
 Für Evaluation des Batteriebetriebs muss zunächst der Verbrauch in Amperestunden ermittelt werden. Als typisches Beispiel wird daher angenommen, dass:
-1. Der Kontroller mit einem Wlan verbunden ist (87 mA)
-2. Neben den zwei TankLEDs eine weitere LED eingeschalten ist (39 mA)
+1. Der Controller mit einem WLAN verbunden ist (87 mA)
+2. Neben den zwei Tank-LEDs eine weitere LED eingeschaltet ist (39 mA)
 3. Die Pumpe 20 Sekunden pro Tag pumpt (0.012 mA)
 
 Ein 5V Akku mit 2000 mAh wäre schon nach 15 Stunden leer.
@@ -106,13 +119,13 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 <a name="make"></a>
 ## 2. File includes mit make
 
-Das vordefinierte Make-File des SDKs bietet verschiedene Möglichkeiten Dateien einzubinden. Dafür benötigt jedes Projekt ein eigenes Makefile, das auf das SDK-Makefile verweist:
+Das vordefinierte Makefile des SDKs bietet verschiedene Möglichkeiten Dateien einzubinden. Dafür benötigt jedes Projekt ein eigenes Makefile, das auf das SDK-Makefile verweist:
 ```
 PROJECT_NAME := easy_grow
 
 include $(IDF_PATH)/make/project.mk
 ```
-In diesem können weitere Include-Pfade spezifiziert werden, dies funktioniert in Abhängigkeit der Commitversion sowie des Pfades dennoch nicht zuverlässig. 
+In diesem können weitere Include-Pfade spezifiziert werden, dies funktioniert in Abhängigkeit der Commit-Version sowie des Pfades dennoch nicht zuverlässig. 
 ```COMPONENT_ADD_INCLUDEDIRS```
 ```COMPONENT_SRCDIRS```
 
@@ -121,18 +134,18 @@ Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner e
 <a name="flash_argumente"></a>
 ### 2.1 Flash-Argumente
 
-```make build``` ruft den Buildprozess auf und die erzeugte Firmware kann mit  ```make flash``` auf den Microkontroller übertragen werden. 
+```make build``` ruft den Buildprozess auf und die erzeugte Firmware kann mit  ```make flash``` auf den Mikrocontroller übertragen werden. 
 ```make flash``` nutzt hierbei die Einstellungen aus der sdkconfig. Diese Datei kann manuell erzeugt oder mit ```make menuconfig``` generiert werden. In ihr sind Daten wie die Baudrate und der USB-Port enthalten. 
-Diese Einstellungen können mit ```make print_flash_cmd``` ausgegeben werden und bei direktem flashen über das Phyton -Programm esptool.py direkt gesetzt werden:
+Diese Einstellungen können mit ```make print_flash_cmd``` ausgegeben werden und bei direktem flashen über das Phyton-Programm ```esptool.py``` direkt gesetzt werden:
 
 ```python esptool.py --chip esp8266 --port /dev/ttyUSB0 --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode qio --flash_freq 40m --flash_size detect 0 bootloader/bootloader.bin 0x10000 example_app.bin 0x8000 partitions_singleapp.bin```
 
-Der Aufruf über das esptool erfolgt innerhalb des Makefiles und bildet somit keinen differenten Flashprozess ab.
+Der Aufruf über das ```esptool``` erfolgt innerhalb des Makefiles und bildet somit keinen differenten Flash-Prozess ab.
 
 <a name="make_documentation"></a>
 ### 2.2 Erstellen der Dokumentation mit make
 
-```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei readme.md in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird Pandoc https://pandoc.org/ benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
+```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
 
 
 <a name="systembausteine"></a>
@@ -145,8 +158,8 @@ Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen.
 Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden.
 Bei der Erstellung des DNS Task wird der Namensserver für den UDP Port 53 registriert und die AF_INET Adressen Familien genutzt.
 So kann ein Hostname oder eine IPv4 Adresse einem Port, hier alle eigehenden IP-Adressen dem DNS Port, zugewiesen werden. 
-Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ingnoriert. 
-DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. connectivitycheck.android.com) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
+Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ignoriert. 
+DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. ```connectivitycheck.android.com```) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
 
 <a name="esp8266"></a>
 ## 4. ESP8266 Mikrocontroller
@@ -276,6 +289,19 @@ Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung 
 <a name="sw_env"></a>
 ## 5. Aufsetzen der Softwareumgebung
 
+Das Projekt "Easy Grow" wurde mittels des ESP8266 RTOS Software Development Kits (ESP-IDF Style) entwickelt.
+In diesem Kapitel wird der Setup der Software-Umgebung beschrieben.
+Der Setup bezieht sich auf die Installation der Toolchain, um Applikationen für den ESP8266 Chip zu bauen, sowie die Installation des ESP8266 RTOS SDKs, welche die API für den ESP8266 und Scripte für den Betrieb der Toolchain beinhaltet. Das ESP8266 RTOS SDK basiert auf das Real-Time-Betriebssystem FreeRTOS für Embedded-Devices. Die Grundlagen hierfür werden im Kapitel [9. ESP8266 RTOS SDK](#rtos_sdk) behandelt.
+
+Um Anwendungen für ESP8266 zu entwickeln, wird folgendes benötigt:
+
+- PC, der mit einem Windows-, Linux- oder Mac-Betriebssystem ausgestattet ist.
+- Toolchain zur Entwicklung der Anwendung für ESP8266.
+- ESP8266 RTOS SDK, das die API für ESP8266 und die Toolchain enthält.
+- Das ESP8266-Board (NodeMCU) selbst und ein USB-Kabel zum Anschluss an den PC.
+
+<img src="images/what-you-need.png" alt="" width="500">
+
 Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:
 
 1. Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)
@@ -352,7 +378,7 @@ Der serielle Port des Hosts ist nun vom Docker-Container aus ansprechbar.
 <a name="serial_port_win"></a>
 ##### 5.1.3.2 Windows
 
-Leider gibt es bis auf Weiteres keine Unterstüztung der 'Device Assignment' und 'Sharing Workloads' in Hyper-V-isolierte Windows Containern. 
+Leider gibt es bis auf Weiteres keine Unterstützung der 'Device Assignment' und 'Sharing Workloads' in Hyper-V-isolierte Windows Containern. 
 
 <a name="cont_docker"></a>
 #### 5.1.4 Ausführen des Docker-Containers
@@ -383,7 +409,7 @@ Wechsle in das ```setup``` Verzeichnis im Projektverzeichnis um die Softwareumge
 Dort befindet sich der ```initial_setup.sh``` Script, der folgendes automatisch aufsetzt:
 
 - Die Toolchain um Applikationen für den ESP8266 zu bauen.
-- Die ESP8266_RTOS_SDK, die die API und Scripte beinhaltet um die Toolchain zu betreiben.
+- Die ESP8266 RTOS SDK, die die API und Scripte beinhaltet um die Toolchain zu betreiben.
 
 Übergebe das ```--dir <path>``` Argument, um die Softwareumgebung in einem beliebigen Verzeichnis zu installieren. 
 Wird dieses Argument nicht gesetzt, wird standardmäßig die Softwareumgebung im ```ESP``` Ordner des Projektverzeichnis installiert.
@@ -431,5 +457,61 @@ TODO @Tim
 8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [6. Konfiguration des Espressif IoT Development Frameworks](#idf_config).
 9. Baue das Projekt, flashe den nodeMCU, und aktiviere das Monitoring mit:<br>```$ make && make flash && make monitor```.<br> Falls eine Fehlermeldung erscheint, führe den folgenden Befehl erneut aus: ```$ make flash && make monitor```.
 
+<a name="rtos_sdk"></a>
+## 9. ESP8266 RTOS SDK
+
+<a name="rtos_overview"></a>
+### 9.1 Überblick
+
+<a name="rtos_concepts"></a>
+### 9.2 Konzepte
+
+<a name="rtos_xtasks"></a>
+### 9.3 xTasks
+
+<a name="rtos_gpio"></a>
+### 9.4 GPIO
+
+<a name="rtos_wifi"></a>
+### 9.5 WiFi
+
+<a name="rtos_http_server"></a>
+### 9.6 HTTP Server
+
+<a name="rtos_flash"></a>
+### 9.7 Schreiben und Lesen des Flash-Speichers
+
+<a name="easy_grow"></a>
+## 10. Easy Grow Projekt
+
+<a name="eg_hardware"></a>
+### 10.1 Hardware-Komponenten
+
+<a name="eg_gpio"></a>
+### 10.2 GPIO-Mapping
+
+| __Label__ | __GPIO__ | __Sensor__ | __Input__ | __Output__ | __ISR__ | __Bemerkung__ |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| D0    | 16   | Pumpe | x | ✔ | x | HIGH beim Boot. |
+| D1    | 5    | LED Feuchtigkeit 2 (MID) | x | ✔ | x | - |
+| D2    | 4    | LED Feuchtigkeit 1 (LOW) | x | ✔ | x | - |
+| D3    | 0    | Decrease-Button | ✔ | x | ✔ | Boot schlägt fehl wenn auf LOW gezogen. |
+| D4    | 2    | LED Feuchtigkeit 3 (HIGH) | x | ✔ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| D5    | 14   | Increase-Button | ✔ | x | ✔ | - |
+| D6    | 12   | Wasserstandsensor 1 (Oben) | ✔ | x | ✔ | - |
+| D7    | 13   | Wasserstandsensor 2 (Unten) | ✔ | x | ✔ | - |
+| D8    | 15   | LED Wasserstand 1 (Oben) | x | ✔ | x | Boot schlägt fehl wenn auf HIGH gezogen. |
+| RX    | 3    | Photodiode | ✔ | x | ✔ | HIGH beim Boot. |
+| TX    | 1    | LED Wasserstand 2 (Unten) | x | ✔ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
+| A0    | ADC0 | Feuchtigkeitssensor | ✔ | x | x | Analog Input |
+
+<a name="eg_circuit"></a>
+### 10.3 Schaltbild
+
+<img src="images/easy_grow_circuit.png" alt="Easy Grow Schaltbild" width="500">
+
+<a name="eg_functionality"></a>
+### 10.4 Funktionsweise
+
 <a name="changelog"></a>
-## 9. [Changelog](changelog.md)
+## 11. [Changelog](changelog.md)
