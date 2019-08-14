@@ -489,6 +489,20 @@ TODO @Tim
 <a name="eg_hardware"></a>
 ### 10.1 Hardware-Komponenten
 
+| __Hardware-Komponente__ | __Bezeichnung__ | __Verwendungszweck__ | __Anzahl__ |
+| :--- | :--- | :--- | :--- |
+| NodeMCU | Amica V2 | Hardware-Logik<br>Webserver | 1 |
+| Wasserpumpe | Fenteer 3V | Bewässerung der Pflanze | 1 |
+| Photodiode | GL5528 | Aufzeichnung der Sonnenstunden | 1 |
+| Hygrometer | FC-28 | Messung der Erdfeuchtigkeit | 1 |
+| Amplifier (A-D) | - | Anschluss von:<br>- Photodiode<br>- Hygrometer | 2 |
+| Button | - | Einstellung der Erdfeuchtigkeit | 2 |
+| LED (Rot) | - | Erdfeuchtigkeitsanzeige<br>(geringe Feuchtigkeit) | 1 |
+| LED (Gelb) | - | Erdfeuchtigkeitsanzeige<br>(mittlere Feuchtigkeit) | 1 |
+| LED (Grün) | - | Erdfeuchtigkeitsanzeige<br>(hohe Feuchtigkeit) | 1 |
+| LED (Blau) | - | Wasserstandanzeige<br>$`2^2`$ Zustände:<br>voll, gut, leer | 2 |
+| Jumper-Kabel | - | Messung des Wassertankstandes<br>$`2^2`$ Zustände:<br>voll, gut, leer | 2 |
+
 <a name="eg_gpio"></a>
 ### 10.2 GPIO-Mapping
 
