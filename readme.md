@@ -70,14 +70,25 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [9.2 Konzepte](#rtos_concept)
     * [9.3 xTasks](#rtos_xtasks)
     * [9.4 GPIO](#rtos_gpio)
-    * [9.5 WiFi](#rtos_wifi)
-    * [9.6 HTTP Server](#rtos_http_server)
-    * [9.7 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
+        + [9.4.1 Konfiguration](#rtos_gpio_conf)
+        + [9.4.2 Interrupt Service Routine](#rtos_gpio_isr)
+        + [9.4.3 Analogeingang](#rtos_gpio_analog)
+    * [9.5 Timer](#rtos_timer)
+    * [9.6 WiFi](#rtos_wifi)
+    * [9.7 HTTP Server](#rtos_http_server)
+    * [9.8 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
 - [10. Easy Grow Projekt](#easy_grow)
     * [10.1 Hardware-Komponenten](#eg_hardware)
     * [10.2 GPIO-Mapping](#eg_gpio)
     * [10.3 Schaltbild](#eg_circuit)
     * [10.4 Funktionsweise](#eg_functionality)
+        + [10.4.1 Hardware-Logik](#eg_func_hw_logic)
+            - [10.4.1.1 Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
+            - [10.4.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
+            - [10.4.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
+            - [10.4.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
+        + [10.4.2 Webserver](#eg_func_server)
+        + [10.4.2 Access-Point](#eg_func_ap)
 - [11. Changelog](#changelog)
 <!-- toc -->
 
@@ -474,14 +485,26 @@ TODO @Tim
 <a name="rtos_gpio"></a>
 ### 9.4 GPIO
 
+<a name="rtos_gpio_conf"></a>
+#### 9.4.1 GPIO
+
+<a name="rtos_gpio_isr"></a>
+#### 9.4.2 Interrupt Service Routine
+
+<a name="rtos_gpio_analog"></a>
+#### 9.4.3 Analogeingang
+
+<a name="rtos_timer"></a>
+### 9.5 Timer
+
 <a name="rtos_wifi"></a>
-### 9.5 WiFi
+### 9.6 WiFi
 
 <a name="rtos_http_server"></a>
-### 9.6 HTTP Server
+### 9.7 HTTP Server
 
 <a name="rtos_flash"></a>
-### 9.7 Schreiben und Lesen des Flash-Speichers
+### 9.8 Schreiben und Lesen des Flash-Speichers
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
@@ -516,8 +539,8 @@ TODO @Tim
 | D3    | 0    | Decrease-Button | ✓ | x | ✓ | Boot schlägt fehl wenn auf LOW gezogen. |
 | D4    | 2    | LED Feuchtigkeit 3 (HIGH) | x | ✓ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
 | D5    | 14   | Increase-Button | ✓ | x | ✓ | - |
-| D6    | 12   | Wasserstandsensor 1 (Oben) | ✓ | x | ✓ | - |
-| D7    | 13   | Wasserstandsensor 2 (Unten) | ✓ | x | ✓ | - |
+| D6    | 12   | Wasserstandsensor 1 (Oben) | ✓ | x | x | - |
+| D7    | 13   | Wasserstandsensor 2 (Unten) | ✓ | x | x | - |
 | D8    | 15   | LED Wasserstand 1 (Oben) | x | ✓ | x | Boot schlägt fehl wenn auf HIGH gezogen. |
 | RX    | 3    | Photodiode | ✓ | x | ✓ | HIGH beim Boot. |
 | TX    | 1    | LED Wasserstand 2 (Unten) | x | ✓ | x | HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen. |
@@ -530,6 +553,27 @@ TODO @Tim
 
 <a name="eg_functionality"></a>
 ### 10.4 Funktionsweise
+
+<a name="eg_func_hw_logic"></a>
+#### 10.4.1 Hardware-Logik
+
+<a name="eg_func_hw_logic_set_moisture"></a>
+##### 10.4.1.1 Einstellung der Erdfeuchtigkeit
+
+<a name="eg_func_hw_logic_read_moisture"></a>
+##### 10.4.1.2 Messung der Erdfeuchtigkeit
+
+<a name="eg_func_hw_logic_watering"></a>
+##### 10.4.1.3 Bewässerung der Pflanze
+
+<a name="eg_func_hw_logic_sun_hours"></a>
+##### 10.4.1.4 Aufzeichnung der Sonnenstunden
+
+<a name="eg_func_server"></a>
+#### 10.4.2 Webserver
+
+<a name="eg_func_ap"></a>
+#### 10.4.2 Access-Point
 
 <a name="changelog"></a>
 ## 11. [Changelog](changelog.md)
