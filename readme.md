@@ -491,7 +491,7 @@ TODO @Tim
 ### 10.2 GPIO-Mapping
 
 | __Label__ | __GPIO__ | __Sensor__ | __Input__ | __Output__ | __ISR__ | __Bemerkung__ |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| :--- | :--- | :--- | :---: | :---: | :---: | :--- |
 | D0    | 16   | Pumpe | x | ✓ | x | HIGH beim Boot. |
 | D1    | 5    | LED Feuchtigkeit 2 (MID) | x | ✓ | x | - |
 | D2    | 4    | LED Feuchtigkeit 1 (LOW) | x | ✓ | x | - |
