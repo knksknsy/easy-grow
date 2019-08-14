@@ -508,7 +508,7 @@ TODO @Tim
 <a name="eg_circuit"></a>
 ### 10.3 Schaltbild
 
-<img src="images/easy_grow_circuit.png" alt="Easy Grow Schaltbild" width="500">
+<img src="images/easy_grow_circuit.png" alt="Easy Grow Schaltbild">
 
 <a name="eg_functionality"></a>
 ### 10.4 Funktionsweise
