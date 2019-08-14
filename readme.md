@@ -265,6 +265,8 @@ Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung 
 <a name="gpio_mapping_esp"></a>
 ### 4.6 NodeMCU GPIO-Mapping auf ESP8266
 
+<img src="images/nodemcu.png" alt="NodeMCU GPIO-Mapping auf ESP8266">
+
 ![](https://via.placeholder.com/15/00FF00/808080?text=+) = Zur Verwendung empfohlen
 
 ![](https://via.placeholder.com/15/FFCC00/808080?text=+) = Kann zu unerwartetes Verhalten führen (vor allem beim Booten)
@@ -489,6 +491,8 @@ TODO @Tim
 
 <a name="eg_gpio"></a>
 ### 10.2 GPIO-Mapping
+
+<img src="images/nodemcu.png" alt="NodeMCU GPIO-Mapping auf ESP8266">
 
 | __Label__ | __GPIO__ | __Sensor__ | __Input__ | __Output__ | __ISR__ | __Bemerkung__ |
 | :--- | :--- | :--- | :---: | :---: | :---: | :--- |
