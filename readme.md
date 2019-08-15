@@ -14,21 +14,18 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 - [2. Erstellen der Dokumentation mit make](#make_documentation)
 - [3. ESP8266 Mikrocontroller](#esp8266)
     * [3.1 NodeMCU Plattform](#nodemcu)
-    * [3.2 Stromversorgung](#stromversorgung)
-        + [3.2.1 Stromverbrauch](#stromvebrauch)
-        + [3.2.2 Batteriebetrieb](#batteriebetrieb)
-    * [3.3 Digitale I/O](#digital_io)
-        + [3.3.1 Spannungs- und Strombegrenzungen](#restrictions)
-        + [3.3.2 Verwendbare Pins](#usable_pins)
-        + [3.3.3 Boot-Modi](#boot_modes)
-        + [3.3.4 Interne Pull-Up/-Down-Widerstände](#pull_up_down)
-    * [3.4 Pulsweitenmodulation](#pwm)
-    * [3.5 Analogeingang](#analog_input)
-    * [3.6 Kommunikation](#communication)
-        + [3.6.1 Serial](#serial)
-        + [3.6.2 I2C](#i2c)
-        + [3.6.3 SPI](#spi)
-    * [3.7 NodeMCU GPIO-Mapping auf ESP8266](#gpio_mapping_esp)
+    * [3.2 Digitale I/O](#digital_io)
+        + [3.2.1 Spannungs- und Strombegrenzungen](#restrictions)
+        + [3.2.2 Verwendbare Pins](#usable_pins)
+        + [3.2.3 Boot-Modi](#boot_modes)
+        + [3.2.4 Interne Pull-Up/-Down-Widerstände](#pull_up_down)
+    * [3.3 Pulsweitenmodulation](#pwm)
+    * [3.4 Analogeingang](#analog_input)
+    * [3.5 Kommunikation](#communication)
+        + [3.5.1 Serial](#serial)
+        + [3.5.2 I2C](#i2c)
+        + [3.5.3 SPI](#spi)
+    * [3.6 NodeMCU GPIO-Mapping auf ESP8266](#gpio_mapping_esp)
 - [4. Aufsetzen der Softwareumgebung](#sw_env) 
     * [4.1 ESP8266 Toolchain-Setup mit Docker](#tool_docker)
         + [4.1.1 Installierung von Docker](#inst_docker)
@@ -64,17 +61,20 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [9.9 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
 - [10. Easy Grow Projekt](#easy_grow)
     * [10.1 Hardware-Komponenten](#eg_hardware)
-    * [10.2 GPIO-Mapping](#eg_gpio)
-    * [10.3 Schaltbild](#eg_circuit)
-    * [10.4 Funktionsweise](#eg_functionality)
-        + [10.4.1 Hardware-Logik](#eg_func_hw_logic)
-            - [10.4.1.1 Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
-            - [10.4.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
-            - [10.4.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
-            - [10.4.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
-        + [10.4.2 Webserver](#eg_func_server)
-        + [10.4.2 Access-Point](#eg_func_ap)
-        + [10.4.3 Easy_DNS](#eg_func_dns)
+    * [10.2 Stromversorgung](#stromversorgung)
+        + [10.2.1 Stromverbrauch](#stromvebrauch)
+        + [10.2.2 Batteriebetrieb](#batteriebetrieb)
+    * [10.3 GPIO-Mapping](#eg_gpio)
+    * [10.4 Schaltbild](#eg_circuit)
+    * [10.5 Funktionsweise](#eg_functionality)
+        + [10.5.1 Hardware-Logik](#eg_func_hw_logic)
+            - [10.5.1.1 Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
+            - [10.5.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
+            - [10.5.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
+            - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
+        + [10.5.2 Webserver](#eg_func_server)
+        + [10.5.2 Access-Point](#eg_func_ap)
+        + [10.5.3 Easy_DNS](#eg_func_dns)
 - [11. Changelog](#changelog)
 <!-- toc -->
 
@@ -127,59 +127,25 @@ Der ESP8266 sollte mit maximal 3,3 V betrieben werden, da es bei einem 5V-Netzte
 
 Des Weiteren teilt der ESP8266 die Systemressourcen und die CPU-Zeit zwischen ihren „Sketches“ und dem Wi-Fi-Treiber. Auch Features wie Pulsweitenmodulation (PWM), Interrupts oder I2C werden in der Software emuliert.
 
-<a name="stromversorgung"></a>
-### 3.2 Stromversorgung
-
-Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Mikrocontroller verbunden. Pin 2,3,4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden.
-Zum Flashen ist daher der Mikrocontroller abnehmbar.
-
-Neben der kompletten Abschaltung des Systems über den Kippschalter, wird diese Schaltung ebenfalls für den Pumpenbetrieb benötigt.
-Mit einem Verbrauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.
-
-Mit der Betriebsart über den Vin-Pin (Vin-PIn, Micro-USB-Anschluss, sowie 3.3V-Pin werden unterstützt) lassen sich nur um die 800 mA aus der V-Pins beziehen. Daher wird die Pumpe über die von uns entwickelte Platine mit Strom versorgt. 
-Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt.  Die 3.3 V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Verbraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3.3 V zu schwach. 
-
-<a name="stromvebrauch"></a>
-#### 3.2.1 Stromverbrauch
-
-Der Stromverbrauch des Mikrocontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Verbrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87 mA.
-Pro eingeschaltete LED kommen 13 mA (rote LED,mit 2 V Flussspannung und 100 Ohm Vorwiderstand) hinzu. Die Pumpe verbraucht im Schnitt 1.2 A.
-
-<a name="batteriebetrieb"></a>
-#### 3.2.2 Batteriebetrieb
-
-Für Evaluation des Batteriebetriebs muss zunächst der Verbrauch in Amperestunden ermittelt werden. Als typisches Beispiel wird daher angenommen, dass:
-1. Der Controller mit einem WLAN verbunden ist (87 mA)
-2. Neben den zwei Tank-LEDs eine weitere LED eingeschaltet ist (39 mA)
-3. Die Pumpe 20 Sekunden pro Tag pumpt (0.012 mA)
-
-Ein 5V Akku mit 2000 mAh wäre schon nach 15 Stunden leer.
-
-Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen werden:
-
-+ Deaktivieren der LEDs nach wenigen Sekunden und Aktivierung erst wieder bei Knopfdruck
-+ Deaktivieren der WiFi-Schnittstelle, wenn in einem gewissen Zeitraum keine SSID/Passworteingabe erfolgt ist.
-+ Kompletter Headless-Modus (Keine Web- oder LED-Interface) nach einmaliger Feuchtigkeitseingabe über das Webinterface
-
 <a name="digital_io"></a>
-### 3.3 Digitale I/O
+### 3.2 Digitale I/O
 
 Der ESP8266 verfügt über digitale Ein-/Ausgangspins (I/O oder GPIO, General Purpose Input/Output Pins). Sie können als digitale Eingänge zum Lesen einer digitalen Spannung oder als digitale Ausgänge, entweder 0 V (Senkstrom) oder 3,3 V (Quellenstrom), verwendet werden.
 
 <a name="restrictions"></a>
-#### 3.3.1 Spannungs- und Strombegrenzungen
+#### 3.2.1 Spannungs- und Strombegrenzungen
 
 Der ESP8266 ist ein 3,3 V Mikrocontrollern, so dass seine GPIOs auch mit 3,3 V arbeiten. Die Pins sind nicht 5 V tolerant, wenn mehr als 3,6 V auf einen Pin angewendet werden, wird der Chip zerstört. Der maximale Strom, der von einem einzelnen GPIO-Pin bezogen werden kann, beträgt 12 mA.
 
 <a name="usable_pins"></a>
-#### 3.3.2 Verwendbare Pins
+#### 3.2.2 Verwendbare Pins
 
 Der ESP8266 hat 17 GPIO-Pins (0-16), von denen jedoch nur 11 verwendet werden können, da 6 Pins (GPIO 6-11) zum Anschluss des Flash-Speicherchips verwendet werden. Dies ist der kleine 8-beinige Chip direkt neben dem ESP8266. Wenn diese Pins verwendet werden, kann dieser Zugriff das Programm zum Absturz bringen.
 
 GPIO 1 und 3 werden als TX und RX der seriellen Hardware-Schnittstelle (UART) verwendet, so dass sie in den meisten Fällen nicht als normale I/O beim Senden/Empfangen serieller Daten verwendet werden können.
 
 <a name="boot_modes"></a>
-#### 3.3.3 Boot-Modi
+#### 3.2.3 Boot-Modi
 
 Einige I/O-Pins haben eine spezielle Funktion beim Booten. Sie wählen einen von 3 Boot-Modi:
 
@@ -196,25 +162,25 @@ Diese Bedingungen werden erfüllt, in dem zusätzliche Widerstände durch den Le
 - GPIO2 kann beim Booten nicht auf low sein, so dass kein Schalter daran angeschlossen werden kann
 
 <a name="pull_up_down"></a>
-#### 3.3.4 Interne Pull-Up/-Down-Widerstände
+#### 3.2.4 Interne Pull-Up/-Down-Widerstände
 
 GPIO 0-15 haben alle einen eingebauten Pull-Up-Widerstand. GIPO 16 hat einen eingebauten Pull-Down-Widerstand.
 
 <a name="pwm"></a>
-### 3.4 Pulsweitenmodulation
+### 3.3 Pulsweitenmodulation
 
 Der ESP8266 unterstützt keine Hardware-PWM, jedoch wird Software-PWM auf allen digitalen Pins unterstützt. Der Standard-PWM-Bereich beträgt 10 Bit bei 1 kHz. Der Bereich kann aber bis zu 14 Bit bei 1 kHz verändert werden.
 
 <a name="analog_input"></a>
-### 3.5 Analogeingang
+### 3.4 Analogeingang
 
 Der ESP8266 verfügt über einen einzigen Analogeingang mit einem Eingangsbereich von 0-1 V. Wenn eine Spannung von 3,3 V geliefert wird, kann der Chip beschädigt werden. Der NodeMCU hat einen integrierten resistiven Spannungsteile, um einen Bereich von 0-3,3 V zu erhalten. Es kann zudem ein Trimpot als Spannungsteiler verwendet werden. Der ADC (Analog-Digital-Wandler) hat eine Auflösung von 10 Bit.
 
 <a name="communication"></a>
-### 3.6 Kommunikation
+### 3.5 Kommunikation
 
 <a name="serial"></a>
-#### 3.6.1 Serial
+#### 3.5.1 Serial
 
 Der ESP8266 verfügt über zwei Hardware-UARTS (Serielle Schnittstellen):
 
@@ -223,17 +189,17 @@ UART0 an den Pins 1 und 3 (TX0 bzw. RX0) und UART1 an den Pins 2 und 8 (TX1 bzw.
 UART0 hat auch eine Hardware-Flusskontrolle an den Pins 15 und 13 (RTS0 bzw. CTS0). Diese beiden Pins können auch als alternative TX0- und RX0-Pins verwendet werden.
 
 <a name="i2c"></a>
-#### 3.6.2 I2C
+#### 3.5.2 I2C
 
 Der ESP hat keine Hardware TWI (Two Wire Interface), ist aber in Software implementiert. Das bedeutet, dass so ziemlich alle zwei digitalen Pins verwendet werden können. Standardmäßig verwendet die I2C-Bibliothek Pin 4 als SDA und Pin 5 als SCL. Die maximale Geschwindigkeit beträgt ca. 450 kHz.
 
 <a name="spi"></a>
-#### 3.6.3 SPI
+#### 3.5.3 SPI
 
 Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung steht, der als HSPI bezeichnet wird. Es verwendet GPIO14 als CLK, 12 als MISO, 13 als MOSI und 15 als Slave Select (SS). Es kann sowohl im Slave- als auch im Master-Modus (in der Software) verwendet werden.
 
 <a name="gpio_mapping_esp"></a>
-### 3.7 NodeMCU GPIO-Mapping auf ESP8266
+### 3.6 NodeMCU GPIO-Mapping auf ESP8266
 
 <img src="images/nodemcu.png" alt="NodeMCU GPIO-Mapping auf ESP8266">
 
@@ -761,8 +727,41 @@ static void task(void *arg)
 | LED (Blau) | - | Wasserstandanzeige<br>$`2^2`$ Zustände:<br>voll, gut, leer | 2 |
 | Jumper-Kabel | - | Messung des Wassertankstandes<br>$`2^2`$ Zustände:<br>voll, gut, leer | 2 |
 
+<a name="stromversorgung"></a>
+### 10.2 Stromversorgung
+
+Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Mikrocontroller verbunden. Pin 2, 3 und 4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden. Zum Flashen ist daher der Mikrocontroller abnehmbar.
+
+Neben der kompletten Abschaltung des Systems über den Kippschalter, wird diese Schaltung ebenfalls für den Pumpenbetrieb benötigt.
+Mit einem Verbrauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.
+
+Mit der Betriebsart über den Vin-Pin (Vin-PIn, Micro-USB-Anschluss, sowie 3,3V-Pin werden unterstützt) lassen sich nur um die 800 mA aus der V-Pins beziehen. Daher wird die Pumpe über die von uns entwickelte Platine mit Strom versorgt. 
+Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt.  Die 3,3 V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Verbraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3,3 V zu schwach. 
+
+<a name="stromvebrauch"></a>
+#### 10.2.1 Stromverbrauch
+
+Der Stromverbrauch des Mikrocontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Verbrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87 mA.
+Pro eingeschaltete LED kommen 13 mA (rote LED, mit 2 V Flussspannung und 100 Ohm Vorwiderstand) hinzu. Die Pumpe verbraucht im Schnitt 1,2 A.
+
+<a name="batteriebetrieb"></a>
+#### 10.2.2 Batteriebetrieb
+
+Für Evaluation des Batteriebetriebs muss zunächst der Verbrauch in Amperestunden ermittelt werden. Als typisches Beispiel wird daher angenommen, dass:
+1. Der Controller mit einem WLAN verbunden ist (87 mA)
+2. Neben den zwei Tank-LEDs eine weitere LED eingeschaltet ist (39 mA)
+3. Die Pumpe 20 Sekunden pro Tag pumpt (0,012 mA)
+
+Ein 5V Akku mit 2000 mAh wäre schon nach 15 Stunden leer.
+
+Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen werden:
+
++ Deaktivieren der LEDs nach wenigen Sekunden und Aktivierung erst wieder bei Knopfdruck
++ Deaktivieren der WiFi-Schnittstelle, wenn in einem gewissen Zeitraum keine SSID/Passworteingabe erfolgt ist.
++ Kompletter Headless-Modus (Keine Web- oder LED-Interface) nach einmaliger Feuchtigkeitseingabe über das Webinterface
+
 <a name="eg_gpio"></a>
-### 10.2 GPIO-Mapping
+### 10.3 GPIO-Mapping
 
 <img src="images/nodemcu.png" alt="NodeMCU GPIO-Mapping auf ESP8266">
 
@@ -782,36 +781,36 @@ static void task(void *arg)
 | A0    | ADC0 | Feuchtigkeitssensor | ✓ | x | x | Analog Input |
 
 <a name="eg_circuit"></a>
-### 10.3 Schaltbild
+### 10.4 Schaltbild
 
 <img src="images/easy_grow_circuit.png" alt="Easy Grow Schaltbild">
 
 <a name="eg_functionality"></a>
-### 10.4 Funktionsweise
+### 10.5 Funktionsweise
 
 <a name="eg_func_hw_logic"></a>
-#### 10.4.1 Hardware-Logik
+#### 10.5.1 Hardware-Logik
 
 <a name="eg_func_hw_logic_set_moisture"></a>
-##### 10.4.1.1 Einstellung der Erdfeuchtigkeit
+##### 10.5.1.1 Einstellung der Erdfeuchtigkeit
 
 <a name="eg_func_hw_logic_read_moisture"></a>
-##### 10.4.1.2 Messung der Erdfeuchtigkeit
+##### 10.5.1.2 Messung der Erdfeuchtigkeit
 
 <a name="eg_func_hw_logic_watering"></a>
-##### 10.4.1.3 Bewässerung der Pflanze
+##### 10.5.1.3 Bewässerung der Pflanze
 
 <a name="eg_func_hw_logic_sun_hours"></a>
-##### 10.4.1.4 Aufzeichnung der Sonnenstunden
+##### 10.5.1.4 Aufzeichnung der Sonnenstunden
 
 <a name="eg_func_server"></a>
-#### 10.4.2 Webserver
+#### 10.5.2 Webserver
 
 <a name="eg_func_ap"></a>
-#### 10.4.2 Access-Point
+#### 10.5.2 Access-Point
 
 <a name="eg_func_dns"></a>
-#### 10.4.3 Easy_DNS
+#### 10.5.3 Easy_DNS
 
 Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen. 
 Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden.
