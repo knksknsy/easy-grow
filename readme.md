@@ -633,6 +633,98 @@ gpio_get_level(GPIO_PIN);       // level: 1
 <a name="rtos_gpio_isr"></a>
 #### 9.5.2 Interrupt Service Routine
 
+Wurde ```gpio_config_t.intr_type``` gesetzt, so besteht die Möglichkeit, bei verändernden Flanken eines GPIOs, auf diese zu reagieren mittels der ISR.
+
+Hierfür ist es notwendig die folgende Methode, noch vor der Konfiguration der GPIO, aufzurufen. Es installiert den GPIO ISR-Handler-Dienst des Treibers, der GPIO-Interrupt-Handler pro Pin erlaubt.
+
+```c
+esp_err_t gpio_install_isr_service(int no_use)
+```
+
+Der Parameter ```no_use``` hat keine Bedeutung und muss lediglich mit 0 übergeben werden.
+
+Bei der Konfiguration eines GPIOs muss der ISR-Handler hinzugefügt werden. Hierfür verwendet man folgende Methode:
+
+```c
+esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, void *args)
+```
+
+```isr_handler``` ist die ISR-Handler-Funktion, welche auf das entsprechende GPIO reagiert.
+Über ```args``` können Parameter dem ISR-Handler übergeben werden.
+
+Innerhalb der Funktion ```isr_handler``` sollte folgende Methode aufgerufen werden:
+
+```c
+BaseType_t xQueueSendFromISR(QueueHandle_t xQueue, const void *pvItemToQueue, BaseType_t *pxHigherPriorityTaskWoken)
+```
+
+Diese Methode setzt ein Element auf die Rückseite der ```xQueue```. Es ist sicher, diese Funktion innerhalb einer ISR zu verwenden. Elemente (```pvItemToQueue```) werden als Copy und nicht als Referenz in die Queue gestellt. Daher ist es besser, einen Zeiger auf das Element zu speichern, das in die Queue gestellt wird.
+
+Eine Queue wird durch folgende Methode erzeugt:
+
+```c
+QueueHandle_t xQueueCreate(UBaseType_t uxQueueLength, UBaseType_t uxItemSize)
+```
+
+```uxQueueLength``` ist die maximale Zahl der Elemente einer Queue, die sie zur jederzeit beinhalten kann.
+```uxItemSize```gibt die Größe (in Bytes) eines Queue-Elements an.
+
+```xQueue```-Elemente werden in einem ```xTask``` verarbeitet. Um ein Element einer Queue zu erhalten, muss folgende Methode, innerhalb des ```xTask```s aufgerufen werden:
+
+```c
+BaseType_t xQueueReceive(QueueHandle_t xQueue, void *pvBuffer, TickType_t xTicksToWait)
+```
+
+Elemente einer Queue werden als Copy übergeben, sodass ein Buffer (```pvBuffer```) einer entsprechenden Größe (in Bytes) übergeben werden muss.
+
+##### Beispiel
+
+```c
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include <driver/gpio.h>
+#define GPIO_PIN    16
+
+// Queue-Handler für ISR
+static xQueueHandle queue = NULL;
+
+// Installiert GPIO ISR Dienst
+gpio_install_isr_service(0);
+// Erzeugen einer Queue, um GPIO Events einer ISR zu behandlen
+queue = xQueueCreate(10, sizeof(uint32_t));
+// Erzeuge und starte einen xTask
+xTaskCreate(task, "task", 4096, NULL, 10, NULL);
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_INPUT;
+gpio_cfg.pin_bit_mask = (1ULL << GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_POSEDGE;
+
+// ISR-Handler an eine bestimmte GPIO hängen
+gpio_isr_handler_add(GPIO_PIN, isr_handler, (void *) GPIO_PIN);
+
+gpio_config(&gpio_cfg);
+
+static void isr_handler(void *arg)
+{
+    uint32_t gpio_num = (uint32_t) arg;
+    xQueueSendFromISR(queue, &gpio_num, NULL);
+}
+
+static void task(void *arg)
+{
+    uint32_t gpio_num;
+    while (1)
+    {
+        // Erhalte ein Element von der Queue
+        if (xQueueReceive(queue, &gpio_num, portMAX_DELAY))
+        {
+            ...
+        }
+    }
+}
+```
+
 <a name="rtos_gpio_analog"></a>
 #### 9.5.3 Analogeingang
 
