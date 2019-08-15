@@ -694,6 +694,85 @@ static void task(void *arg)
 <a name="rtos_gpio_analog"></a>
 #### 9.5.3 Analogeingang
 
+Das ESP8266_RTOS_SDK bietet die ```esp8266/include/driver/adc.h``` Datei an. Im Folgenden wird beschrieben, wie der Analogeingang des ESP8266 verwendet werden kann.
+
+##### Initialisierung des ADC
+
+Zunächst muss unter ```menuconfig->Component config->PHY->vdd33_const``` verändert werden.
+```vdd33_const``` bietet ADC-Modus-Einstellungen, d.h. die Auswahl zwischen der Systemspannung oder externer Spannungsmessungen.
+Beim Messen der Systemspannung muss der ```vdd33_const``` Wert auf 255 eingestellt werden.
+Um die externe Spannung am ```TOUT(ADC)``` Pin zu lesen, benötigt ```vdd33_const``` einen Wert von < 255.
+Wenn die ADC-Referenzspannung auf die aktuelle VDD33-Netzspannung eingestellt ist, beträgt der Wertebereich von ```vdd33_const[18,36]``` (Einheit 0,1 V).
+Wenn die ADC-Referenzspannung auf den Standardwert von 3,3 V als Versorgungsspannung eingestellt ist, ist der Bereich von ```vdd33_const[0,18]``` oder (36, 255).
+
+Das ESP8266_RTOS_SDK bieten die Struct ```adc_config_t``` zum Initialisieren des ADC Parameters an.
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```adc_mode_t``` | ```mode``` | ADC Modus |
+| ```uint8_t``` | ```clk_div``` | ADC Sample Collection Clock<br>= 80M/```clk_div```<br>Bereich [8, 32] |
+
+Die ADC-Arbeitsmodus Enum ```adc_mode_t``` hat folgende Werte:
+
+| __Wert__ |
+| :---     |
+| ```ADC_READ_TOUT_MODE = 0``` |
+| ```ADC_READ_VDD_MODE``` |
+
+Über folgende Methode wird der ADC initialisiert:
+
+```c
+esp_err_t adc_init(adc_config_t *config)
+```
+
+###### Beispiel
+```c
+#include <driver/adc.h>
+#define GPIO_PIN    16
+
+adc_config_t adc_cfg;
+adc_cfg.mode = ADC_READ_TOUT_MODE;
+adc_cfg.clk_div = 8;
+
+ESP_ERROR_CHECK(adc_init(&adc_cfg));
+```
+
+##### Lesen des Analogeingangs
+
+Einzelne Messungen des ```TOUT(ADC)``` Pins (Einheit 1/1023 V) oder des VDD Pins (Einheit 1 mV) erfolgt über folgende Methode:
+
+```c
+esp_err_t adc_read(uint16_t *data)
+```
+
+Der Zeiger ```data``` nimmt den ADC-Wert entgegen.
+
+Mehrere Messungen des ```TOUT(ADC)``` Pins (Einheit 1/1023 V) erfolgen über die folgende Methode:
+
+```c
+esp_err_t adc_read_fast(uint16_t *data, uint16_t len)
+```
+
+Der Zeiger ```data``` nimmt den ADC-Wert entgegen.
+```len``` bestimmt die Länge der ADC Werte, die ausgelesen werden sollen.
+
+###### Beispiel
+
+```c
+#include "driver/adc.h"
+#define DEPTH   100
+
+uint16_t adc_data[DEPTH];
+
+if (ESP_OK == adc_read_fast(adc_data, DEPTH))
+{
+    for (int x = 0; x < DEPTH; x++)
+    {
+        printf("adc_data[%d] = %d", x, adc_data[x]);
+    }
+}
+```
+
 <a name="rtos_timer"></a>
 ### 9.6 Timer
 
