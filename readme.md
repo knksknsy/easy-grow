@@ -535,8 +535,100 @@ Jede Komponente kann auch eine ```Kconfig```-Datei enthalten, die die Komponente
 <a name="rtos_gpio"></a>
 ### 9.5 GPIO
 
+Das ESP8266_RTOS_SDK bietet die ```esp8266/include/driver/gpio.h``` Datei an, um die 11 verwendbaren Pins des ESP8266 Chips zu konfigurieren und zu verwenden.
+
 <a name="rtos_gpio_conf"></a>
-#### 9.5.1 GPIO
+#### 9.5.1 GPIO Konfiguration
+
+Die Konfiguration eines GPIOs erfolgt über die Struct ```gpio_config_t``` und beinhaltet folgende Members:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```uint32_t``` | ```pin_bit_mask``` | GPIO Pin:<br>Gesetzt durch Bit-Maske<br>Jedes Bit wird auf einen GPIO abgebildet. |
+| ```gpio_mode_t``` | ```mode``` | GPIO Modus:<br>Input oder Output |
+| ```gpio_pullup_t``` | ```pull_up_en``` | GPIO Pull-Up-Widerstand |
+| ```gpio_pulldown_t``` | ```pull_down_en``` | GPIO Pull-Down-Widerstand |
+| ```gpio_int_type_t``` | ```intr_type``` | GPIO Interrupt-Typ |
+
+Durch die Enum ```gpio_mode_t``` wird der GPIO Modus definiert. Sie besitzt folgende Werte:
+
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ```GPIO_MODE_DISABLE = GPIO_MODE_DEF_DISABLE``` | Deaktiviere GPIO als Input und Output |
+| ```GPIO_MODE_INPUT = GPIO_MODE_DEF_INPUT``` | GPIO Input Modus |
+| ```GPIO_MODE_OUTPUT = GPIO_MODE_DEF_OUTPUT``` | GPIO Output Modus |
+| ```GPIO_MODE_OUTPUT_OD = ((GPIO_MODE_DEF_OUTPUT)|(GPIO_MODE_DEF_OD))``` | Nur Output mit Open-Drain Modus |
+
+Mittels der Enums ```gpio_pullup_t``` und ```gpio_pulldown_t``` werden die internen Pull-Up/-Down-Widerstände aktiviert bzw. deaktiviert. Sie besitzen folgende Werte:
+
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ```GPIO_PULLUP_DISABLE = 0x0``` | Deaktiviere den GPIO Pull-Up-Widerstand |
+| ```GPIO_PULLUP_ENABLE = 0x1``` | Aktiviere den GPIO Pull-Up-Widerstand |
+
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ```GPIO_PULLDOWN_DISABLE = 0x0``` | Deaktiviere den GPIO Pull-Down-Widerstand |
+| ```GPIO_PULLDOWN_ENABLE = 0x1``` | Aktiviere den GPIO Pull-Down-Widerstand |
+
+Durch die Enum ```gpio_int_type_t``` wird definiert, bei welcher Flanke ein Interrupt für ein GPIO ausgelöst werden soll. Sie beinhaltet folgende Werte:
+
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ```GPIO_INTR_DISABLE = 0``` | Deaktiviere GPIO Interrupt |
+| ```GPIO_INTR_POSEDGE = 1``` | GPIO Interrupt bei steigender Flanke |
+| ```GPIO_INTR_NEGEDGE = 2``` | GPIO Interrupt bei fallender Flanke |
+| ```GPIO_INTR_ANYEDGE = 3``` | GPIO Interrupt bei steigender oder fallender Flanke |
+| ```GPIO_INTR_LOW_LEVEL = 4``` | GPIO Interrupt bei Low-Level-Trigger |
+| ```GPIO_INTR_HIGH_LEVEL = 5``` | GPIO Interrupt bei High-Level-Trigger |
+| ```GPIO_INTR_MAX``` | - |
+
+Nachdem ```gpio_config_t``` initialisiert wurde, kann die GPIO mittels der folgenden Methode konfiguriert werden:
+
+```c
+esp_err_t gpio_config(const gpio_config_t *gpio_cfg)
+```
+
+##### Beispiel
+```c
+#include <driver/gpio.h>
+#define GPIO_PIN    16
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_INPUT;
+gpio_cfg.pin_bit_mask = (1ULL << GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_ANYEDGE;
+
+gpio_config(&gpio_cfg);
+```
+
+Nach der Konfiguration kann der Wert eines GPIOs mit den Methoden gesetzt bzw. gelesen werden:
+
+```c
+esp_err_t gpio_set_level(gpio_num_t gpio_num, uint32_t level)
+```
+
+```c
+int gpio_get_level(gpio_num_t gpio_num)
+```
+
+#### Beispiel
+
+```c
+#include <driver/gpio.h>
+#define GPIO_PIN    16
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_OUTPUT;
+gpio_cfg.pin_bit_mask = (1ULL << GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_POSEDGE;
+
+gpio_config(&gpio_cfg);
+
+gpio_get_level(GPIO_PIN);       // level: 0
+gpio_set_level(GPIO_PIN, 1);
+gpio_get_level(GPIO_PIN);       // level: 1
+```
 
 <a name="rtos_gpio_isr"></a>
 #### 9.5.2 Interrupt Service Routine
