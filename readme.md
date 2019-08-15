@@ -53,14 +53,15 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [9.1 Überblick](#rtos_overview)
     * [9.2 Konzepte](#rtos_concept)
     * [9.3 xTasks](#rtos_xtasks)
-    * [9.4 GPIO](#rtos_gpio)
-        + [9.4.1 Konfiguration](#rtos_gpio_conf)
-        + [9.4.2 Interrupt Service Routine](#rtos_gpio_isr)
-        + [9.4.3 Analogeingang](#rtos_gpio_analog)
-    * [9.5 Timer](#rtos_timer)
-    * [9.6 WiFi](#rtos_wifi)
-    * [9.7 HTTP Server](#rtos_http_server)
-    * [9.8 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
+    * [9.4 Beispiel Projekt](#example_project)
+    * [9.5 GPIO](#rtos_gpio)
+        + [9.5.1 Konfiguration](#rtos_gpio_conf)
+        + [9.5.2 Interrupt Service Routine](#rtos_gpio_isr)
+        + [9.5.3 Analogeingang](#rtos_gpio_analog)
+    * [9.6 Timer](#rtos_timer)
+    * [9.7 WiFi](#rtos_wifi)
+    * [9.8 HTTP Server](#rtos_http_server)
+    * [9.9 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
 - [10. Easy Grow Projekt](#easy_grow)
     * [10.1 Hardware-Komponenten](#eg_hardware)
     * [10.2 GPIO-Mapping](#eg_gpio)
@@ -458,38 +459,102 @@ Der Aufruf über das ```esptool``` erfolgt innerhalb des Makefiles und bildet so
 <a name="rtos_sdk"></a>
 ## 9. ESP8266 RTOS SDK
 
+Das ESP8266 SDK ist eine Opensource IoT-Plattform für die Anwendungsentwicklung. Es wurde von Espressif entwickelt. Die SDK basiert auf dem Echtzeit-Betriebssystem RTOS, welches auf FreeRTOS basiert.
+
+Das RTOS ist ein Multi-Tasking-Betriebssstem. Es können Standard Schnittstellen verwendet werden, um die Realisierung von Ressourcenmanagement, Recyclingoperationen, Ausführungsverzögerungen, Inter-Task-Messaging und -Synchronisation und andere aufgabenorientierte Prozessgestaltung Ansätze zu ermöglichen.
+
 <a name="rtos_overview"></a>
 ### 9.1 Überblick
+
+Ein ESP8266_RTOS_SDK-Projekt kann als Zusammenfassung mehrerer Komponenten betrachtet werden. Beispielsweise könnte es für ein HTTP-Request, das die aktuelle Erdfeuchtigkeit anzeigt, Folgendes geben:
+
+- Die SoC-Basisbibliotheken (```libc```, ROM-Bindings etc.)
+- Die WiFi-Treiber
+- Ein TCP/IP-Stack
+- Das FreeRTOS-Betriebssystem
+- Das Hauptcode, der das Ganze zusammenfügt
+
+ESP8266_RTOS_SDK macht diese Komponenten explizit und konfigurierbar. Dazu sucht die Build-Umgebung beim Kompilieren eines Projektes alle Komponenten in den SDK-Verzeichnissen, den Projektverzeichnissen und (optional) in zusätzlichen benutzerdefinierten Komponentenverzeichnissen nach (siehe Kapitel [6. File includes mit make](#make) für Letzeres).
+
+Anschließend kann der Benutzer das ESP8266_RTOS_SDK-Projekt mithilfe eines textbasierten Menüsystems konfigurieren, um jede Komponente anzupassen (siehe Kapitel [5. Konfiguration des Espressif IoT Development Frameworks](#idf_config)). Nachdem die Komponenten im Projekt konfiguriert sind, kompiliert der Build-Prozess das Projekt.
 
 <a name="rtos_concepts"></a>
 ### 9.2 Konzepte
 
+Ein "Projekt" ist ein Verzeichnis, das alle Dateien und Konfigurationen enthält, um eine einzige ausführbare "App" zu erstellen, sowie zusätzliche unterstützende Outputs wie eine Partitionstabelle, Daten-/Dateisystempartitionen und einen Bootloader.
+
+"Projektkonfiguration" wird in einer einzigen Datei namens ```sdkconfig``` im Stammverzeichnis des Projekts gespeichert. Diese Konfigurationsdatei wird über ```make menuconfig``` geändert, um die Konfiguration des Projekts anzupassen. Ein einzelnes Projekt enthält genau eine Projektkonfiguration.
+
+Eine "App" ist eine ausführbare Datei, die von ESP8266_RTOS_SDK erstellt wird. Ein einzelnes Projekt erstellt in der Regel zwei Apps - eine "Project App" (die Hauptausführungsdatei, d.h. Ihre benutzerdefinierte Firmware) und eine "Bootloader-App", das die "Project App" startet.
+
+"Komponenten" sind modulare eigenständige Codeteile, die in statische Bibliotheken (```.a```-Dateien) kompiliert und in eine App eingebunden werden. Einige werden von ESP8266_RTOS_SDK selbst bereitgestellt, andere können von anderen Stellen bezogen werden.
+
+Einige Dinge sind nicht Teil des Projekts:
+
+ESP8266_RTOS_SDK ist nicht Teil des Projekts. Stattdessen ist es eigenständig und über die Umgebungsvariable ```IDF_PATH``` mit dem Projekt verknüpft, die den Pfad des ESP8266_RTOS_SDK-Verzeichnisses enthält. Auf diese Weise kann das IDF-Framework vom Projekt entkoppelt werden.
+
+Die Toolchain für die Kompilierung ist nicht Teil des Projekts. Die Toolchain sollte in der System-Befehlszeile ```PATH``` installiert werden, oder der Pfad zur Toolchain kann als Teil des Compiler-Präfix in der Projektkonfiguration festgelegt werden
+
+<a name="example_project"></a>
+### 9.3 Beispiel Projekt
+
+Ein Beispiel-Projekt-Verzeichnis könnte folgendermaßen aussehen:
+
+```
+- project/
+            - Makefile
+            - sdkconfig
+            - components/   - component1/   - component.mk
+                                            - Kconfig
+                                            - src1.c
+                            - component2/   - component.mk
+                                            - Kconfig
+                                            - src1.c
+                                            - include/      - component2.h
+            - main/         - src1.c
+                            - src2.c
+                            - component.mk
+            - build/
+```
+
+Folgende Elemente sind im Beispiel ```project``` enthalten:
+
+- Ein Top-Level-Projekt Makefile. Dieses Makefile setzt die Variable ```PROJECT_NAME```und definiert (optional) projektweite Make-Variablen. Es enthält die Haupt-Makefile ```$(IDF_PATH)/make/project.mk```, die den Rest des EPS8266_RTOS_SDK Build System implementiert.
+- Die Projekt-Konfigurationsdatei ```sdkconfig```. Diese Datei wird erstellt, bzw. aktualisiert, wenn ```make menuconfig``` ausgeführt wird und enthält die Konfiguration für alle Komponenten des Projekts (einschließlich ESP8266_RTOS_SDK selbst).
+- Das optionale Verzeichnis ```components``` enthält Komponenten, die Teil des Projekts sind. Ein Projekt muss keine solchen benutzerdefinierten Komponenten enthalten, aber es kann nützlich sein, um wiederverwendbaren Code zu strukturieren oder Komponenten von Drittanbietern aufzunehmen, die nicht Teil von ESP8266_RTOS_SDK sind.
+- Das Verzeichnis ```main``` ist eine spezielle Pseudokomponente, die Quellcode für das Projekt selbst enthält. ```main``` ist ein Standardname, die Makefile-Variablen ```COMPONENT_DIRS``` enthält diese Komponente. Diese Variable kann aber verändert werden (oder ```EXTRA_COMPONENT_DIRS``` setzen), um nach Komponenten an anderen Stellen zu suchen.
+- Das Verzeichnis ```build``` ist der Ort, an dem der Build-Output erstellt wird. Nachdem der Make-Prozess ausgeführt wurde, enthält dieses Verzeichnis temporäre Objektdateien und Bibliotheken sowie endgültige binäre Output-Dateien. Dieses Verzeichnis wird in der Regel nicht der Source Control hinzugefügt oder mit dem Projekt-Quellcode verteilt.
+
+Komponentenverzeichnisse enthalten ein Komponenten-Makefile ```component.mk```. Dies kann Variablendefinitionen zur Steuerung des Build-Prozesses der Komponente un deren Integration in das Gesamtprojekt enthalten.
+
+Jede Komponente kann auch eine ```Kconfig```-Datei enthalten, die die Komponentenkonfigurationsoperationen definiert, die über die Projektkonfiguration eingestellt werden können. Einige Komponenten können auch ```Kconfig.projbuild``` und ```Makefile.projbuild``` Dateien beinhalten, die spezielle Dateien für übergeordnete Teile des Projekts sind.
+
 <a name="rtos_xtasks"></a>
-### 9.3 xTasks
+### 9.4 xTasks
 
 <a name="rtos_gpio"></a>
-### 9.4 GPIO
+### 9.5 GPIO
 
 <a name="rtos_gpio_conf"></a>
-#### 9.4.1 GPIO
+#### 9.5.1 GPIO
 
 <a name="rtos_gpio_isr"></a>
-#### 9.4.2 Interrupt Service Routine
+#### 9.5.2 Interrupt Service Routine
 
 <a name="rtos_gpio_analog"></a>
-#### 9.4.3 Analogeingang
+#### 9.5.3 Analogeingang
 
 <a name="rtos_timer"></a>
-### 9.5 Timer
+### 9.6 Timer
 
 <a name="rtos_wifi"></a>
-### 9.6 WiFi
+### 9.7 WiFi
 
 <a name="rtos_http_server"></a>
-### 9.7 HTTP Server
+### 9.8 HTTP Server
 
 <a name="rtos_flash"></a>
-### 9.8 Schreiben und Lesen des Flash-Speichers
+### 9.9 Schreiben und Lesen des Flash-Speichers
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
