@@ -7,17 +7,15 @@ Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht un
 
 ## Features
 - Gießen der Pflanze (Automatisiert und Manuell)
-- Einstellen der gewünschten Feuchtigkeit
 
-<img src="images/crop_states.gif" width="500">   
+- Einstellen der gewünschten Feuchtigkeit
+<img src="images/crop_states.gif" width="450">   
 
 - Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk
-
-<img src="images/wifi_all.gif" width="500">
+<img src="images/wifi_all.gif" width="450">
 
 - Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
-
-<img src="images/wifi_setup.gif" width="500">
+<img src="images/wifi_setup.gif" width="450">
 
 ## Externe Komponenten
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
@@ -515,6 +513,7 @@ TODO @Tim
 | __Hardware-Komponente__ | __Bezeichnung__ | __Verwendungszweck__ | __Anzahl__ |
 | :--- | :--- | :--- | :--- |
 | NodeMCU | Amica V2 | Hardware-Logik<br>Webserver | 1 |
+| Micro USB Port | - | Stromversorgung | 1 |
 | Wasserpumpe | Fenteer 3V | Bewässerung der Pflanze | 1 |
 | Photodiode | GL5528 | Aufzeichnung der Sonnenstunden | 1 |
 | Hygrometer | FC-28 | Messung der Erdfeuchtigkeit | 1 |
