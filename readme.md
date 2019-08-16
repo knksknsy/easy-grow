@@ -394,7 +394,7 @@ Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner e
 ```make build``` ruft den Buildprozess auf und die erzeugte Firmware kann mit  ```make flash``` auf den Mikrocontroller übertragen werden. 
 ```make flash``` nutzt hierbei die Einstellungen aus der ```sdkconfig```. Diese Datei kann manuell erzeugt oder mit ```make menuconfig``` generiert werden. In ihr sind Daten wie die Baudrate und der USB-Port enthalten.
 
-Die Anweisungen, um die ```sdkconfig``` mit den minimalen Einstellungen für das Projekt zu generieren, befinden sich im Kapitel [6.2 Konfiguration des Espressif IoT Development Frameworks](#esp_idf).
+Die Anweisungen, um die ```sdkconfig``` mit den minimalen Einstellungen für das Projekt zu generieren, befinden sich im Kapitel [5.2 Konfiguration des Espressif IoT Development Frameworks](#esp_idf).
 
 Diese Einstellungen können mit ```make print_flash_cmd``` ausgegeben werden und bei direktem flashen über das Phyton-Programm ```esptool.py``` direkt gesetzt werden:
 
@@ -419,7 +419,7 @@ Der Aufruf über das ```esptool``` erfolgt innerhalb des Makefiles und bildet so
 5. Verbinde den ESP8266 nodeMCU mittels USB.
 6. Führe den ```docker.sh``` Script aus. Dieser Script erzeugt das Docker Image ```docker-esp8266``` und initialisier einen Container mit der ESP IDF Umgebung.<br>```$ ./docker.sh```
 7. Wechsle innerhalb des Containers zum ```easy-grow``` Projektverzeichnis:<br>```$ cd easy-grow```
-8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [6. Konfiguration des Espressif IoT Development Frameworks](#idf_config).
+8. Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: [5. Konfiguration des Espressif IoT Development Frameworks](#idf_config).
 9. Baue das Projekt, flashe den nodeMCU, und aktiviere das Monitoring mit:<br>```$ make && make flash && make monitor```.<br> Falls eine Fehlermeldung erscheint, führe den folgenden Befehl erneut aus: ```$ make flash && make monitor```.
 
 <a name="rtos_sdk"></a>
@@ -775,6 +775,80 @@ if (ESP_OK == adc_read_fast(adc_data, DEPTH))
 
 <a name="rtos_timer"></a>
 ### 9.6 Timer
+
+Das ESP8266_RTOS_SDK bietet Software-Timer an, die jedoch einige Einschränkungen haben:
+
+- Die maximale Auflösung ist gleich der RTOS-Tick-Rate
+- Timer-Callbacks werden von einem Task mit niedriger Priorität ausgelöst
+
+Hardware-Timer sind frei von beiden Einschränkungen, aber oft sind sie weniger komfortabel zu bedienen. Beispielsweise können Anwendungskomponenten Timer-Events benötigen, um bestimmten Zeiten in der Zukunft auszulösen, aber der Hardware-Timer enthält nur einen "Vergleichswert", der für die Interrupt-Erzeugung verwendet wird. Dies bedeutet, dass einige Hilfsmittel auf dem Hardware-Timer aufgebaut werden müssen, um die Liste der anstehenden Ereignisse zu verwalten und die Callbacks für diese Events versenden zu können, wenn entsprechende Hardware-Interrupts auftreten.
+
+Die ```esp_timer``` API bietet eine solche Möglichkeit. Intern verwendet ```esp_timer``` einen 32-Bit-Hardware-Timer. ```esp_timer``` bietet einmalige und periodische Timer in Mikrosekunden-Zeitauflösung und 64-Bit-Bereich.
+
+Timer-Callbacks werden von einer ```esp_timer```-Task mit hoher Priorität ausgelöst. Da alle Callbacks von derselben Task aus versendet werden, wird empfohlen, nur den geringstmöglichen Arbeitsaufwand von Callback selbst aus zu erledigen und stattdessen ein Event über eine Queue in einem Task mit niedriger Priorität zu senden.
+
+Wenn andere Tasks mit einer höheren Priorität als ```esp_timer``` ausgeführt werden, wird das Callback-Dispatching verzögert, bis der ```esp_timer```-Task eine Chance zur Ausführung hat. Dies ist beispielsweise der Fall, wenn ein SPI-Flash-Vorgang durchgeführt wird.
+
+Das Erstellen und Starten eines Timers sowie das Versenden des Callbacks dauert einige Zeit. Daher gibt es eine untere Grenze für den Timeout-Wert von einmaligen ```esp_timer```. Wenn ```esp_timer_start_once()``` mit einem Timeout-Wert von weniger als 20 µs aufgerufen wird, wird der Callback erst nach ca. 20 µs ausgelöst.
+
+Der periodische ```esp_timer``` schränkt die minimale Timerzeit ebenfalls um 50 µs ein. Periodische Software-Timer mit einem Zeitraum von weniger als 50 µs sind nicht sinnvoll, da sie den größten Teil der CPU-Zeit verbrauchen würden. Die Verwendung von dedizierten Hardware-Peripheriegeräten oder DMA-Funktionen werden empfohlen, wenn ein Timer mit einer kurzen Zeitspanne erforderlich ist.
+
+#### Verwendung der ```esp_timer``` API
+
+Ein Single-Timer wird durch den Typ ```esp_timer_handle_t``` repräsentiert. Dem Timer ist eine Callback-Funktion zugeordnet. Diese Callback-Funktion wird nach jedem Ablauf des Timers von der ```esp_timer```-Task aufgerufen.
+
+- Um einen Timer zu erstellen, muss ```esp_timer_create()``` aufgerufen werden
+- Um den Timer zu löschen, muss ```esp_timer_delete()``` aufgerufen werden
+
+Der Timer kann im One-Shot-Modus oder im periodischen Modus gestartet werden.
+
+- Um den Timer im One-Shot-Modus zu starten, muss ```esp_timer_start_once()``` aufgerufen und der Zeitintervall angegeben werden, nach dem der Callback erfolgen soll. Wenn der Callback erfolgt, gilt der Timer als gestoppt.
+- Um den Timer im periodischen Modus zu starten, muss ```esp_timer_start_periodic()``` aufgerufen und der Zeitraum, an dem der Callback erfolgt, übergeben werden. Der Timer läuft weiter, bis ```esp_timer_stop()``` aufgerufen wird.
+
+Der Timer darf nicht laufen, wenn ```esp_timer_start_once()``` oder ```esp_timer_start_periodic()``` aufgerufen wird. Um einen laufenden Timer neu zu starten, muss zuerst ```esp_timer_stop()``` und dann eine der Startfunktionen aufgerufen werden.
+
+Um die ```esp_timer``` API zu verwenden, muss die ```esp_common/include/esp_timer.h``` Datei eingebunden werden.
+
+Die Konfiguration des Timers erfolgt durch den Sturct ```esp_timer_create_args_t```, der folgendes beinhaltet:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```esp_timer_cb_t``` | ```callback``` | Callback-Funktion, die aufgerufen werden soll, wenn der Timer abläuft |
+| ```void*``` | ```arg``` | Argument, das an den Callback übergeben werden kann |
+| ```esp_timer_dispatch_t``` | ```dispatch_method``` | Aufruf des Callbacks von einem Task oder einer ISR |
+| ```const char*``` | ```name``` | Timer Name, welcher in der ```esp_timer_dump``` Funktion verwendet wird |
+
+Die Enum ```esp_timer_dispatch_t``` beinhaltet folgende Werte:
+
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ESP_TIMER_TASK | Callback wird von einem Task aufgerufen |
+
+##### Beispiel
+
+```c
+#include "esp_timer.h"
+#define TIMER_TIME  100000
+
+// Erzeugung des Timers
+const esp_timer_create_args_t adc_timer_args = { .callback = &timer_callback, .name = "timer_callback" }
+
+esp_timer_handle_t adc_timer;
+ESP_ERROR_CHECK(esp_timer_create(&adc_timer_args, &adc_timer));
+
+// Starten des Timers
+ESP_ERROR_CHECK(esp_timer_start_periodic(adc_timer, TIMER_TIME));
+
+void timer_callback(void* arg)
+{
+    int64_t time_since_boot = esp_timer_get_time();
+    printf("Timer called, time since boot: (%d)", (int32_t)time_since_boot);
+}
+```
+
+#### Abrufen der aktuellen Zeit
+
+Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergangene Zeit in Mikrosekunden zu erhalten: ```esp_timer_get_time()```. Diese Funktion gibt die Anzahl der Mikrosekunden seit der Initialisierung von ```esp_timer``` zurück, was normalerweise kurz vor dem Aufrug der ```app_main```-Funktion geschieht.
 
 <a name="rtos_wifi"></a>
 ### 9.7 WiFi
