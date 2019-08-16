@@ -956,9 +956,11 @@ Die Hardware-Logik beschränkt sich auf folgende Features vom Easy Grow Projekt:
 
 Folgende Dateien wurden für die Implementierung verwendet:
 
-- [```easy_gpio.c```](main/src/easy_gpio.c)
-- [```easy_controller.c```](main/src/easy_controller.c)
-- [```easy_debouncer.c```](main/src/easy_debouncer.c)
+| __Datei__ | __Zweck__ |
+| :---      | :---      |
+| [```easy_gpio.c```](main/src/easy_gpio.c) | Konfiguration der GPIOs<br>Konfiguration des Analogeingangs<br>Initialisierung des Hardware-Timers |
+| [```easy_controller.c```](main/src/easy_controller.c) | Funktionen zur automatischen und manuellen Steuerung des Bewässerungssystems |
+| [```easy_debouncer.c```](main/src/easy_debouncer.c) | Software-Entprellung der Buttons zur Erdfeuchtigkeitseinstelllung |
 
 <a name="eg_func_hw_logic_set_moisture"></a>
 ##### 10.5.1.1 Einstellung der Erdfeuchtigkeit
