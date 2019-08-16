@@ -1016,6 +1016,7 @@ Nachdem der Mittelwert ausgelesen wurde und die prozentuale Feuchtigkeit berechn
 | ```MoistureLevel``` | ```level_target``` | Eingestellter Erdfeuchtigkeitsbereich<br>(```OFF```, ```LOW```, ```MID```, ```HIGH```) |
 
 Die Enum ```Status``` beinhaltet folgende Werte:
+
 | __Wert__ | __Zweck__ |
 | :---     | :---      |
 | ```FAILED``` | Der Lesevorgang der Feuchtigkeit ist nicht erfolgt |
