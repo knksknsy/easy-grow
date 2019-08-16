@@ -39,6 +39,8 @@ TaskHandle_t httpd_task_handle;
 /*
  * Decode used for URL
  */
+
+
 void decode(char *dest, const char *src) {
 	const char *p = src;
 	char code[3] = { 0 };
@@ -59,7 +61,18 @@ void decode(char *dest, const char *src) {
 			*dest++ = *p++;
 	}
 }
+const char* getMoistureOutputString(uint16_t level) {
 
+	 switch (level)
+	   {
+	      case 0: return "Ausgeschaltet";
+	      case 1: return "Niedrig";
+	      case 2: return "Mittel";
+	      case 3: return "Hoch";
+	      default: return "Ausgeschaltet";
+
+	   }
+	}
 
 void httpd_task(void *pvParameters) {
 	ESP_LOGI(TAG, "HTTPD TASK STARTED");
@@ -162,8 +175,13 @@ void httpd_task(void *pvParameters) {
 						MoistureValue mv = get_moisture_level();
 						WaterLevel wl = get_water_level();
 						strcat(webpage, WEBPAGE_MOISTURE);
+
+					//	char moistureOutput = ;
+						//printf(moistureOutput);
+						char *outputVal = getMoistureOutputString(mv.level_target);
+
 						snprintf(buf, sizeof(buf), webpage, mv.level_target,
-								mv.level_target, mv.level_percentage, wl,
+								outputVal, mv.level_percentage, wl,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 					}
@@ -212,4 +230,5 @@ void set_aps(wifi_ap_record_t aps[], uint16_t apCount) {
 		}
 	}
 }
+
 

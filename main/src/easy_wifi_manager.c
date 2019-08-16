@@ -27,7 +27,7 @@
 #include <easy_dns.h>
 
 
-#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config_Miro"
+#define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
 #define EXAMPLE_ESP_WIFI_PASS	   ""
 #define EXAMPLE_MAX_STA_CONN	   5
 
