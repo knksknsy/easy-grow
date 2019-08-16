@@ -72,6 +72,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
             - [10.5.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
             - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
+            - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
         + [10.5.2 Webserver](#eg_func_server)
         + [10.5.2 Access-Point](#eg_func_ap)
         + [10.5.3 Easy_DNS](#eg_func_dns)
@@ -941,20 +942,124 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 <a name="eg_functionality"></a>
 ### 10.5 Funktionsweise
 
+Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystem.
+
 <a name="eg_func_hw_logic"></a>
 #### 10.5.1 Hardware-Logik
+
+Die Hardware-Logik beschränkt sich auf folgende Features vom Easy Grow Projekt:
+
+- [Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
+- [Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
+- [Bewässerung der Pflanze](#eg_func_hw_logic_watering)
+- [Aufzeichnung der Pflanze](#eg_func_hw_logic_sun_hours)
+
+Folgende Dateien wurden für die Implementierung verwendet:
+
+| __Datei__ | __Zweck__ |
+| :---      | :---      |
+| [```easy_gpio.c```](main/src/easy_gpio.c) | Konfiguration der GPIOs<br>Konfiguration des Analogeingangs<br>Initialisierung des Hardware-Timers |
+| [```easy_controller.c```](main/src/easy_controller.c) | Funktionen zur automatischen und manuellen Steuerung des Bewässerungssystems |
+| [```easy_debouncer.c```](main/src/easy_debouncer.c) | Software-Entprellung der Buttons zur Erdfeuchtigkeitseinstelllung |
 
 <a name="eg_func_hw_logic_set_moisture"></a>
 ##### 10.5.1.1 Einstellung der Erdfeuchtigkeit
 
+Die Einstellung der Erdfeuchtigkeit wird mittels zwei Buttons vorgenommen. Drei LEDs repräsentieren die vier Einstellungsmöglichkeiten der eingestellten Erdfeuchtigkeit. Sie werden durch die Enum ```MoistureLevel``` definiert.
+Die vier Zustände der Erdfeuchtigkeit sind folgende:
+
+| __Wert__ | __Zustand__ | __LED Zustand__<br>(0)=aus<br>(1)=ein |
+| :---     | :---        | :---            |
+| ```OFF``` | Deaktivieren des Bewässerungssystems | (0)(0)(0) |
+| ```LOW``` | Niedrige Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [733, 923] in V | (1)(0)(0) |
+| ```MID``` | Mittlere Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [544, 733] in V | (1)(1)(0) |
+| ```HIGH``` | Hohe Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [353, 543] in V | (1)(1)(1) |
+
+Mittels den zwei Buttons kann die Erdfeuchtigkeit entweder inkrementiert oder dekrementiert werden. Diese Buttons befinden sich neben den Feuchtigkeits-LEDs.
+Das Bewässerungssystem kann deaktiviert werden, in dem ein beliebiger Button so oft betätigt wird, bis keines der drei LEDs leuchten.
+
+Die Betätigung der Buttons wird mittels einer ISR erkannt und behandelt. In dem ```gpio_task``` der ```easy_gpio.c``` Datei, ist der Handler ```moisture_button_handler(int io_num)``` für die Einstellung der Feuchtigkeit und LED-Zustände zuständig.
+
+Um Fehlsignale des Buttons zu vermeiden wurde ein Software-Debouncer implementiert. Die Enum ```ButtonStates``` beinhaltet hierfür vier Zustände die ein Button besitzen kann:
+
+| __Wert__ | __Zustand__ |
+| :---     | :---        |
+| ```UP``` | Der Button wird nicht betätigt |
+| ```DOWN``` | Der Button ist betätigt |
+| ```PRESS``` | Der Button wird gedrückt |
+| ```RELEASE``` | Der Button wird losgelassen) |
+
+Die ```ButtonStates delay_debounce(ButonStates button_state, int gpio_num)``` Funktion setzt den ```PRESS``` Zustand, wenn der Button für 25 ms gedrückt wird.
+```RELEASE``` wird gesetzt, wenn der Button losgelassen wurde und für weitere 25 ms nicht betätigt wird.
+
+Die Funktion und die Enum befinden sich in der ```easy_debouncer.c``` Datei. Der Aufruf der Funktion erfolgt in der ```easy_controller.c``` Datei, innerhalb der ```moisture_button_handler(int io_num)``` Funktion.
+
+Das Speichern des eingestellten Feuchtigkeitswert wird im Kapitel [10.5.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture) behandelt.
+
 <a name="eg_func_hw_logic_read_moisture"></a>
 ##### 10.5.1.2 Messung der Erdfeuchtigkeit
+
+Die Messung der Erdfeuchtigkeit erfolgt mittels dem Analogeingang und Verwendung eines Hardware-Timers. Grundlagen für die Initialisierung des Analogpins und des Hardware-Timers befinden sich in den Kapitels [9.5.3 Analogeingang](#rtos_gpio_analog) bzw. [9.6 Timer](#rtos_timer).
+
+Die Callback-Funktion ```read_moisture_level()``` wird alle 5 Minuten (```MOISTURE_READ_INTERVAL```) aufgerufen, um die Erdfeuchtigkeit zu lesen.  Der Callback ruft für das Lesen der Feuchtigkeit die ```MoistureValue get_moisture_level()``` Funktion auf, um 100 (```MOISTURE_READ_DEPTH```) Werte auszulesen, und anschließend den Mittelwert zu berechnen.
+Der Callback ```read_moisture_level()``` und die Funktion ```get_moisture_level()``` befinden sich in der ```easy_controller.c``` Datei.
+
+Der Wertebereich der Feuchtigkeit hat einen Bereich von [353,923]. Dieser Wert wird auf einen Wertebereich von 0 % bis 100 % abgebildet, um die Lesbarkeit zu gewährleisten. Hierfür wird der Funktion ```static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max)``` der Mittelwert übergeben.
+
+Nachdem der Mittelwert ausgelesen wurde und die prozentuale Feuchtigkeit berechnet wurde, werden diese Informationen im Struct ```MoistureValue``` gespeichert. Die Struct beinhaltet folgende Informationen:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```Status``` | ```status``` | Enum signalisiert, ob das Lesen der Feuchtigkeit erfolgreich erfolgt ist |
+| ```uint16_t``` | ```level_value``` | Gelesene Erdfeuchtigkeitswert über den ADC<br>Einheit: 1/1023 V |
+| ```uint8_t``` | ```level_percentage``` | Abgebildeter Erdfeuchtigkeitswert auf 0 % bis 100% |
+| ```MoistureLevel``` | ```level_target``` | Eingestellter Erdfeuchtigkeitsbereich<br>(```OFF```, ```LOW```, ```MID```, ```HIGH```) |
+
+Die Enum ```Status``` beinhaltet folgende Werte:
+| __Wert__ | __Zweck__ |
+| :---     | :---      |
+| ```FAILED``` | Der Lesevorgang der Feuchtigkeit ist nicht erfolgt |
+| ```SUCCESS``` | Der Lesevorgang der Feuchtigkeit ist erfolgt |
+
+Die Struct ```MoistureValue``` wird mittels des Konstruktors ```MoistureValue moisture_value_new(Status status, uint16_t level_value, uint8_t level_percentage, MoistureLevel level_target)``` initialisiert und in der globalen Variable ```moisture_value``` gespeichert und aktualisiert, sobald der Callback aufgerufen oder die Erdfeuchtigkeit mittels der Buttons verändert wurde.
 
 <a name="eg_func_hw_logic_watering"></a>
 ##### 10.5.1.3 Bewässerung der Pflanze
 
+Nach der Auslösung des Hardware-Timer-Callbacks (```read_moisture_value()```) wird zunächst überprüft, ob die gewünschte Erdfeuchtigkeit gegeben ist. Hierfür wird die Struct ```MoistureValue```, welche von der Funktion ```get_moisture_level()``` an die Funktion ```pump_handler(MoistureValue mv)``` übergeben wird.
+
+Anhand des Werts ```mv.level_target```, welcher die gewünschte Feuchtigkeitseinstellung beinhaltet, wird die gelesene Feuchtigkeit, mit dem Wertebereich von ```mv.level_target``` verglichen. Befindet sich die gelesene Feuchtigkeit innerhalb des Wertebereichs, so muss die Pflanze nicht gegossen werden. Ebenso muss diese nicht gegossen werden, wenn der Zustand ```OFF``` aktiviert wurde oder die Erdfeuchtigkeit über den Wertebereich liegt, also die Pflanze überwässert ist.
+
+Um den Wertebereich zu berechnen, muss die Funktion ```MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)``` aufgerufen werden. Diese Funktion gibt den Wertebereich (Struct ```MoistureLevelRange```) der eingestellten Feuchtigkeit zurück und beinhaltet folgende Werte:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```uint16_t``` | ```min``` | Untergrenze der Feuchtigkeit |
+| ```uint16_t``` | ```max``` | Obergrenze der Feuchtigkeit |
+
+Bevor die Pflanze bewässert wird, wird davor der Inhalt des Wassertanks überprüft. Hierzu wird die Funktion ```WaterLevel get_water_level()``` aufgerufen. Der Wassertank wird mittels zwei Sensoren überprüft. Diese Befinden sich zum einen auf der Oberkante und zum anderen auf der Unterkante des Behälters. Durch diese beiden Sensoren ergeben sich insgesamt $`2^2`$ Zustände. Diese Zustände werden durch die Enum ```WaterLevel``` definiert und sieht wie folgt aus:
+
+| __Wert__ | __Zweck__ | __Zustand der Sensoren__<br>T;!T = Oberer Sensor<br>B;!B = Unterer Sensor
+| :---     | :---      | :---      |
+| ```EMPTY``` | Wassertank ist leer | !T && !B |
+| ```GOOD``` | Wassertank ist gut gefüllt | !T && B |
+| ```FULL``` | Wassertank ist voll | T && B |
+
+Die Funktion ```WaterLevel water_level_leds_handler()``` stellt zudem den Zustand der Wasserstands-LEDs ein. Diese Funktion wird innerhalb der Funktion ```get_water_level()``` aufgerufen.
+
+Je nach Wasserstand werden die Funktion ```activate_pump()``` oder ```deaktivate_pump()``` aufgerufen, um die Pflanze zu bewässern oder die Bewässerung zu unterbrechen.
+
+Wurde die Funktion ```activate_pump()``` aufgerufen, so wird die Pflanze für 2 Sekunden (```PUMP_INTERVAL```) bewässert. Nach einem Delay von ```PUMP_INTERVAL``` wird die Funktion ```deactivate_pump()``` aufgerufen, um die Bewässerung zu unterbrechen.
+
+Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-Callbacks wieder durchgeführt. Dieser Prozess stellt sicher, dass die Pflanze stets bewässert wird, sofern sich genügend Wasser im Behälter befindet.
+
 <a name="eg_func_hw_logic_sun_hours"></a>
 ##### 10.5.1.4 Aufzeichnung der Sonnenstunden
+
+<a name="eg_func_hw_logic_pap"></a>
+##### 10.5.1.5 Programmablaufplan
+
+<img src="images/easy_grow_pap.png" alt="Programmablaufplan des Bewässerungssystems">
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
