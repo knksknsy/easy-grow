@@ -15,8 +15,7 @@ typedef enum { EASY_MOISTURE, EASY_CONFIG, EASY_REDIRECT, EASY_DOCUMENTATION } w
 
 void start_http(webMode webMode);
 void set_aps(wifi_ap_record_t aps[], uint16_t apCount);
-
-
+const char* getMoistureOutputString(uint16_t level);
 
 #endif /* MAIN_SRC_INCLUDE_EASY_HTTP_SERVER_H_ */
 
