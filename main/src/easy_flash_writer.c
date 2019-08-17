@@ -55,12 +55,12 @@ uint32_t getStartSector(FlashDataType dataType){
 
 }
 
-uint8_t flash_read(void* value, size_t size, FlashDataType dataType) {
+uint8_t flash_read(void* value, FlashDataType dataType) {
 	uint32_t startSector = getStartSector(dataType);
 
 	int result = -1;
 	result = spi_flash_read(startSector * SPI_FLASH_SEC_SIZE,
-			value, size);
+			value, sizeof(value));
 
 	if (result != -1) {
 		ESP_LOGI(TAG, "[flash_read]:Successfully read data.");
@@ -74,17 +74,16 @@ uint8_t flash_read(void* value, size_t size, FlashDataType dataType) {
 
 
 
-void flash_write(void* value, size_t size, FlashDataType dataType) {
+void flash_write(void* value, FlashDataType dataType) {
 	uint32_t startSector = getStartSector(dataType);
 
 	ESP_LOGI(TAG, "[flash_write]: Writing value to sector [%d], size: %d\n",startSector, SPI_FLASH_SEC_SIZE);
-
 
 	esp_err_t status = spi_flash_erase_sector(startSector);
 	if (status == SPI_FLASH_RESULT_OK) {
 
 		status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
-				 value, size);
+				 value, sizeof(value));
 
 
 		if (status == SPI_FLASH_RESULT_OK) {

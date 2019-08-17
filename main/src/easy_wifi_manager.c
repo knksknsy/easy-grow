@@ -229,16 +229,16 @@ void ap_wifi_init()
 	// writing values:
 	uint32_t val[] = {123,123456};
 
-	flash_write(&val[0], sizeof(val), FLASHDAYS);
-	flash_write(&val[1], sizeof(val), FLASHHOURS);
+	flash_write(&val[0], FLASHDAYS);
+	flash_write(&val[1], FLASHHOURS);
 
 
 	// reading values
 	uint32_t res = 0;
-	flash_read(&res, sizeof(res), FLASHDAYS);
+	flash_read(&res, FLASHDAYS);
 	ESP_LOGI(TAG, "returned: [%d] for saved Days",res);
 
-	flash_read(&res, sizeof(res), FLASHHOURS);
+	flash_read(&res, FLASHHOURS);
 	ESP_LOGI(TAG, "returned: [%d] for saved Hours",res);
 
 

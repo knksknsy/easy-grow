@@ -19,8 +19,8 @@ typedef enum FlashDataType
 } FlashDataType;
 
 void initFlashWriter();
-void flash_write(void* value, size_t size, FlashDataType dataType);
-uint8_t flash_read(void* value, size_t size, FlashDataType dataType);
+void flash_write(void* value, FlashDataType dataType);
+uint8_t flash_read(void* value, FlashDataType dataType);
 
 
 
