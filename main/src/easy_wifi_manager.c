@@ -25,6 +25,8 @@
 #include <easy_wifi_manager.h>
 #include <easy_http_server.h>
 #include <easy_dns.h>
+#include <easy_flash_writer.h>
+
 
 
 #define EXAMPLE_ESP_WIFI_SSID      "EasyGrow_Initial_Config"
@@ -220,6 +222,25 @@ void ap_wifi_init()
 
 	ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
 			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+
+	/// example of how to use flash writer
+
+	// writing values:
+	uint32_t val[] = {123,123456};
+
+	flash_write(&val[0], sizeof(val), FLASHDAYS);
+	flash_write(&val[1], sizeof(val), FLASHHOURS);
+
+
+	// reading values
+	uint32_t res = 0;
+	flash_read(&res, sizeof(res), FLASHDAYS);
+	ESP_LOGI(TAG, "returned: [%d] for saved Days",res);
+
+	flash_read(&res, sizeof(res), FLASHHOURS);
+	ESP_LOGI(TAG, "returned: [%d] for saved Hours",res);
+
 
 	wifi_scan_config_t scan_conf = {
 		.ssid = NULL,
