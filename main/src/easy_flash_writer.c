@@ -46,7 +46,7 @@ uint32_t getStartSector(FlashDataType dataType){
 				   return _startSector;
 			      break;
 			   case FLASHHOURS  :
-				   return startSector/2;
+				   return _startSector/2;
 			   	  break;
 			   default :
 				   return startSector;
@@ -85,14 +85,12 @@ void flash_write(void* value, FlashDataType dataType) {
 		status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
 				 value, sizeof(value));
 
-
 		if (status == SPI_FLASH_RESULT_OK) {
 			ESP_LOGI(TAG, "[flash_write]: Successfully written to flash!");
 			ret = true;
 		}
 		else {
 			ESP_LOGI(TAG, "[flash_write]: Error with writing to flash, Error Code: [%d]", status);
-
 		}
 }}
 
