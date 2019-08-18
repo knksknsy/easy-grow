@@ -79,7 +79,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
         + [10.5.2 Webserver](#eg_func_server)
         + [10.5.3 Access-Point](#eg_func_ap)
         + [10.5.4 Easy_DNS](#eg_func_dns)   
-        + [10.5.5 Bedienung der Webansichten](#eg_func_server_gui)    
+        + [10.5.5 Bedienung der Weboberflächen](#eg_func_server_gui)    
             - [10.5.5.1 Setupwebseite](#eg_func_server_gui-initial)
             - [10.5.5.2 Access-Point Seite](#eg_func_server_gui-ap)
     * [10.6 Git / CICD](#git)
@@ -1104,30 +1104,31 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 
 
 <a name="eg_func_server_gui"></a>
-##### 10.5.5 Bedienung der Webansichten
+##### 10.5.5 Bedienung der Weboberflächen
 
 Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen Steuern. 
 Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
 
 <a name="eg_func_server_gui-initial"></a>
 ##### 10.5.5.1 Setupwebseite
+<img src="images/wifi-mockup.png" width="100%">
+
 Nach der automatischen Weiterleitung bei Auswahl des ```EasyGrow_Initial_Config``` Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet.
 Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. 
 In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
 Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
 
-## 1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
+#### 1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
 
-## 2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+#### 2) Öffnen der Access Point Ansicht (Steuerung des Systems)
 
-## 3) Öffnen der Systemdokumentation
-<img src="images/wifi-mockup.png" width="100%">
-
-
+#### 3) Öffnen der Systemdokumentation
 
 
 <a name="eg_func_server_gui-ap"></a>
 ##### 10.5.5.2 Access-Point Seite
+<img src="images/overview-mockup.png" width="100%">
+
 Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
 Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
 
@@ -1141,12 +1142,11 @@ Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese 
 
 Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktinalität: 
 
-## 1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+#### 1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
 
-## 2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+#### 2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
 
-## 3) Manuelles Betätigen der Wasserpumpe
-<img src="images/overview-mockup.png" width="100%">
+#### 3) Manuelles Betätigen der Wasserpumpe
 
 
 
