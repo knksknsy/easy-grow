@@ -1119,7 +1119,9 @@ In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine 
 Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
 
 (1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
+
 (2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+
 (3) Öffnen der Systemdokumentation
 
 
@@ -1141,7 +1143,9 @@ Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese 
 Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktionalität: 
 
 (1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+
 (2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+
 (3) Manuelles Betätigen der Wasserpumpe
 
 
