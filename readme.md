@@ -864,16 +864,16 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_wifi"></a>
 ### 9.7 WiFi
 
+@Todo: Simon
 <a name="rtos_http_server"></a>
 ### 9.8 HTTP Server
 
-<img src="images/overview-mockup.png" width="100%">
-
+@Todo: Simon
 
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
 
-Tim Todo
+@Tim Todo
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
@@ -1079,6 +1079,12 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
 @Tim todo
+<img src="images/overview-mockup.png" width="100%">
+
+<img src="images/wifi-mockup.png" width="100%">
+
+
+
 
 <a name="eg_func_ap"></a>
 #### 10.5.3 Access-Point
@@ -1104,6 +1110,10 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 @Tim Todo
 
 3D Druck
+
+<img src="images/3D-model.png" width="100%">
+
+
 
 
 <a name="changelog"></a>
