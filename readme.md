@@ -1082,8 +1082,9 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
-@Tim todo
+Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert.
 
+@Simon
 
 
 <a name="eg_func_ap"></a>
@@ -1131,6 +1132,7 @@ In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine 
 
 Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
 Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
+Die angzeigten Werte werden durch einen Reload der Webseite, alle 5 Sekunden aktualisiert.
 
 Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese sind: (von Oben nach Unten) 
 - der gewählte Feuchtigkeitswert (Soll-Wert) 
@@ -1140,7 +1142,7 @@ Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese 
 - Laufzeit des Systems (uptime)
 - der restliche frei verfügbare Speicherplatz (in byte, zu monitoring Zwecken)
 
-Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktionalität: 
+Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bieten die folgende Funktionalität: 
 
 **(1)** Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
 
@@ -1150,13 +1152,60 @@ Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie ha
 
 
 
-
 <a name="git"></a>
 ### 10.6 Git
+Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches
+besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte.  
+Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
+Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. 
+Es ist daher auch gängigige Praxis, Commits im Master-Branch mit einer Versionsnummer zu versehen.
+
+Dadurch, dass die gesamte Feature-Entwicklung in bestimmten Feature-Branches und nicht im Master-Branch stattfindet, können Entwickler 
+an einem bestimmten Feature arbeiten, ohne die Stabilität des gesamten Codes zu beeinträchtigen oder zu gefährden. 
+Feature-Branches ermöglichen es außerdem, bestimmten Code zu reviewen bevor dieser in das offizielle Projekt integriert wird. 
+Sobald auf dem Dev-Branch genügend Features für einen Release zusammengekommen sind, 
+wird ein Release-Branch geforked in welchem noch abschließende Bug-Fixes oder Dokuentation hinzugefügt werden können. 
+Sobald dies abgeschlossen ist, kann der Release-Branch mit einer Versionsnummer versehen und in den Master-Branch gemerged werden.
+Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen. 
+
 
 <a name="git-cicd"></a>
 #### 10.6.1 Continuous Integration
 @Tim Todo
+
+Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet. eine 
+Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
+Diese ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, 
+dass der gesamte Code den festgelegten Anforderungen entspricht. Die GitLab CI/CD wird über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. 
+Diese wird im Folgenden beschrieben.
+
+```yaml
+image: mirohero/docker-esp8266
+
+sdk-test:
+  script:
+    - cd ${CI_PROJECT_DIR}/tests
+    - chmod +x sdk-test.sh
+    - ./sdk-test.sh
+
+build-test:   
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - make
+  only:
+    - master
+    - dev
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}"
+    when: always
+    expire_in: 7d
+    paths:
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
+
+```
+
+
+
 
 <a name="eg_design"></a>
 ### 10.7 Produktdesign
