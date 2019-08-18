@@ -77,8 +77,11 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
             - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
         + [10.5.2 Webserver](#eg_func_server)
-        + [10.5.2 Access-Point](#eg_func_ap)
-        + [10.5.3 Easy_DNS](#eg_func_dns)
+        + [10.5.3 Access-Point](#eg_func_ap)
+        + [10.5.4 Easy_DNS](#eg_func_dns)       
+    * [10.6 Git / CICD](#git)
+    * [10.7 Produktdesign](#eg_design)
+
 - [11. Changelog](#changelog)
 <!-- toc -->
 
@@ -101,7 +104,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 
 
 <a name="make_documentation"></a>
-## 2 Erstellen der Dokumentation mit 'make'
+## 2. Erstellen der Dokumentation mit 'make'
 
 ```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
 
@@ -338,7 +341,7 @@ Es gibt zwei Möglichkeiten einen Container vom ```docker-esp8266``` Image zu in
 ##### 4.1.4.1 MacOS
 
 1. Wechsle in den ```docker``` Ordner im Projektverzeichnis: ```$ cd <project_path>/docker```
-2. Starte den Container mit dem Script: ```$ ./docker.sh```. Dieser Script startet einen Container für das ```docker-esp8266``` Image. Der Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert er den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
+2. Starte den Container mithilfe des Scripts: ```$ ./docker.sh```. Dieses Script startet einen Container für das ```docker-esp8266``` Image. Das Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert es den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
 
 <a name="cont_docker_win"></a>
 ##### 4.1.4.2 Windows
@@ -870,6 +873,8 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
 
+Tim Todo
+
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
 
@@ -1074,11 +1079,14 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
 
+Tim todo
+
 <a name="eg_func_ap"></a>
-#### 10.5.2 Access-Point
+#### 10.5.3 Access-Point
 
 <a name="eg_func_dns"></a>
-#### 10.5.3 Easy_DNS
+#### 10.5.4 Easy_DNS
+
 
 Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen. 
 Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden.
@@ -1086,6 +1094,17 @@ Bei der Erstellung des DNS Task wird der Namensserver für den UDP Port 53 regis
 So kann ein Hostname oder eine IPv4 Adresse einem Port, hier alle eigehenden IP-Adressen dem DNS Port, zugewiesen werden. 
 Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ignoriert. 
 DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. ```connectivitycheck.android.com```) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
+
+
+<a name="git"></a>
+### 10.6 Git / Continuous Integration
+Tim Todo
+
+<a name="eg_design"></a>
+### 10.7 Produktdesign
+Tim Todo
+
+
 
 <a name="changelog"></a>
 ## 11. [Changelog](changelog.md)
