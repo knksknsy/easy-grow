@@ -1118,11 +1118,9 @@ Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwä
 In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
 Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
 
-#### 1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
-
-#### 2) Öffnen der Access Point Ansicht (Steuerung des Systems)
-
-#### 3) Öffnen der Systemdokumentation
+(1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
+(2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+(3) Öffnen der Systemdokumentation
 
 
 <a name="eg_func_server_gui-ap"></a>
@@ -1140,13 +1138,11 @@ Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese 
 - Laufzeit des Systems (uptime)
 - der restliche frei verfügbare Speicherplatz (in byte, zu monitoring Zwecken)
 
-Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktinalität: 
+Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktionalität: 
 
-#### 1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
-
-#### 2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
-
-#### 3) Manuelles Betätigen der Wasserpumpe
+(1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+(2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+(3) Manuelles Betätigen der Wasserpumpe
 
 
 
