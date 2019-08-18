@@ -1111,8 +1111,6 @@ Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
 
 <a name="eg_func_server_gui-initial"></a>
 ##### 10.5.5.1 Setupwebseite
-<img src="images/wifi-mockup.png" width="100%">
-
 Nach der automatischen Weiterleitung bei Auswahl des ```EasyGrow_Initial_Config``` Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet.
 Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. 
 In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
@@ -1123,13 +1121,13 @@ In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine 
 ## 2) Öffnen der Access Point Ansicht (Steuerung des Systems)
 
 ## 3) Öffnen der Systemdokumentation
+<img src="images/wifi-mockup.png" width="100%">
+
+
 
 
 <a name="eg_func_server_gui-ap"></a>
 ##### 10.5.5.2 Access-Point Seite
-
-<img src="images/overview-mockup.png" width="100%">
-
 Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
 Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
 
@@ -1148,6 +1146,9 @@ Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie ha
 ## 2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
 
 ## 3) Manuelles Betätigen der Wasserpumpe
+<img src="images/overview-mockup.png" width="100%">
+
+
 
 
 <a name="git"></a>
