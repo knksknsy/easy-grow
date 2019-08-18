@@ -952,7 +952,7 @@ Die Hardware-Logik beschränkt sich auf folgende Features vom Easy Grow Projekt:
 - [Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
 - [Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
 - [Bewässerung der Pflanze](#eg_func_hw_logic_watering)
-- [Aufzeichnung der Pflanze](#eg_func_hw_logic_sun_hours)
+- [Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
 
 Folgende Dateien wurden für die Implementierung verwendet:
 
