@@ -329,7 +329,7 @@ MoistureValue get_moisture_level()
 
 		// Initializing of a new MoistureValue struct containing the most recent values and settings
 		mv = moisture_value_new(SUCCESS, moisture_level, moisture_percentage, moisture_value.level_target);
-		ESP_LOGI(TAG, "moisture_value: %d, %d, %d", mv.level_value, mv.level_percentage, mv.level_target);
+		ESP_LOGI(TAG, "Current moisture_value: %d, %d, %d", mv.level_value, mv.level_percentage, mv.level_target);
 	}
 	return mv;
 }
