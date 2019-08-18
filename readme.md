@@ -31,7 +31,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [3.6 NodeMCU GPIO-Mapping auf ESP8266](#gpio_mapping_esp)
 - [4. Aufsetzen der Softwareumgebung](#sw_env) 
     * [4.1 ESP8266 Toolchain-Setup mit Docker](#tool_docker)
-        + [4.1.1 Installierung von Docker](#inst_docker)
+        + [4.1.1 Installation von Docker](#inst_docker)
             - [4.1.1.1 MacOS](#inst_docker_mac)
             - [4.1.1.2 Windows](#inst_docker_win)
         + [4.1.2 Bauen des Docker-Images](#build_docker)
@@ -258,7 +258,7 @@ Um Anwendungen für ESP8266 zu entwickeln, wird folgendes benötigt:
 Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:
 
 1. Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)
-2. Installierung auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
+2. Installation auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
 
 Für die Installation wird Docker empfohlen.
 
@@ -266,7 +266,7 @@ Für die Installation wird Docker empfohlen.
 ### 4.1 ESP8266 Toolchain-Setup mit Docker
 
 <a name="inst_docker"></a>
-#### 4.1.1 Installierung von Docker
+#### 4.1.1 Installation von Docker
 
 <a name="inst_docker_mac"></a>
 ##### 4.1.1.1 MacOs
