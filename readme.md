@@ -1155,8 +1155,7 @@ Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bie
 <a name="git"></a>
 ### 10.6 Git
 Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches
-besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte.  
-Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
+besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte. Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
 Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. 
 Es ist daher auch gängigige Praxis, Commits im Master-Branch mit einer Versionsnummer zu versehen.
 
@@ -1164,7 +1163,7 @@ Dadurch, dass die gesamte Feature-Entwicklung in bestimmten Feature-Branches und
 an einem bestimmten Feature arbeiten, ohne die Stabilität des gesamten Codes zu beeinträchtigen oder zu gefährden. 
 Feature-Branches ermöglichen es außerdem, bestimmten Code zu reviewen bevor dieser in das offizielle Projekt integriert wird. 
 Sobald auf dem Dev-Branch genügend Features für einen Release zusammengekommen sind, 
-wird ein Release-Branch geforked in welchem noch abschließende Bug-Fixes oder Dokuentation hinzugefügt werden können. 
+wird ein Release-Branch abgeforked und erlaubt es noch abschließende Bug-Fixes oder Dokuentation hinzuzufügen. 
 Sobald dies abgeschlossen ist, kann der Release-Branch mit einer Versionsnummer versehen und in den Master-Branch gemerged werden.
 Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen. 
 
@@ -1213,7 +1212,7 @@ build-test:
 Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. 
 Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. 
 Mithilfe der kostenfreien online Platform www.tinkercad.com wurde ein entsprechendes 3D-Modell entwickelt, welches die gelisteten, gewünschten Funktionalitäten bietet.
-Die entwickelte, schützende Kunstsoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit 
+Die entwickelte, schützende Kunststoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit 
 Wasser gefüllten Topf stülpen. Dabei entsteht zusammen mit dem Gehäuse ein säulenförmiger Standfuß für eine beliebige zu bewässernde Pflanze.
 Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bedienelemente wie LEDs und Schalter befestigen. 
 Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.
