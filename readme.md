@@ -1078,8 +1078,7 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
-
-Tim todo
+@Tim todo
 
 <a name="eg_func_ap"></a>
 #### 10.5.3 Access-Point
@@ -1098,12 +1097,13 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 
 <a name="git"></a>
 ### 10.6 Git / Continuous Integration
-Tim Todo
+@Tim Todo
 
 <a name="eg_design"></a>
 ### 10.7 Produktdesign
-Tim Todo
+@Tim Todo
 
+3D Druck
 
 
 <a name="changelog"></a>
