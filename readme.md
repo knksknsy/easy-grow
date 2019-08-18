@@ -857,7 +857,7 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_http_server"></a>
 ### 9.8 HTTP Server
 
-<img src="images/overview-mockup.jpg" width="100%">
+<img src="images/overview-mockup.png" width="100%">
 
 
 <a name="rtos_flash"></a>
