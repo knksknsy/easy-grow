@@ -151,7 +151,7 @@ void moisture_button_handler(uint32_t io_num)
 		if (lbutton_states == PRESS)
 		{
 			ESP_LOGI(TAG, "l_button_states: %d", lbutton_states);
-			// Cycle and decrement LEDs in reverse order 
+			// Cycle and decrement LEDs in reverse order
 			if (!LED1 && !LED2 && !LED3)
 			{
 				// moisture value HIGH
@@ -196,7 +196,7 @@ void moisture_button_handler(uint32_t io_num)
 		if (rbutton_states == PRESS)
 		{
 			ESP_LOGI(TAG, "r_button_states: %d", rbutton_states);
-			// Cycle and increment LEDs 
+			// Cycle and increment LEDs
 			if (!LED1 && !LED2 && !LED3)
 			{
 				// moisture value LOW
@@ -455,14 +455,85 @@ void deactivate_pump()
 }
 
 /**
+ * Initialize sun hours counter.
+ */
+void init_sun_hours_counter()
+{
+	// State of the photo diode indicates whether to start counting 'day time' or 'night time'.
+	// 'day time'	state:		PREV_STATE = 1 && STATE = 0		('light on' to 'light off')
+	// 'night time'	state:		PREV_STATE = 0 && STATE = 1		('light off' to 'light on')
+	const uint8_t PREV_STATE = gpio_get_level(PHOTO_DIODE_RX_INPUT);
+	saveFlash(PHOTO_DIODE_PREV_STATE_ADR, PREV_STATE);
+
+	// Save previous time to calulate delta t
+	// delta t = 'current time' - PREV_TIME
+	const uint32_t PREV_TIME = (uint32_t)esp_timer_get_time();
+	saveFlash(PHOTO_DIODE_PREV_TIME_ADR, PREV_TIME);
+
+	// Initialize 'day time' counter 0
+	saveFlash(PHOTO_DIODE_TIME_DAY, 0);
+	// Initialize 'night time' counter 0
+	saveFlash(PHOTO_DIODE_TIME_NIGHT, 0);
+}
+
+/**
  * Read photo diode input and count the hours of sun for the current day.
  * 
  * uint32_t io_num: Photo diode's GPIO pin number
  */
 void photo_diode_handler(uint32_t io_num)
 {
-	int value = gpio_get_level(io_num);
-	ESP_LOGI(TAG, "photo diode: %d", value);
+	// Current state of photo diode ('light on' or 'light off')
+	const uint8_t STATE = gpio_get_level(io_num);
+	// Read previous state of photo diode
+	const uint8_t PREV_STATE = readFlash(PHOTO_DIODE_PREV_STATE_ADR);
+
+	// Check transition from 'light on' to 'light off' (vice versa)
+	if (STATE != PREV_STATE)
+	{
+		// Indicators for wheter counting 'day time' or 'night time'
+		const uint8_t TIME_RANGE_DAY = STATE && !PREV_STATE;
+		const uint8_t TIME_RANGE_NIGHT = !STATE && PREV_STATE;
+
+		// Read current time from esp_timer
+		const uint32_t TIME = (uint32_t)esp_timer_get_time();
+		// Read previous time
+		const uint32_t PREV_TIME = readFlash(PHOTO_DIODE_PREV_TIME_ADR);
+
+		// Save current STATE and current Time for calculating 'delta time' in next ISR
+		saveFlash(PHOTO_DIODE_PREV_STATE_ADR, STATE);
+		saveFlash(PHOTO_DIODE_PREV_TIME_ADR, TIME);
+
+		// Calculate 'delta t' and convert from micro seconds to seconds
+		const uint32_t TIME_DELTA = (TIME - PREV_TIME) / 1000000;
+
+		// Read total 'day time' and 'night time' values from memory
+		uint32_t TOTAL_TIME_DAY = readFlash(PHOTO_DIODE_TIME_DAY);
+		uint32_t TOTAL_TIME_NIGHT = readFlash(PHOTO_DIODE_TIME_NIGHT);
+
+		// Reset total times (day and night) after 24 h
+		if (TOTAL_TIME_DAY + TOTAL_TIME_NIGHT >= 86400)
+		{
+			saveFlash(PHOTO_DIODE_TIME_DAY, 0);
+			saveFlash(PHOTO_DIODE_TIME_NIGHT, 0);
+		}
+		// Continue counting 'day time' and 'night time'
+		else
+		{
+			// Calculate new total 'day time'
+			if (TIME_RANGE_DAY)
+			{
+				TOTAL_TIME_DAY += TIME_DELTA;
+				saveFlash(PHOTO_DIODE_TIME_DAY, TOTAL_TIME_DAY);
+			}
+			// Calculate new total 'night time'
+			else if (TIME_RANGE_NIGHT)
+			{
+				TOTAL_TIME_NIGHT += TIME_DELTA;
+				saveFlash(PHOTO_DIODE_TIME_NIGHT, TOTAL_TIME_NIGHT);
+			}
+		}
+	}
 }
 
 /**
@@ -470,5 +541,5 @@ void photo_diode_handler(uint32_t io_num)
  */
 uint8_t get_hours_of_sun()
 {
-	return NULL;
+	return (readFlash(PHOTO_DIODE_TIME_DAY) / 3600);
 }

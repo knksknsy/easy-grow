@@ -185,6 +185,8 @@ void init_photo_diode_input()
 			(void *) PHOTO_DIODE_RX_INPUT);
 
 	gpio_config(&io_config);
+
+	init_sun_hours_counter();
 }
 
 /**

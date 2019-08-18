@@ -1057,6 +1057,8 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_hw_logic_sun_hours"></a>
 ##### 10.5.1.4 Aufzeichnung der Sonnenstunden
 
+
+
 <a name="eg_func_hw_logic_pap"></a>
 ##### 10.5.1.5 Programmablaufplan
 

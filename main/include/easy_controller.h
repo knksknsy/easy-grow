@@ -8,6 +8,11 @@
 #ifndef MAIN_INCLUDE_EASY_CONTROLLER_H_
 #define MAIN_INCLUDE_EASY_CONTROLLER_H_
 
+#define PHOTO_DIODE_PREV_STATE_ADR      0
+#define PHOTO_DIODE_PREV_TIME_ADR       1
+#define PHOTO_DIODE_TIME_DAY            2
+#define PHOTO_DIODE_TIME_NIGHT          3
+
 // Enum signaling the level of the water tank
 typedef enum WaterLevel
 {
@@ -60,6 +65,7 @@ void set_moisture_level(MoistureLevel level);
 void read_moisture_level(void *arg);
 static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max);
 
+void init_sun_hours_counter();
 void photo_diode_handler(uint32_t io_num);
 uint8_t get_hours_of_sun();
 
