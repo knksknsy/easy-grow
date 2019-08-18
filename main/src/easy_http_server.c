@@ -176,8 +176,6 @@ void httpd_task(void *pvParameters) {
 						WaterLevel wl = get_water_level();
 						strcat(webpage, WEBPAGE_MOISTURE);
 
-					//	char moistureOutput = ;
-						//printf(moistureOutput);
 						char *outputVal = getMoistureOutputString(mv.level_target);
 
 						snprintf(buf, sizeof(buf), webpage, mv.level_target,

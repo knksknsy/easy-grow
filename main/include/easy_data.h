@@ -66,7 +66,7 @@ static  char *WEBPAGE_MOISTURE =
 	"<h2>Easy Grow</h2>"
 	"<div class='panel'>"
 		"<p>Gew&auml;hlte Feuchtigkeit:  <meter max= 3.0 min= 0.0 value='%d'></meter><span>&nbsp;%s</span></p>"
-		"<p>Aktuelle Feuchtigkeit: <span id='mv'>%d</span></p>"
+		"<p>Aktuelle Feuchtigkeit: <span id='mv'>%d</span>%</p>"
 		"<p id='wl'>Wasserstand: %d</p>"
 		"<p>Sonnenstunden: 12h</p>"
 		"<p>Easy Grow ist online seit: %d Sekunden</p>"
