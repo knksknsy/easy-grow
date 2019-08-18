@@ -1,7 +1,7 @@
 # Easy Grow Dokumentation
 
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
-Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und erhält somit die Langlebigkeit der Pflanzen.
+Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und unterstützt somit die Langlebigkeit der Pflanzen.
 
 <div style="width:100%; background:red; margin:0 20px 0 20px; text-align:center;">
 <img src="images/mockup.png" width="100%"></div>
@@ -82,10 +82,9 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
         + [10.5.5 Bedienung der Webansichten](#eg_func_server_gui)    
             - [10.5.5.1 Konfigurations Seite](#eg_func_server_gui-initial)
             - [10.5.5.2 Access-Point Seite](#eg_func_server_gui-ap)
-
     * [10.6 Git / CICD](#git)
+        - [10.6.1 Continuous Integration](#git-cicd)
     * [10.7 Produktdesign](#eg_design)
-
 - [11. Changelog](#changelog)
 <!-- toc -->
 
@@ -962,7 +961,7 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 <a name="eg_functionality"></a>
 ### 10.5 Funktionsweise
 
-Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystem.
+Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystems.
 
 <a name="eg_func_hw_logic"></a>
 #### 10.5.1 Hardware-Logik
@@ -1112,9 +1111,11 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 
 <img src="images/wifi-mockup.png" width="100%">
 
-###1) Abschicken/Bestätigen der eingegebenen Wifi Credentials
-###2) Öffnen der Access Point Ansicht (Steuerung des Systems)
-###3) Öffnen der Systemdokumentation
+## 1) Bestätigen der eingegebenen Wifi Credentials
+
+## 2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+
+## 3) Öffnen der Systemdokumentation
 
 
 
@@ -1125,20 +1126,23 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 
 <img src="images/overview-mockup.png" width="100%">
 
-###1) Zurücksetzen der Wifi-Konfiguration
-###2) Steuerung des gewünschten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
-###3) Manuelles Betätigen der Wasserpumpe
+## 1) Zurücksetzen der Wifi-Konfiguration
 
+## 2) Steuerung des gewünschten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+
+## 3) Manuelles Betätigen der Wasserpumpe
 
 
 
 <a name="git"></a>
-### 10.6 Git / Continuous Integration
+### 10.6 Git
+
+<a name="git-cicd"></a>
+#### 10.6.1 Continuous Integration
 @Tim Todo
 
 <a name="eg_design"></a>
 ### 10.7 Produktdesign
-@Tim Todo
 
 Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. 
 Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. 
@@ -1149,21 +1153,21 @@ Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bed
 Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.
 
 Auf dem folgenden Bild ist das fertige 3D-Modell in Frontalansicht zu sehen. 
-Sichtbar sind hier beispielsweise die Öffnungen für(von links nach rechts): 
+Sichtbar sind hier beispielsweise die Öffnungen für (von links nach rechts): 
 - eine Power-LED
 - die beiden vertikal angeordneten LEDS zur Wasserstandsanzeige
 - Schalter zum Senken der gewählten Feuchtigkeit
 - drei nebeneinander angeordnete LEDS zum Anzeigen des gewählten Feuchtigkeitsstands
-- Schalter zum Heben der gewählten Feuchtigkeit
+- Schalter zum Erhöhen der gewählten Feuchtigkeit
 
 <img src="images/3D-model.png" width="100%">
 
 Das gewählte Material PETG (Polyethylene Terephthalate Glycol-modified), ist ein beliebtes 3D-Druckmaterial welches die jeweiligen Vorteile von ABS und PLA Kunststoffen vereint. 
 PETG-Kunststoff bietet steife, dauerhafte Festigkeit (wie ABS) und einfache Handhabung (wie PLA) - da beim Druck kein Heizbett erforderlich ist. 
-Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. 
+Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB
 
-Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB
-
+Auf besondere, abdichtende Eigenschaften wurde bei der Wahl des Werkstoffes für diesen Prototyp noch kein Wert gelegt. 
+Bei einer produktiver Umsetzung des Projektes wäre ein wasserabweisendes Material, sowie der Einsatz von Gummidichtungsringen an verschiedenen Stellen empfehlenswert.
 Gedruckt wurde der Prototyp mithilfe eines Tevo Tarantula 3D-Druckers im privaten Gebrauch: https://www.tevo.cn/products/3d-printers/tevo-tarantula/
 
 
