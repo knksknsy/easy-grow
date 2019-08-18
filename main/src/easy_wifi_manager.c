@@ -224,23 +224,34 @@ void ap_wifi_init()
 			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
 
 
-	/// example of how to use flash writer
-
-	// writing values:
-	uint32_t val[] = {123,123456};
-
-	flash_write(&val[0], FLASHDAYS);
-	flash_write(&val[1], FLASHHOURS);
+/* Example of how to use flash writer  <------##################################################### hier Kaan  :)  */
 
 
-	// reading values
+	// Saving values:
+	uint32_t val[] = {123,456,789,99999};
+
+	flash_write(&val[0], PREV_STATE);
+	flash_write(&val[1], PREV_TIME);
+	flash_write(&val[2], TIME_DAY);
+	flash_write(&val[3], TIME_NIGHT);
+
+
+	// Reading values
 	uint32_t res = 0;
-	flash_read(&res, FLASHDAYS);
-	ESP_LOGI(TAG, "returned: [%d] for saved Days",res);
+	flash_read(&res, PREV_STATE);
+	ESP_LOGI(TAG, "returned: [%d] for saved PREV_STATE",res);
 
-	flash_read(&res, FLASHHOURS);
-	ESP_LOGI(TAG, "returned: [%d] for saved Hours",res);
+	flash_read(&res, PREV_TIME);
+	ESP_LOGI(TAG, "returned: [%d] for saved PREV_TIME",res);
 
+	flash_read(&res, TIME_DAY);
+	ESP_LOGI(TAG, "returned: [%d] for saved TIME_DAY",res);
+
+	flash_read(&res, TIME_NIGHT);
+	ESP_LOGI(TAG, "returned: [%d] for saved TIME_NIGHT",res);
+
+
+	/* TODO: Delete this section ^  */
 
 	wifi_scan_config_t scan_conf = {
 		.ssid = NULL,

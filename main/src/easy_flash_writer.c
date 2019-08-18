@@ -1,5 +1,5 @@
 /*
- * easy_persistence.c
+ * easy_flash_writer.c
  *
  *  Created on: 23 May 2019
  *      Author: Tim Tenckhoff
@@ -11,25 +11,23 @@
 #include "freertos/event_groups.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "esp_wifi.h"
+
 #include "esp_event_loop.h"
 #include "esp_log.h"
+#include <esp_err.h>
 #include "esp_system.h"
 #include "nvs_flash.h"
 #include "tcpip_adapter.h"
 #include "esp_smartconfig.h"
 
 #include "spi_flash.h"
-
 #include "easy_flash_writer.h"
-
 #include <stdbool.h>
-
-#define _FS_END 0x405FB000
 
 #define TAG "Flash Writer"
 
-uint32_t _startSector = (((uint32_t) _FS_END - 0x40200000) / SPI_FLASH_SEC_SIZE);
+
+uint32_t _startSector = (((uint32_t) _FS_END - _FS_RANGE) / SPI_FLASH_SEC_SIZE);
 
 
 uint8_t SPI_FLASH_RESULT_OK = 0;
@@ -42,12 +40,18 @@ _Bool ret = false;
 uint32_t getStartSector(FlashDataType dataType){
 	uint32_t startSector = 0;
 			switch(dataType) {
-			   case FLASHDAYS  :
+			   case TIME_NIGHT:
 				   return _startSector;
 			      break;
-			   case FLASHHOURS  :
+			   case TIME_DAY:
 				   return _startSector/2;
 			   	  break;
+			   case PREV_STATE:
+			   	  return _startSector/4;
+			   	  break;
+			   case PREV_TIME:
+				  return startSector;
+				  break;
 			   default :
 				   return startSector;
 				   break;
