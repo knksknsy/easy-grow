@@ -12,6 +12,7 @@
 #include "easy_controller.h"
 #include "easy_gpio.h"
 #include "easy_debouncer.h"
+#include "easy_flash_writer.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -463,17 +464,18 @@ void init_sun_hours_counter()
 	// 'day time'	state:		PREV_STATE = 1 && STATE = 0		('light on' to 'light off')
 	// 'night time'	state:		PREV_STATE = 0 && STATE = 1		('light off' to 'light on')
 	const uint8_t PREV_STATE = gpio_get_level(PHOTO_DIODE_RX_INPUT);
-	// saveFlash(PHOTO_DIODE_PREV_STATE, PREV_STATE);
+	flash_write(&PREV_STATE, SUN_COUNTER_PREV_STATE);
 
 	// Save previous time to calulate delta t
 	// delta t = 'current time' - PREV_TIME
 	const uint32_t PREV_TIME = (uint32_t)esp_timer_get_time();
-	// saveFlash(PHOTO_DIODE_PREV_TIME, PREV_TIME);
+	flash_write(&PREV_TIME, SUN_COUNTER_PREV_TIME);
 
 	// Initialize 'day time' counter 0
-	// saveFlash(PHOTO_DIODE_TIME_DAY, 0);
+	const uint32_t ZERO = 0;
+	flash_write(&ZERO, SUN_COUNTER_TIME_DAY);
 	// Initialize 'night time' counter 0
-	// saveFlash(PHOTO_DIODE_TIME_NIGHT, 0);
+	flash_write(&ZERO, SUN_COUNTER_TIME_NIGHT);
 }
 
 /**
@@ -486,7 +488,8 @@ void photo_diode_handler(uint32_t io_num)
 	// Current state of photo diode ('light on' or 'light off')
 	const uint8_t STATE = gpio_get_level(io_num);
 	// Read previous state of photo diode
-	const uint8_t PREV_STATE = 0;// readFlash(PHOTO_DIODE_PREV_STATE_ADR);
+	uint8_t PREV_STATE = 0;
+	flash_read(&PREV_STATE, SUN_COUNTER_PREV_STATE);
 
 	// Check transition from 'light on' to 'light off' (vice versa)
 	if (STATE != PREV_STATE)
@@ -498,24 +501,28 @@ void photo_diode_handler(uint32_t io_num)
 		// Read current time from esp_timer
 		const uint32_t TIME = (uint32_t)esp_timer_get_time();
 		// Read previous time
-		const uint32_t PREV_TIME = 0;// readFlash(PHOTO_DIODE_PREV_TIME_ADR);
+		uint32_t PREV_TIME = 0;
+		flash_read(&PREV_TIME, SUN_COUNTER_PREV_TIME);
 
 		// Save current STATE and current Time for calculating 'delta time' in next ISR
-		// saveFlash(PHOTO_DIODE_PREV_STATE_ADR, STATE);
-		// saveFlash(PHOTO_DIODE_PREV_TIME_ADR, TIME);
+		flash_write(&STATE, SUN_COUNTER_PREV_STATE);
+		flash_write(&TIME, SUN_COUNTER_PREV_TIME);
 
 		// Calculate 'delta t' and convert from micro seconds to seconds
 		const uint32_t TIME_DELTA = (TIME - PREV_TIME) / 1000000;
 
 		// Read total 'day time' and 'night time' values from memory
-		uint32_t TOTAL_TIME_DAY = 0;// readFlash(PHOTO_DIODE_TIME_DAY);
-		uint32_t TOTAL_TIME_NIGHT = 0;// readFlash(PHOTO_DIODE_TIME_NIGHT);
+		uint32_t TOTAL_TIME_DAY = 0;
+		uint32_t TOTAL_TIME_NIGHT = 0;
+		flash_read(&TOTAL_TIME_DAY, SUN_COUNTER_TIME_DAY);
+		flash_read(&TOTAL_TIME_NIGHT, SUN_COUNTER_TIME_NIGHT);
 
 		// Reset total times (day and night) after 24 h
 		if (TOTAL_TIME_DAY + TOTAL_TIME_NIGHT >= 86400)
 		{
-			// saveFlash(PHOTO_DIODE_TIME_DAY, 0);
-			// saveFlash(PHOTO_DIODE_TIME_NIGHT, 0);
+			const uint32_t ZERO = 0;
+			flash_write(&ZERO, SUN_COUNTER_TIME_DAY);
+			flash_write(&ZERO, SUN_COUNTER_TIME_NIGHT);
 		}
 		// Continue counting 'day time' and 'night time'
 		else
@@ -524,13 +531,13 @@ void photo_diode_handler(uint32_t io_num)
 			if (TIME_RANGE_DAY)
 			{
 				TOTAL_TIME_DAY += TIME_DELTA;
-				// saveFlash(PHOTO_DIODE_TIME_DAY, TOTAL_TIME_DAY);
+				flash_write(&TOTAL_TIME_DAY, SUN_COUNTER_TIME_DAY);
 			}
 			// Calculate new total 'night time'
 			else if (TIME_RANGE_NIGHT)
 			{
 				TOTAL_TIME_NIGHT += TIME_DELTA;
-				// saveFlash(PHOTO_DIODE_TIME_NIGHT, TOTAL_TIME_NIGHT);
+				flash_write(&TOTAL_TIME_NIGHT, SUN_COUNTER_TIME_NIGHT);
 			}
 		}
 	}
@@ -541,5 +548,7 @@ void photo_diode_handler(uint32_t io_num)
  */
 uint8_t get_hours_of_sun()
 {
-	return 0;// readFlash(PHOTO_DIODE_TIME_DAY) / 3600);
+	uint32_t SUN_HOURS = 0;
+	flash_read(&SUN_HOURS, SUN_COUNTER_TIME_DAY);
+	return (uint8_t)(SUN_HOURS / 3600);
 }

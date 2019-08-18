@@ -14,10 +14,10 @@
 // Enum for the two different types of Data to flash
 typedef enum FlashDataType
 {
-	PREV_STATE,
-	PREV_TIME,
-	TIME_DAY,
-	TIME_NIGHT
+	SUN_COUNTER_PREV_STATE,
+	SUN_COUNTER_PREV_TIME,
+	SUN_COUNTER_TIME_DAY,
+	SUN_COUNTER_TIME_NIGHT
 } FlashDataType;
 
 void initFlashWriter();

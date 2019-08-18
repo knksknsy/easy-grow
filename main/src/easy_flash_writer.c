@@ -26,75 +26,78 @@
 
 #define TAG "Flash Writer"
 
-
-uint32_t _startSector = (((uint32_t) _FS_END - _FS_RANGE) / SPI_FLASH_SEC_SIZE);
-
+uint32_t _startSector = (((uint32_t)_FS_END - _FS_RANGE) / SPI_FLASH_SEC_SIZE);
 
 uint8_t SPI_FLASH_RESULT_OK = 0;
-
 
 uint8_t addr = 0;
 
 _Bool ret = false;
 
-uint32_t getStartSector(FlashDataType dataType){
+uint32_t getStartSector(FlashDataType dataType)
+{
 	uint32_t startSector = 0;
-			switch(dataType) {
-			   case TIME_NIGHT:
-				   return _startSector;
-			      break;
-			   case TIME_DAY:
-				   return _startSector/2;
-			   	  break;
-			   case PREV_STATE:
-			   	  return _startSector/4;
-			   	  break;
-			   case PREV_TIME:
-				  return startSector;
-				  break;
-			   default :
-				   return startSector;
-				   break;
-			}
-
+	switch (dataType)
+	{
+	case SUN_COUNTER_TIME_NIGHT:
+		return _startSector;
+		break;
+	case SUN_COUNTER_TIME_DAY:
+		return _startSector / 2;
+		break;
+	case SUN_COUNTER_PREV_STATE:
+		return _startSector / 4;
+		break;
+	case SUN_COUNTER_PREV_TIME:
+		return startSector;
+		break;
+	default:
+		return startSector;
+		break;
+	}
 }
 
-uint8_t flash_read(void* value, FlashDataType dataType) {
+uint32_t flash_read(void *value, FlashDataType dataType)
+{
 	uint32_t startSector = getStartSector(dataType);
 
 	int result = -1;
 	result = spi_flash_read(startSector * SPI_FLASH_SEC_SIZE,
-			value, sizeof(value));
+							value, sizeof(value));
 
-	if (result != -1) {
+	if (result != -1)
+	{
 		ESP_LOGI(TAG, "[flash_read]:Successfully read data.");
-	}else {
+	}
+	else
+	{
 		ESP_LOGI(TAG, "[flash_read]Error occured while reading flash, Error Code: [%d]", result);
-
 	}
 
 	return result;
 }
 
-
-
-void flash_write(void* value, FlashDataType dataType) {
+void flash_write(void *value, FlashDataType dataType)
+{
 	uint32_t startSector = getStartSector(dataType);
 
-	ESP_LOGI(TAG, "[flash_write]: Writing value to sector [%d], size: %d\n",startSector, SPI_FLASH_SEC_SIZE);
+	ESP_LOGI(TAG, "[flash_write]: Writing value to sector [%d], size: %d\n", startSector, SPI_FLASH_SEC_SIZE);
 
 	esp_err_t status = spi_flash_erase_sector(startSector);
-	if (status == SPI_FLASH_RESULT_OK) {
+	if (status == SPI_FLASH_RESULT_OK)
+	{
 
 		status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
-				 value, sizeof(value));
+								 value, sizeof(value));
 
-		if (status == SPI_FLASH_RESULT_OK) {
+		if (status == SPI_FLASH_RESULT_OK)
+		{
 			ESP_LOGI(TAG, "[flash_write]: Successfully written to flash!");
 			ret = true;
 		}
-		else {
+		else
+		{
 			ESP_LOGI(TAG, "[flash_write]: Error with writing to flash, Error Code: [%d]", status);
 		}
-}}
-
+	}
+}

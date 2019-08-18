@@ -8,11 +8,6 @@
 #ifndef MAIN_INCLUDE_EASY_CONTROLLER_H_
 #define MAIN_INCLUDE_EASY_CONTROLLER_H_
 
-#define PHOTO_DIODE_PREV_STATE          0
-#define PHOTO_DIODE_PREV_TIME           1
-#define PHOTO_DIODE_TIME_DAY            2
-#define PHOTO_DIODE_TIME_NIGHT          3
-
 // Enum signaling the level of the water tank
 typedef enum WaterLevel
 {
