@@ -3,7 +3,11 @@
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
 Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
 
-<img src="images/overview.jpg" width="500">
+<div style="width:100%; background:red; margin:0 20px 0 20px; text-align:center;">
+<img src="images/overview.jpg" width="100%">
+<img src="images/mockup.png" width="100%"></div>
+</div>
+
 
 ## Externe Komponenten
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
@@ -82,16 +86,20 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 <a name="features"></a>
 ## 1. Features
 
-- Gießen der Pflanze (Automatisiert und Manuell)
+<p>Gießen der Pflanze (Automatisiert und Manuell)</p>
 
 - Einstellen der gewünschten Feuchtigkeit
-<img src="images/crop_states.gif" width="450">   
+
+<img src="images/crop_states.gif"  width="500">   
 
 - Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk
-<img src="images/wifi_all.gif" width="450">
 
-- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
-<img src="images/wifi_setup.gif" width="450">
+<img src="images/wifi_all.gif" width="500">
+  
+- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit</p>
+
+<img src="images/wifi_setup.gif" width="500">
+
 
 <a name="make_documentation"></a>
 ## 2 Erstellen der Dokumentation mit 'make'
