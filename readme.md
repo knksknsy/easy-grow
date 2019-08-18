@@ -81,7 +81,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
         + [10.5.4 Easy_DNS](#eg_func_dns)   
         + [10.5.5 Bedienung der Weboberflächen](#eg_func_server_gui)    
             - [10.5.5.1 Setupwebseite](#eg_func_server_gui-initial)
-            - [10.5.5.2 Access-Point Seite](#eg_func_server_gui-ap)
+            - [10.5.5.2 Access-Point Webseite](#eg_func_server_gui-ap)
     * [10.6 Git / CICD](#git)
         - [10.6.1 Continuous Integration](#git-cicd)
     * [10.7 Produktdesign](#eg_design)
@@ -1118,15 +1118,15 @@ Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwä
 In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
 Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
 
-(1) Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus 
+**(1)** Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus
 
-(2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+**(2)** Öffnen der Access Point Ansicht (Steuerung des Systems)
 
-(3) Öffnen der Systemdokumentation
+**(3)** Öffnen der Systemdokumentation
 
 
 <a name="eg_func_server_gui-ap"></a>
-##### 10.5.5.2 Access-Point Seite
+##### 10.5.5.2 Access-Point Webseite
 <img src="images/overview-mockup.png" width="100%">
 
 Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
@@ -1142,11 +1142,11 @@ Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese 
 
 Darunter befindet siche eine Reihe mit Buttons zur Steuerung des Systems, sie haben die folgende Funktionalität: 
 
-(1) Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+**(1)** Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
 
-(2) Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+**(2)** Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
 
-(3) Manuelles Betätigen der Wasserpumpe
+**(3)** Manuelles Betätigen der Wasserpumpe
 
 
 
