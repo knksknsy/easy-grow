@@ -78,12 +78,17 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
         + [10.5.2 Webserver](#eg_func_server)
         + [10.5.3 Access-Point](#eg_func_ap)
-        + [10.5.4 Easy_DNS](#eg_func_dns)       
+        + [10.5.4 Easy_DNS](#eg_func_dns)   
+        + [10.5.5 Bedienung der Webansichten](#eg_func_server_gui)    
+            - [10.5.5.1 Konfigurations Seite](#eg_func_server_gui-initial)
+            - [10.5.5.2 Access-Point Seite](#eg_func_server_gui-ap)
+
     * [10.6 Git / CICD](#git)
     * [10.7 Produktdesign](#eg_design)
 
 - [11. Changelog](#changelog)
 <!-- toc -->
+
 
 <a name="features"></a>
 ## 1. Features
@@ -1074,20 +1079,18 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_hw_logic_pap"></a>
 ##### 10.5.1.5 Programmablaufplan
 
-<img src="images/easy_grow_pap.png" alt="Programmablaufplan des Bewässerungssystems">
+<img src="images/easy_grow_pap.png" width="100%" alt="Programmablaufplan des Bewässerungssystems">
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
 @Tim todo
-<img src="images/overview-mockup.png" width="100%">
-
-<img src="images/wifi-mockup.png" width="100%">
-
 
 
 
 <a name="eg_func_ap"></a>
 #### 10.5.3 Access-Point
+
+@Simon
 
 <a name="eg_func_dns"></a>
 #### 10.5.4 Easy_DNS
@@ -1101,6 +1104,34 @@ Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachri
 DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. ```connectivitycheck.android.com```) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
 
 
+<a name="eg_func_server_gui"></a>
+##### 10.5.5 Bedienung der Webansichten
+
+<a name="eg_func_server_gui-initial"></a>
+##### 10.5.5.1 Konfigurations Seite
+
+<img src="images/wifi-mockup.png" width="100%">
+
+###1) Abschicken/Bestätigen der eingegebenen Wifi Credentials
+###2) Öffnen der Access Point Ansicht (Steuerung des Systems)
+###3) Öffnen der Systemdokumentation
+
+
+
+
+
+<a name="eg_func_server_gui-ap"></a>
+##### 10.5.5.2 Access-Point Seite
+
+<img src="images/overview-mockup.png" width="100%">
+
+###1) Zurücksetzen der Wifi-Konfiguration
+###2) Steuerung des gewünschten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+###3) Manuelles Betätigen der Wasserpumpe
+
+
+
+
 <a name="git"></a>
 ### 10.6 Git / Continuous Integration
 @Tim Todo
@@ -1109,10 +1140,31 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 ### 10.7 Produktdesign
 @Tim Todo
 
-3D Druck
+Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. 
+Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. 
+Mithilfe der kostenfreien online Platform www.tinkercad.com wurde ein entsprechendes 3D-Modell entwickelt, welches die gelisteten, gewünschten Funktionalitäten bietet.
+Die entwickelte, schützende Kunstsoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit 
+Wasser gefüllten Topf stülpen. Dabei entsteht zusammen mit dem Gehäuse ein säulenförmiger Standfuß für eine beliebige zu bewässernde Pflanze.
+Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bedienelemente wie LEDs und Schalter befestigen. 
+Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.
+
+Auf dem folgenden Bild ist das fertige 3D-Modell in Frontalansicht zu sehen. 
+Sichtbar sind hier beispielsweise die Öffnungen für(von links nach rechts): 
+- eine Power-LED
+- die beiden vertikal angeordneten LEDS zur Wasserstandsanzeige
+- Schalter zum Senken der gewählten Feuchtigkeit
+- drei nebeneinander angeordnete LEDS zum Anzeigen des gewählten Feuchtigkeitsstands
+- Schalter zum Heben der gewählten Feuchtigkeit
 
 <img src="images/3D-model.png" width="100%">
 
+Das gewählte Material PETG (Polyethylene Terephthalate Glycol-modified), ist ein beliebtes 3D-Druckmaterial welches die jeweiligen Vorteile von ABS und PLA Kunststoffen vereint. 
+PETG-Kunststoff bietet steife, dauerhafte Festigkeit (wie ABS) und einfache Handhabung (wie PLA) - da beim Druck kein Heizbett erforderlich ist. 
+Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. 
+
+Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB
+
+Gedruckt wurde der Prototyp mithilfe eines Tevo Tarantula 3D-Druckers im privaten Gebrauch: https://www.tevo.cn/products/3d-printers/tevo-tarantula/
 
 
 
