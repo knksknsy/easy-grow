@@ -1207,10 +1207,12 @@ Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen.
 <a name="git-cicd"></a>
 #### 10.6.1 Continuous Integration
 
-Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet. eine 
-Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
-Diese ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, 
-dass der gesamte Code den festgelegten Anforderungen entspricht. Die GitLab CI/CD wird über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. 
+Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet.  
+Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, 
+welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
+Dieses Vorgehen ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, 
+dass der gesamte Code den festgelegten Anforderungen entspricht. 
+Die einzelnen Schritte inerhalb einer GitLab CI/CD Pipeline werden über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. 
 Diese wird im Folgenden beschrieben.
 
 ```yaml
@@ -1257,7 +1259,7 @@ sdk-test:
 In dieser Stage der Pipeline wird durch das Ausführen eines Skriptes die Funktionalität des installierten SDKs getestet. 
 Über Kommandozeilenbefehle navigiert die .yml Datei in den Unterordner /tests, macht das Test-Script ```sdk-test.sh``` ausführbar und startet es.
 
-**(2)** Build Test Stage
+**(3)** Build Test Stage
 ```yaml
 build-test:   
   script:
@@ -1273,10 +1275,10 @@ build-test:
     paths:
       - "${CI_PROJECT_DIR}/build/easy_grow.bin"
 ```
-
-Artifacts, beschreiben Listen von Dateien oder Verzeichnissen, welche final von einem CICD Job erstellt werden, sobald dieser beendet ist. 
-An dieser Stelle werden der Artefaktname, der Pfad und das Ablaufdatum (7Tage) gesetzt um die entsprechenden Dateien zu bauen. ```only``` gibt an, dass der Job
-nur für den entsprechenden Branches -master und -dev auszuführen ist.
+Diese letzte Stage führt einen ```make``` Befehl im Hauptverzeichnis aus und baut so den implementierten C - Code des Projektes. 
+```only``` gibt an, dass der Job nur für den entsprechenden Branches -master und -dev auszuführen ist.
+Artifacts, beschreiben die Liste von Dateien oder Verzeichnissen, welche final von einem CICD Job erstellt werden sobald dieser beendet ist. 
+An dieser Stelle werden der Artefaktname, der Pfad und das Ablaufdatum (7Tage) gesetzt um die entsprechenden Dateien anschließend zu bauen. 
 Dabei werden die folgenden (von GitLab) vordefinierten Umgebungsvariablen genutzt:
 
 ```CI_JOB_NAME```:
