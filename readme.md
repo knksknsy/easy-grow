@@ -1,9 +1,12 @@
 # Easy Grow Dokumentation
 
 Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
-Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
+Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und unterstützt somit die Langlebigkeit der Pflanzen.
 
-<img src="images/overview.jpg" width="500">
+<div style="width:100%; background:red; margin:0 20px 0 20px; text-align:center;">
+<img src="images/mockup.png" width="100%"></div>
+</div>
+
 
 ## Externe Komponenten
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
@@ -28,7 +31,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [3.6 NodeMCU GPIO-Mapping auf ESP8266](#gpio_mapping_esp)
 - [4. Aufsetzen der Softwareumgebung](#sw_env) 
     * [4.1 ESP8266 Toolchain-Setup mit Docker](#tool_docker)
-        + [4.1.1 Installierung von Docker](#inst_docker)
+        + [4.1.1 Installation von Docker](#inst_docker)
             - [4.1.1.1 MacOS](#inst_docker_mac)
             - [4.1.1.2 Windows](#inst_docker_win)
         + [4.1.2 Bauen des Docker-Images](#build_docker)
@@ -74,10 +77,17 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.4 Programmablaufplan](#eg_func_hw_logic_pap)
             - [10.5.1.5 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
         + [10.5.2 Webserver](#eg_func_server)
-        + [10.5.2 Access-Point](#eg_func_ap)
-        + [10.5.3 Easy_DNS](#eg_func_dns)
+        + [10.5.3 Access-Point](#eg_func_ap)
+        + [10.5.4 Easy_DNS](#eg_func_dns)   
+        + [10.5.5 Bedienung der Weboberflächen](#eg_func_server_gui)    
+            - [10.5.5.1 Setupwebseite](#eg_func_server_gui-initial)
+            - [10.5.5.2 Access-Point Webseite](#eg_func_server_gui-ap)
+    * [10.6 Git / CICD](#git)
+        - [10.6.1 Continuous Integration](#git-cicd)
+    * [10.7 Produktdesign](#eg_design)
 - [11. Changelog](#changelog)
 <!-- toc -->
+
 
 <a name="features"></a>
 ## 1. Features
@@ -85,16 +95,20 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 - Gießen der Pflanze (Automatisiert und Manuell)
 
 - Einstellen der gewünschten Feuchtigkeit
-<img src="images/crop_states.gif" width="450">   
+
+<img src="images/crop_states.gif"  width="500">   
 
 - Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk
-<img src="images/wifi_all.gif" width="450">
 
-- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
-<img src="images/wifi_setup.gif" width="450">
+<img src="images/wifi_all.gif" width="500">
+  
+- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit</p>
+
+<img src="images/wifi_setup.gif" width="500">
+
 
 <a name="make_documentation"></a>
-## 2 Erstellen der Dokumentation mit 'make'
+## 2. Erstellen der Dokumentation mit 'make'
 
 ```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
 
@@ -244,7 +258,7 @@ Um Anwendungen für ESP8266 zu entwickeln, wird folgendes benötigt:
 Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:
 
 1. Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)
-2. Installierung auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
+2. Installation auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
 
 Für die Installation wird Docker empfohlen.
 
@@ -252,7 +266,7 @@ Für die Installation wird Docker empfohlen.
 ### 4.1 ESP8266 Toolchain-Setup mit Docker
 
 <a name="inst_docker"></a>
-#### 4.1.1 Installierung von Docker
+#### 4.1.1 Installation von Docker
 
 <a name="inst_docker_mac"></a>
 ##### 4.1.1.1 MacOs
@@ -331,7 +345,7 @@ Es gibt zwei Möglichkeiten einen Container vom ```docker-esp8266``` Image zu in
 ##### 4.1.4.1 MacOS
 
 1. Wechsle in den ```docker``` Ordner im Projektverzeichnis: ```$ cd <project_path>/docker```
-2. Starte den Container mit dem Script: ```$ ./docker.sh```. Dieser Script startet einen Container für das ```docker-esp8266``` Image. Der Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert er den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
+2. Starte den Container mithilfe des Scripts: ```$ ./docker.sh```. Dieses Script startet einen Container für das ```docker-esp8266``` Image. Das Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert es den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
 
 <a name="cont_docker_win"></a>
 ##### 4.1.4.2 Windows
@@ -854,11 +868,16 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_wifi"></a>
 ### 9.7 WiFi
 
+@Todo: Simon
 <a name="rtos_http_server"></a>
 ### 9.8 HTTP Server
 
+@Todo: Simon
+
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
+
+@Tim Todo
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
@@ -942,7 +961,7 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 <a name="eg_functionality"></a>
 ### 10.5 Funktionsweise
 
-Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystem.
+Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystems.
 
 <a name="eg_func_hw_logic"></a>
 #### 10.5.1 Hardware-Logik
@@ -1057,7 +1076,7 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_hw_logic_pap"></a>
 ##### 10.5.1.4 Programmablaufplan
 
-<img src="images/easy_grow_pap.png" alt="Programmablaufplan des Bewässerungssystems">
+<img src="images/easy_grow_pap.png" width="100%" alt="Programmablaufplan des Bewässerungssystems">
 
 <a name="eg_func_hw_logic_sun_hours"></a>
 ##### 10.5.1.5 Aufzeichnung der Sonnenstunden
@@ -1098,12 +1117,19 @@ Die detaillierte Funktionsweise der Sonnenstundenaufzeichnung wird im folgenden 
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver
+Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert.
+
+@Simon
+
 
 <a name="eg_func_ap"></a>
-#### 10.5.2 Access-Point
+#### 10.5.3 Access-Point
+
+@Simon
 
 <a name="eg_func_dns"></a>
-#### 10.5.3 Easy_DNS
+#### 10.5.4 Easy_DNS
+
 
 Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen. 
 Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden.
@@ -1111,6 +1137,140 @@ Bei der Erstellung des DNS Task wird der Namensserver für den UDP Port 53 regis
 So kann ein Hostname oder eine IPv4 Adresse einem Port, hier alle eigehenden IP-Adressen dem DNS Port, zugewiesen werden. 
 Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ignoriert. 
 DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. ```connectivitycheck.android.com```) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
+
+
+<a name="eg_func_server_gui"></a>
+##### 10.5.5 Bedienung der Weboberflächen
+
+Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen Steuern. 
+Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
+
+<a name="eg_func_server_gui-initial"></a>
+##### 10.5.5.1 Setupwebseite
+<img src="images/wifi-mockup.png" width="100%">
+
+Nach der automatischen Weiterleitung bei Auswahl des ```EasyGrow_Initial_Config``` Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet.
+Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. 
+In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
+Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
+
+**(1)** Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus
+
+**(2)** Öffnen der Access Point Ansicht (Steuerung des Systems)
+
+**(3)** Öffnen der Systemdokumentation
+
+
+<a name="eg_func_server_gui-ap"></a>
+##### 10.5.5.2 Access-Point Webseite
+<img src="images/overview-mockup.png" width="100%">
+
+Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
+Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
+Die angzeigten Werte werden durch einen Reload der Webseite, alle 5 Sekunden aktualisiert.
+
+Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese sind: (von Oben nach Unten) 
+- der gewählte Feuchtigkeitswert (Soll-Wert) 
+- der aktuelle Feuchtigkeitswert (Ist-Wert, in %)
+- der Wasserstand im Tank (Niedrig, Normal, Hoch)
+- die gemessenen täglichen Sonnenstunden
+- Laufzeit des Systems (uptime)
+- der restliche frei verfügbare Speicherplatz (in byte, zu monitoring Zwecken)
+
+Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bieten die folgende Funktionalität: 
+
+**(1)** Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+
+**(2)** Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+
+**(3)** Manuelles Betätigen der Wasserpumpe
+
+
+
+<a name="git"></a>
+### 10.6 Git
+Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches
+besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte. Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
+Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. 
+Es ist daher auch gängigige Praxis, Commits im Master-Branch mit einer Versionsnummer zu versehen.
+
+Dadurch, dass die gesamte Feature-Entwicklung in bestimmten Feature-Branches und nicht im Master-Branch stattfindet, können Entwickler 
+an einem bestimmten Feature arbeiten, ohne die Stabilität des gesamten Codes zu beeinträchtigen oder zu gefährden. 
+Feature-Branches ermöglichen es außerdem, bestimmten Code zu reviewen bevor dieser in das offizielle Projekt integriert wird. 
+Sobald auf dem Dev-Branch genügend Features für einen Release zusammengekommen sind, 
+wird ein Release-Branch abgeforked und erlaubt es noch abschließende Bug-Fixes oder Dokuentation hinzuzufügen. 
+Sobald dies abgeschlossen ist, kann der Release-Branch mit einer Versionsnummer versehen und in den Master-Branch gemerged werden.
+Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen. 
+
+
+<a name="git-cicd"></a>
+#### 10.6.1 Continuous Integration
+@Tim Todo
+
+Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet. eine 
+Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
+Diese ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, 
+dass der gesamte Code den festgelegten Anforderungen entspricht. Die GitLab CI/CD wird über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. 
+Diese wird im Folgenden beschrieben.
+
+```yaml
+image: mirohero/docker-esp8266
+
+sdk-test:
+  script:
+    - cd ${CI_PROJECT_DIR}/tests
+    - chmod +x sdk-test.sh
+    - ./sdk-test.sh
+
+build-test:   
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - make
+  only:
+    - master
+    - dev
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}"
+    when: always
+    expire_in: 7d
+    paths:
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
+
+```
+
+
+
+
+<a name="eg_design"></a>
+### 10.7 Produktdesign
+
+Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. 
+Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. 
+Mithilfe der kostenfreien online Platform www.tinkercad.com wurde ein entsprechendes 3D-Modell entwickelt, welches die gelisteten, gewünschten Funktionalitäten bietet.
+Die entwickelte, schützende Kunststoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit 
+Wasser gefüllten Topf stülpen. Dabei entsteht zusammen mit dem Gehäuse ein säulenförmiger Standfuß für eine beliebige zu bewässernde Pflanze.
+Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bedienelemente wie LEDs und Schalter befestigen. 
+Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.
+
+Auf dem folgenden Bild ist das fertige 3D-Modell in Frontalansicht zu sehen. 
+Sichtbar sind hier beispielsweise die Öffnungen für (von links nach rechts): 
+- eine Power-LED
+- die beiden vertikal angeordneten LEDS zur Wasserstandsanzeige
+- Schalter zum Senken der gewählten Feuchtigkeit
+- drei nebeneinander angeordnete LEDS zum Anzeigen des gewählten Feuchtigkeitsstands
+- Schalter zum Erhöhen der gewählten Feuchtigkeit
+
+<img src="images/3D-model.png" width="100%">
+
+Das gewählte Material PETG (Polyethylene Terephthalate Glycol-modified), ist ein beliebtes 3D-Druckmaterial welches die jeweiligen Vorteile von ABS und PLA Kunststoffen vereint. 
+PETG-Kunststoff bietet steife, dauerhafte Festigkeit (wie ABS) und einfache Handhabung (wie PLA) - da beim Druck kein Heizbett erforderlich ist. 
+Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB
+
+Auf besondere, abdichtende Eigenschaften wurde bei der Wahl des Werkstoffes für diesen Prototyp noch kein Wert gelegt. 
+Bei einer produktiver Umsetzung des Projektes wäre ein wasserabweisendes Material, sowie der Einsatz von Gummidichtungsringen an verschiedenen Stellen empfehlenswert.
+Gedruckt wurde der Prototyp mithilfe eines Tevo Tarantula 3D-Druckers im privaten Gebrauch: https://www.tevo.cn/products/3d-printers/tevo-tarantula/
+
+
 
 <a name="changelog"></a>
 ## 11. [Changelog](changelog.md)

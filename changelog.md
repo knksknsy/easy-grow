@@ -5,7 +5,6 @@
 - buildnumber with fixes
 
 
-
 ## 0.1.0 (23.04.2019)
 
 - Main: Initial Commit
@@ -41,8 +40,9 @@ SIMON wifi wifi
 ## 0.7.x (17.06.2019)
 - HttpServer: Moved HTML Code to own class
 
-## 0.8.x (xxxx)
-TIM: reading wrting
+## 0.8.1 (18.06.2019)
+- Flash_Writer: writing and reading functions
+
 
 ## 0.9.x (25.06.2019)
 - DNSServer: Added DNS Server
