@@ -23,6 +23,7 @@
 #include <easy_http_server.h>
 #include <easy_data.h>
 #include "easy_documentation.h"
+#include <easy_flash_writer.h>
 
 #include <easy_dns.h>
 

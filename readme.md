@@ -74,8 +74,8 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.1 Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
             - [10.5.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
             - [10.5.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
-            - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
-            - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
+            - [10.5.1.4 Programmablaufplan](#eg_func_hw_logic_pap)
+            - [10.5.1.5 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
         + [10.5.2 Webserver](#eg_func_server)
         + [10.5.3 Access-Point](#eg_func_ap)
         + [10.5.4 Easy_DNS](#eg_func_dns)   
@@ -971,7 +971,7 @@ Die Hardware-Logik beschränkt sich auf folgende Features vom Easy Grow Projekt:
 - [Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
 - [Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
 - [Bewässerung der Pflanze](#eg_func_hw_logic_watering)
-- [Aufzeichnung der Pflanze](#eg_func_hw_logic_sun_hours)
+- [Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
 
 Folgende Dateien wurden für die Implementierung verwendet:
 
@@ -1035,6 +1035,7 @@ Nachdem der Mittelwert ausgelesen wurde und die prozentuale Feuchtigkeit berechn
 | ```MoistureLevel``` | ```level_target``` | Eingestellter Erdfeuchtigkeitsbereich<br>(```OFF```, ```LOW```, ```MID```, ```HIGH```) |
 
 Die Enum ```Status``` beinhaltet folgende Werte:
+
 | __Wert__ | __Zweck__ |
 | :---     | :---      |
 | ```FAILED``` | Der Lesevorgang der Feuchtigkeit ist nicht erfolgt |
@@ -1072,13 +1073,47 @@ Wurde die Funktion ```activate_pump()``` aufgerufen, so wird die Pflanze für 2 
 
 Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-Callbacks wieder durchgeführt. Dieser Prozess stellt sicher, dass die Pflanze stets bewässert wird, sofern sich genügend Wasser im Behälter befindet.
 
-<a name="eg_func_hw_logic_sun_hours"></a>
-##### 10.5.1.4 Aufzeichnung der Sonnenstunden
-
 <a name="eg_func_hw_logic_pap"></a>
-##### 10.5.1.5 Programmablaufplan
+##### 10.5.1.4 Programmablaufplan
 
 <img src="images/easy_grow_pap.png" width="100%" alt="Programmablaufplan des Bewässerungssystems">
+
+<a name="eg_func_hw_logic_sun_hours"></a>
+##### 10.5.1.5 Aufzeichnung der Sonnenstunden
+
+Easy Grow zeichnet die Sonnenstunden eines Tages (24 Stundenintervall) mittels der ```esp_timer``` API und einer ISR auf. Nachdem der Bootvorgang des NodeMCUs vollendet ist, startet der ```esp_timer```. Der ```esp_timer``` liefert mittels der ```esp_timer_get_time()``` Funktion die Zeit, die nach dem Bootvorgang bis zum aktuellen Zeitpunkt vergangen ist (in Mikrosekunden). Mit Hilfe der ISR werden Veränderungen der Lichtverhältnisse (an oder aus) ermittelt. Bei jeder ausgelösten ISR berechnet der Handler ```photo_diode_handler()``` die Zeitspanne der Tag- und Nachtwechsel (in Sekunden), bis insgesamt 24 Stunden vergangen sind. Nach 24 Stunden werden die aufgezeichneten Sonnenstunden (in Sekunden) wieder auf 0 zurückgestellt.
+
+###### Initialisierung
+
+Bei der Initialisierung der GPIO der Photodiode wird eine ISR eingesetzt, die auf positive und negative Flanken ausgerichtet ist. D.h., dass jede Veränderung des Lichtverhältnisses, den ISR auslöst.
+
+Nach der Initialisierung der GPIO und der ISR wird der Sonnenstundenzähler implementiert. Dies geschieht in der ```init_sun_hours_counter()``` Funktion. Die Funktion liest zum Einen den initialen Zustand der Photodiode (```SUN_COUNTER_PREV_STATE```) und zum Anderen die aktuellen Zeit (```SUN_COUNTER_PREV_TIME```) aus und speichert diese im Flash-Speicher.
+
+Die Zeitspannen der Tages- und Nachtdauer werden (```SUN_COUNTER_TIME_DAY``` und ```SUN_COUNTER_TIME_NIGHT``` Enums) werden initial auf 0 gesetzt und ebenfalls im Flash-Speicher persistiert.
+
+###### Funktionsweise
+
+Nachdem die ISR ausgelöst wurde, wird im Handler ```photo_diode_handler()``` die Zeitspanne der Lichtveränderung ausgerechnet.
+
+Um die Lichtveränderungszeitspanne zu berechnen, muss zunächst herausgefunden werden, ob ein Tag-Nacht-Wechsel oder Nacht-Tag-Wechsel stattfand. Hierzu wird der ```SUN_COUNTER_PREV_STATE``` Wert ausgelesen und mit dem aktuellen Zustand (```STATE```) verglichen. Die folgende Tabelle veranschaulicht den Zustandswechsel:
+
+| __PREV_STATE__ | __STATE__ | __Zustand__ |
+| :---           | :---      | :---        |
+| ```0``` | ```1``` | Nacht-Tag-Wechsel<br>Zeitspanne der Nacht muss berechnet werden. |
+| ```1``` | ```0``` | Tag-Nacht-Wechsel<br>Zeitspanne des Tages muss berechnet werden. |
+
+Die Zeitspanne (Tag oder Nacht) wird nur bei ungleichem Zustand  von ```PREV_STATE``` und ```STATE``` berechnet, also entweder bei einem Nacht-Tag- oder Tag-Nacht-Wechsel.
+Der aktuelle ```STATE``` und die aktuelle ```TIME``` werden in der Funktion ```photo_diode_handler()``` gelesen.
+Die Zeitspanne (```TIME_DELTA```) berechnet sich durch die Differenz der aktuellen Zeit (```TIME```) und der ```PREV_TIME```.
+
+Danach wird ```PREV_STATE``` auf ```STATE``` und ```PREV_TIME``` auf ```TIME``` gesetzt, um bei der nächsten ISR die nächste Zeitspanne zu berechnen.
+Der Tageszeitspanne (```SUN_HOURS_TIME_DAY```) bzw. der Nachtspanne (```SUN_HOURS_TIME_NIGHT```) wird ```TIME_DELTA``` aufaddiert, je nach Berechneter Zeitspanne (Tag oder Nacht).
+
+Erreicht die Summe aus ```SUN_HOURS_TIME_DAY``` und ```SUN_HOURS_TIME_NIGHT``` 24 Stunden, so werden ```SUN_HOURS_TIME_DAY``` und ```SUN_HOURS_TIME_NIGHT``` auf 0 zurückgesetzt, um die Sonnenstunden der nächsten 24 Stunden aufzuzeichnen.
+
+Die detaillierte Funktionsweise der Sonnenstundenaufzeichnung wird im folgenden Programmablaufplan beschrieben:
+
+<img src="images/sun_hours_pap.png" alt="Programmablaufplan Sonnenstundenaufzeichnung">
 
 <a name="eg_func_server"></a>
 #### 10.5.2 Webserver

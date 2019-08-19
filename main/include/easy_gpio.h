@@ -25,8 +25,8 @@
 #define PHOTO_DIODE_RX_INPUT				3
 #define LED_WATER_LEVEL_BOTTOM_TX_OUTPUT	1
 
-// 2 minutes interval: 60 * 1000000 * 5 = 60000000
-#define MOISTURE_READ_INTERVAL              60000000
+// 2 minutes interval: 60 * 1000000 * 5 = 300000000
+#define MOISTURE_READ_INTERVAL              300000000
 // Number of values retrieved from moisture sensor
 #define MOISTURE_READ_DEPTH                 100
 
