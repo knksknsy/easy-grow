@@ -21,11 +21,16 @@
 - GPIO: Added Input Methods
 - GPIO: Fixed wrong declaration
 
-## 0.4.x (xxxxxx)
-KAAN Initial setup
+## 0.4.0 (13.05.2019)
+- Setup: Added script to install ESP8266 software environment (ESP RTOS SDK and Toolchain) for Linux and Mac hosts
+- Setup: Added script for building 'ESP8266 Docker image' and starting container
+- Docker: Enable exporting serial port from host machine to Docker container
 
-## 0.5.x (xxxxxx)
-KAAN gpio
+## 0.5.0 (18.05.2019)
+- GPIO: Added Output Methods
+- GPIO: Added Interrupt Service Routine for GPIO inputs
+- GPIO: Added analog input
+- GPIO: Use HW timer to read ACD input every 5 minutes
 
 ## 0.6.0 (21.05.2019)
 - Gitlab CI: Added automated build jobs
@@ -44,7 +49,10 @@ SIMON wifi wifi
 ## 0.8.x (xxxx)
 TIM: reading wrting
 
-## 0.9.x (25.06.2019)
+## 0.9.0 (20.06.2019)
+- GPIO: Implemented counting sun hours per day
+
+## 0.10.x (25.06.2019)
 - DNSServer: Added DNS Server
 
 ## 1.0.0 (30.06.2019)
