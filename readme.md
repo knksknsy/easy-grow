@@ -1189,6 +1189,7 @@ Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bie
 
 <a name="git"></a>
 ### 10.6 Git
+Als Version Control System (VCS) wird das MI-Gitlab der Hochschule der Medien genutzt.
 Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches
 besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte. Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
 Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. 
@@ -1205,7 +1206,6 @@ Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen.
 
 <a name="git-cicd"></a>
 #### 10.6.1 Continuous Integration
-@Tim Todo
 
 Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet. eine 
 Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
@@ -1238,6 +1238,58 @@ build-test:
 
 ```
 
+**(1)** Docker image
+```yaml
+image: mirohero/docker-esp8266
+```
+Für den Bau einer GitLab-Build-Pipeline würde sich im Normalfall ebenfalls Docker zum Bau gut eignen. 
+Da die MI-Gitlab Pipeline jedoch das Bauen eines Docker-in-Docker Images nicht unterstützt, wurde sie mit diesem Befehl so konfiguriert, dass sie ein 
+im Docker Hub bereitgestelltes Image pullt, welches alle benötigten Abhängigkeiten des esp8266 enthält.
+
+**(2)** SDK Test Stage
+```yaml
+sdk-test:
+  script:
+    - cd ${CI_PROJECT_DIR}/tests
+    - chmod +x sdk-test.sh
+    - ./sdk-test.sh
+```
+In dieser Stage der Pipeline wird durch das Ausführen eines Skriptes die Funktionalität des installierten SDKs getestet. 
+Über Kommandozeilenbefehle navigiert die .yml Datei in den Unterordner /tests, macht das Test-Script ```sdk-test.sh``` ausführbar und startet es.
+
+**(2)** Build Test Stage
+```yaml
+build-test:   
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - make
+  only:
+    - master
+    - dev
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}"
+    when: always
+    expire_in: 7d
+    paths:
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
+```
+
+Artifacts, beschreiben Listen von Dateien oder Verzeichnissen, welche final von einem CICD Job erstellt werden, sobald dieser beendet ist. 
+An dieser Stelle werden der Artefaktname, der Pfad und das Ablaufdatum (7Tage) gesetzt um die entsprechenden Dateien zu bauen. ```only``` gibt an, dass der Job
+nur für den entsprechenden Branches -master und -dev auszuführen ist.
+Dabei werden die folgenden (von GitLab) vordefinierten Umgebungsvariablen genutzt:
+
+```CI_JOB_NAME```:
+Der Name des Jobs, wie er in der .gitlab-ci.yml Datei vordefiniert ist.
+
+```CI_COMMIT_REF_NAME```:
+Der Branch- oder Commit-Name, für den das Projekt gebaut wird.
+
+```CI_JOB_ID```:
+Eine eindeutige ID des aktuellen Jobs, die GitLab CI intern erzeugt und verwendet.
+
+```CI_PROJECT_DIR```:
+Der vollständige Pfad auf dem das Repository geklont wird und auf dem der Job ausgeführt wird. 
 
 
 
