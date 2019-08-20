@@ -1,6 +1,6 @@
 # Easy Grow Dokumentation
 
-Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
+Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene, vordefinierte Einstellungsmöglichkeiten für den Grad der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
 Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und unterstützt somit die Langlebigkeit der Pflanzen.
 
 <div style="width:100%; background:red; margin:0 20px 0 20px; text-align:center;">
@@ -395,10 +395,10 @@ Die Toolchain befindet sich im Pfad ```<path>/ESP/xtensa-lx106-elf``` wohingegen
 <a name="eclipse"></a>
 ### 5.1 Eclipse IDE
 
-Um eine gemeinsame Enwicklungs-Umgebung innerhalb des Teams zu schaffen, wurde die Eclipse IDE gewählt. Diese bietet
+Um eine gemeinsame Enwicklungsumgebung innerhalb des Teams zu schaffen, wurde die Eclipse IDE gewählt. Diese bietet
  eine grafische Oberfläche zum Schreiben, Kompillieren und Debuggen von ESP8266_RTOS_SDK Projekten in C.
-Nach dem Download des plattformabhängig richtigen Installers von https://www.eclipse.org/downloads/ sollte beim ersten Start "Eclipse for C/C++ Development (CDT)" ausgewählt werden.
-Um die Entwickluns-Umgebung initial zu konfigurieren sind die folgenden Schritte notwendig, welche einer offiziellen ausführlichen Anleitung von Espressif unter 
+Nach dem Download des plattformabhängig richtigen Installers von https://www.eclipse.org/downloads/ sollte beim ersten Start "Eclipse for C/C++ Development" ausgewählt werden.
+Um die Entwicklunsumgebung initial zu konfigurieren sind die folgenden Schritte notwendig, welche einer offiziellen ausführlichen Anleitung von Espressif unter 
 https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup.html entnommen wurden.
 
 ***Die folgenden Schritte beschreiben die in diesem Projekt angewandte Nutzung unter Mac/OSx. 
@@ -408,7 +408,7 @@ Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem L
 
 1. In Eclipse über File -> Import entweder das idf-Template von github oder eines der Beispiele im Unterverzeichnis ESP8266_RTOS_SDK/examples auswählen.
 2. Im aufpoppenden Dialog "C/C++" und -> "Existing code as Makefile Projekt" auswählen und "Next" klicken
-3. Auf der nächsten Seite "Existing Code Location" als Verzeichnis auswählen. Hier soll nicht der Pfad zum ESP8266_RTOS_SDK Verzeichnis selbst stehen, der später erst gebraucht wird. Das angegebene Verzeichnis sollte eine Datei namens "Makefile" enthalten.
+3. Auf der nächsten Seite "Existing Code Location" als Verzeichnis auswählen. Hier sollte nicht der Pfad zum ESP8266_RTOS_SDK Verzeichnis selbst stehen, welcher erst später gebraucht wird. Das angegebene Verzeichnis sollte eine Datei namens "Makefile" enthalten.
 4. Auf der selben Seite unter "Toolchain for Indexer Settings" "Cross GCC auswählen", dann "Finish" klicken.
 
 
@@ -425,20 +425,21 @@ Vor dem angehängten Pfad muss ein Doppelpunkt angehängt werden.
 6. Erneut "Add.." betätigen und die Umgebungsvariable ```PYTHONPATH``` mit dem Wert ```/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages``` hinzufügen.
 Somit überschreibt das systemseitig installierte Python alle in Eclipse vorkommenden Instanzen von Python.
 
-Die hier verwendeten Umgebungsvariablen lassen sich unter MacOS außerdem in der .bash_profile Datei einsehen und bearbeiten. 
-Diese kann  beispielsweise über ```nano .bash_profile``` aufgerufen werden.
 
 <img src="images/paths.png" alt="Setting Paths" width="100%">
 So könnte die vollständig konfigurierte "Environment" Umgebung aussehen.
 
+Die hier verwendeten Umgebungsvariablen lassen sich unter MacOS außerdem in der .bash_profile Datei einsehen und bearbeiten. 
+Diese kann  beispielsweise über ```nano .bash_profile``` aufgerufen werden.
+
 Anschließend zum Reiter "C/C++ General" - "Preprocessor Include Paths" navigieren. 
 
-1. In den 'Providers' Tab wechseln.
+1. In den "Providers" Tab wechseln.
 2. Aus der Liste der Provider “CDT Cross GCC Built-in Compiler Settings” anklicken
-3. “Command to get compiler specs” zu ```xtensa-lx106-elf-gcc ${FLAGS} -E -P -v -dD "${INPUTS}"``` ändern```.
-5. "Compiler Command Pattern" ändern in ```xtensa-lx106-elf-(gcc|g\+\+\c\+\+\+|cc|cpp|clang)```
+3. “Command to get compiler specs” zu ```xtensa-lx106-elf-gcc ${FLAGS} -E -P -v -dD "${INPUTS}"``` ändern.
+5. "Compiler Command Pattern" ändern in ```xtensa-lx106-elf-(gcc|g\+\+\c\+\+\+|cc|cpp|clang)```.
 
-Nun zur "C/C++ General" -> "Indexer" Einstellungs Seite wechseln
+Nun zur "C/C++ General" -> "Indexer" Einstellungs-Seite wechseln.
 
 1. "Enable project specific settings" aktivieren, um die restlichen Einstellungen auf dieser Seite zu aktivieren.
 2. Die Option "Allow heuristic resolution of includes" deaktivieren. Wenn diese Option aktiviert ist 
@@ -446,7 +447,7 @@ kann es vorkommen, dass Eclipse die benötigten Header Verzeichnisse nicht finde
 3. Zu "C/C++ Build" -> "Behavior" navigieren
 4. "Enable parallel build" aktivieren, um mehrere Build-Tasks parallel laufen lassen zu können.
 
-Die genannte offizielle Anleitung beschreibt zwar auch das Bauen und Flashen in Eclipse, jedoch wurde dies im Rahmen dieses Projektes
+Die genannte, offizielle Anleitung beschreibt zwar auch das Bauen und Flashen in Eclipse, jedoch wurde dies im Rahmen dieses Projektes
 aufgrund der höheren Flexibilität und Geschwindigkeit ausschließlich über die Kommandozeile vorgenommen, wie im Folgenden beschrieben. 
 
 <a name="esp_idf"></a>
@@ -1228,7 +1229,46 @@ netconn_delete(client)
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
 
-@Tim Todo
+Um kleinere Werte persistent auf dem ESP-8266 speichern zu können orientiert sich der implementierte Code an der 
+Umsetzung der innerhalb Arduino intern verwendeten Methoden (https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.cpp read und write) des EEPROM. 
+(engl. Abk. für electrically erasable programmable read-only memory) Diese nutzen freie Bytes innerhalb des SPI Flash Speicherbereichs zum Lesen und Schreiben.
+
+
+**Beispiel:**
+
+```c
+void flash_write(void *value, FlashDataType dataType)
+{
+	uint32_t startSector = getStartSector(dataType);
+
+	ESP_LOGI(TAG, "[flash_write]: Writing value to sector [%d], size: %d\n", startSector, SPI_FLASH_SEC_SIZE);
+
+	esp_err_t status = spi_flash_erase_sector(startSector);
+	if (status == SPI_FLASH_RESULT_OK)
+	{
+
+		status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
+								 value, sizeof(value));
+
+		if (status == SPI_FLASH_RESULT_OK)
+		{
+			ESP_LOGI(TAG, "[flash_write]: Successfully written to flash!");
+			ret = true;
+		}
+		else
+		{
+			ESP_LOGI(TAG, "[flash_write]: Error with writing to flash, Error Code: [%d]", status);
+		}
+	}
+}
+```
+So wird beispielsweise beim Schreiben eines Wertes zunächst der entsprechende Startsektor für die jeweilige Variable ausgewählt. 
+Durch den Enum ```FlashDataType``` der mit in die Funktion gegeben wird,  hat jede Variable einen
+fest definierten Sektor im frei verfügbaren Bereich des SPI Flashs zugewiesen.
+Je nachdem welcher Wert gelesen oder geschrieben wird unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range,
+ damit Werte sich nicht gegenseitig überschreiben können.
+Vor jedem Schreibvorgang wird mithilfe ``` spi_flash_erase_sector(startSector)``` zuerst der entsprechende Bereich gelöscht, 
+und bei Erfolg: ``` SPI_FLASH_RESULT_OK``` mithilfe der Funktion ```*spi_flash_write``` überschrieben.
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
