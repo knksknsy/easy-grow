@@ -34,11 +34,16 @@ KAAN gpio
 - Gitlab CI: Added SDK Test
 - HttpServer: Finished implementation
 
-## 0.7.0 (xxxx)
-SIMON wifi wifi
+## 0.7.0 (27.05.2019)
+- WiFi: Access point can be initialized
 
-## 0.7.x (17.06.2019)
+## 0.7.1 (03.06.2019)
+- WiFi: Connection to custom WiFi through config page
+- HttpServer: Automatically switch from config to moisture task on connection
+
+## 0.7.2 (17.06.2019)
 - HttpServer: Moved HTML Code to own class
+- Bug Fix: HttpServer was showing same page for config and moisture page
 
 ## 0.8.1 (18.06.2019)
 - Flash_Writer: writing and reading functions

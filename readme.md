@@ -12,6 +12,7 @@ Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht un
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
 In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere Informationen sowie das Original finden sich unter  https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c.
 
+Für den HTTP-Server wird zusätzlich die netconn API von LwIP genutzt (https://www.nongnu.org/lwip/2_0_x/index.html)
 ## Inhaltsverzeichnis
 - [1. Features](#features)
 - [2. Erstellen der Dokumentation mit make](#make_documentation)
@@ -52,15 +53,25 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 - [9. ESP8266 RTOS SDK](#rtos_sdk)
     * [9.1 Überblick](#rtos_overview)
     * [9.2 Konzepte](#rtos_concept)
-    * [9.3 xTasks](#rtos_xtasks)
-    * [9.4 Beispiel Projekt](#example_project)
+    * [9.3 Beispiel Projekt](#example_project)
+    * [9.4 Tasks](#rtos_xtasks)
+        + [9.4.1 Implementierung](#rtos_xtasks_impl)
+        + [9.4.2 Verwendung im Projekt](#rtos_xtasks_usage)
     * [9.5 GPIO](#rtos_gpio)
         + [9.5.1 Konfiguration](#rtos_gpio_conf)
         + [9.5.2 Interrupt Service Routine](#rtos_gpio_isr)
         + [9.5.3 Analogeingang](#rtos_gpio_analog)
     * [9.6 Timer](#rtos_timer)
     * [9.7 WiFi](#rtos_wifi)
+        + [9.7.1 Event Handler](#rtos_wifi_event)
+        + [9.7.2 Initialisierung und Einstellung des Modus](#rtos_wifi_init)
+        + [9.7.3 Konfiguration und Verbindung](#rtos_wifi_connect)
+        + [9.7.4 Nach verfügbaren Access Points scannen](#rtos_wifi_scan)
     * [9.8 HTTP Server](#rtos_http_server)
+        + [9.8.1 Eine (TCP-) Verbindung eröffnen](#rtos_http_server_connect)
+        + [9.8.2 Eingehende Verbindungsanfragen abfangen](#rtos_http_server_recv)
+        + [9.8.3 Daten über eine TCP-Verbindung senden](#rtos_http_server_send)
+        + [9.8.4 Verbindungen beenden](#rtos_http_server_close)
     * [9.9 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
 - [10. Easy Grow Projekt](#easy_grow)
     * [10.1 Hardware-Komponenten](#eg_hardware)
@@ -76,8 +87,13 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
             - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
             - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
-        + [10.5.2 Webserver](#eg_func_server)
-        + [10.5.3 Access-Point](#eg_func_ap)
+        + [10.5.2 Access-Point / WiFi-Manager](#eg_func_ap)
+            - [10.5.2.1 Start mit gespeicherten Credentials](#eg_func_ap_with_creds)
+            - [10.5.2.2 Start ohne gespeicherte Credentials](#eg_func_ap_without_creds)
+        + [10.5.3 Webserver](#eg_func_server)
+            - [10.5.3.1 Starten des Webserver-Tasks](#eg_func_server_start)
+            - [10.5.3.2 Webpage vorbereiten und senden](#eg_func_server_page)
+            - [10.5.3.3 Interaktionen auf der Webpage](#eg_func_server_interact)
         + [10.5.4 Easy_DNS](#eg_func_dns)   
         + [10.5.5 Bedienung der Weboberflächen](#eg_func_server_gui)    
             - [10.5.5.1 Setupwebseite](#eg_func_server_gui-initial)
@@ -550,7 +566,89 @@ Komponentenverzeichnisse enthalten ein Komponenten-Makefile ```component.mk```. 
 Jede Komponente kann auch eine ```Kconfig```-Datei enthalten, die die Komponentenkonfigurationsoperationen definiert, die über die Projektkonfiguration eingestellt werden können. Einige Komponenten können auch ```Kconfig.projbuild``` und ```Makefile.projbuild``` Dateien beinhalten, die spezielle Dateien für übergeordnete Teile des Projekts sind.
 
 <a name="rtos_xtasks"></a>
-### 9.4 xTasks
+### 9.4 Tasks
+
+Tasks sind ein wichtiges Feature von FreeRTOS. Mithilfe von Tasks können verschiedene Code-Abschnitte (scheinbar) parallel ausgeführt werden. 
+Scheinbar deshalb, da ein Prozessor in der Realität zu einem bestimmten Zeitpunkt nur eine Aufgabe erledigen kann. 
+Die vorgetäuschte Gleichzeitigkeit wird durch das schnelle Wechseln zwischen implementierten Tasks erreicht.
+
+<a name="rtos_xtasks_impl"></a>
+#### 9.4.1 Implementierung 
+Für einen Task muss zunächst eine Funktion implementiert werden, die den auszuführenden Code beinhaltet. 
+Die Funktion hat keinen Rückgabewert und nimmt als Eingangswert einen Zeiger vom Typ void, welcher genutzt werden kann, um Informationen jeglicher Art in die Funktion hineinzugeben. 
+Da Task-Funktionen nichts zurückgeben, beinhalten sie meist eine kontinuierliche Schleife. 
+Falls ein Task dennoch innerhalb seiner Funktion endet, sollte er sich mithilfe von ```vTaskDelete(null)``` beenden, um einen sauberen Abbruch zu garantieren. 
+
+##### Beispiel
+
+```
+void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+    
+    vTaskDelete( NULL );
+}
+```
+
+Ein Task wird mit der Funktion ```xTaskCreate()``` kreiert, welche folgende Eingabeparameter erwartet:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```TaskFunction_t``` | ```pvTaskCode``` | Unsere zuvor erstellte Task-Funktion |
+| ```const char * const``` | ```pcName``` | Ein beschreibender Name für den Task, hauptsächlich für Debugging hilfreich |
+| ```configSTACK_DEPTH_TYPE``` | ```usStackDepth``` | Die Anzahl der Wörter (nicht Bytes!), die für den Stack dieses Tasks allokiert werden sollen |
+| ```void``` | ```*pvParameters``` | Ein Wert, der als Parameter in die Task-Funktion hineingegeben wird |
+| ```UBaseType_t``` | ```uxPriority``` | Die Priorität, mit der der erstellte Task ausgeführt wird |
+| ```TaskHandle_t``` | ```*pxCreatedTask``` | (optional) Weist dem Task einem zuvor instantiierten Handler zu. Dieser kann genutzt werden, um den Task beispielsweise zu pausieren oder zu löschen   |
+
+Bei einem Erfolg gibt ```xTaskCreate``` ```pdPASS``` zurück, ansonsten ```errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY```. 
+Ein laufender Task kann mit der Funktion ```xTaskDelete(TaskHandle_t xTask)``` gelöscht werden, indem der dem Task zugewiesene Handler als Eingabeparameter angegeben wird.
+
+##### Komplettes Beispiel
+
+```
+void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+}
+
+void anotherFunction()
+{
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+    
+    /* Task erstellen */
+    xReturned = xTaskCreate(vATaskFunction, "NAME", 512, ( void * ) 1, 2, &xHandle );
+    
+    if( xReturned == pdPASS )
+    {
+        /* Der Task wurde erstellt.  Der Handler kann nun zum Löschen des Tasks genutzt werden. */
+        vTaskDelete( xHandle );
+    }
+}
+
+
+```
+<a name="rtos_xtasks_usage"></a>
+#### 9.4.2 Verwendung im Projekt
+
+Im Easy Grow Projekt werden Tasks an 4 verschiedenen Stellen verwendet:
+1. Zur kontinuierlichen Abfrage der GPIO Pins
+2. Für den DNS Server
+3. Für den Webserver
+4. Zur Überprüfung, ob tatsächlich eine WiFi-Verbindung existiert
+
+Bei Letzterem handelt es sich um einen Bug Fix, der mit dem Löschen des Flash-Speichers des ESP zusammenhängt. 
+Das Löschen des Speichers sorgt dafür, dass zuvor gespeicherte WiFi-Credentials verschwinden, der ESP jedoch zunächst fehlerhaft zurückgibt, dass eine Verbindung exisiert.
+Hier kommt der Task ins Spiel, der nach einer gewissen Zeit überprüft, ob tatsächlich eine WiFi-Verbindung vorhanden ist. 
+
+Die Tasks werden in Kapitel 10 nochmal genauer beschrieben.
 
 <a name="rtos_gpio"></a>
 ### 9.5 GPIO
@@ -907,12 +1005,212 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_wifi"></a>
 ### 9.7 WiFi
 
-@Todo: Simon
+Das ESP8266_RTOS_SDK bietet die ```esp8266/include/esp_wifi.h``` Datei an, die Unterstützung für WiFi-spezifische Funktionen bereit stellt. 
+Dies umfasst unter Anderem:
+
+1. Einen Station Mode, der genutzt werden kann, um den ESP mit einem Access Point (z.B. das heimische WLAN) zu verbinden.
+2. Einen AP Mode, der es ermöglicht, einen Access Point zu eröffnen, mit dem sich andere Geräte verbinden können.
+3. Einen kombinierten Modus (Station & AP), wodurch der ESP sowohl als Access Point fungieren als auch mit einem anderen Access Point verbunden sein kann. 
+4. Verschiedene Sicherheitseinstellungen für die oben genannten Modi (WPA, WPA2, WEP, etc).
+5. Das Scannen nach verfügbaren Access Points.
+
+Bei vielen der folgenden Codebeispielen wird die Funktion ```ESP_ERROR_CHECK()``` verwendet. 
+Dies ist eine Helfer-Funktion, die erspart, dass jede Funktion, die ```esp_err_t``` zurück liefert, auf einen potentiellen Fehler untersuchen werden muss. 
+
+<a name="rtos_wifi_event"></a>
+#### 9.7.1 Event Handler
+Das ESP8266_RTOS_SDK liefert mit dem WiFi auch einen Event Handler. 
+Dieser kann mithilfe von ```esp_err_t esp_event_loop_init(system_event_cb_t cb, void *ctx)``` initialisiert werden, wobei ```cb``` der eigentliche event_handler ist. 
+Innerhalb von ```cb ``` können anschließend alle WiFi-bezogenen Events abgefangen werden.
+
+##### Beispiel
+```
+static esp_err_t event_handler(void *ctx, system_event_t *event)
+{
+    switch (event->event_id)
+    {
+        case SYSTEM_EVENT_SCAN_DONE:
+        {
+            ...
+            break;
+        }
+        case SYSTEM_EVENT_STA_START:
+        {    
+            ...
+            break;
+        }
+    }
+}
+...
+ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
+```
+
+<a name="rtos_wifi_init"></a>
+#### 9.7.2 Initialisierung und Einstellung des Modus
+WiFi muss immer zunächst mit der Funktion ```esp_err_t esp_wifi_init(const wifi_init_config_t *config)``` initialisiert werden.
+Für den Eingangsparameter ```*config``` gibt es eine Standardkonfiguration, die meistens den Anforderungen genügt.
+
+##### Beispiel
+``` 	
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();                                        	
+ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+```
+Mithilfe der Methode ```esp_err_t esp_wifi_set_mode(wifi_mode_t mode)``` kann der gewünschte Modus (Station, AP, kombiniert) eingestellt werden.
+
+##### Beispiel
+```
+// Wahlweise WIFI_MODE_AP, WIFI_MODE_STA oder WIFI_MODE_APSTA
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+```
+
+<a name="rtos_wifi_config_connect"></a>
+#### 9.7.3 Konfiguration und Verbindung
+Für die Konfiguration des WiFi wird die Methode ```esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf)``` bereit gestellt. 
+Der erste Parameter bestimmt das Template (Wahl aus ESP_IF_WIFI_STA, ESP_IF_WIFI_AP und ESP_IF_MAX), der zweite enthält die eigentliche Konfiguration.
+
+##### Beispiel
+```
+wifi_config_t wifi_config = {
+    .ap = {
+        .ssid = "MyWifiSSID",
+        .password = "MyPassword",
+        .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    },
+};
+ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+```
+Mit den Funktionen ```esp_err_t esp_wifi_start(void)``` und ```esp_err_t esp_wifi_stop(void)``` wird anschließend der gewählte Modus mit den festgelegten Konfigurationen gestartet beziehungsweise beendet.
+Für den Station- bzw. den kombinierten Modus muss zusätzlich ```esp_err_t esp_wifi_connect(void)``` aufgerufen werden, damit sich der ESP mit dem Access Point verbindet.
+Gleichermaßen lässt sich die Verbindung mit ```esp_err_t esp_wifi_disconnect(void)``` auch wieder trennen. 
+
+<a name="rtos_wifi_scan"></a>
+#### 9.7.4 Nach verfügbaren Access Points scannen
+Im Station- und kombinierten Modus besteht die Möglichkeit, nach verfügbaren Access Points zu scannen.
+Dafür lässt sich die Methode ```esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block)``` verwenden. 
+Mit dem ersten Eingabeparameter wird die Konfiguration übergeben, der zweite Parameter bestimmt, ob der Scan blockieren oder direkt zurückgeben soll.
+Mit ```esp_err_t esp_wifi_scan_stop(void)``` kann der Scan zudem gestoppt werden.
+
+##### Beispiel
+
+```
+wifi_scan_config_t scan_conf = {
+    .ssid = NULL,
+    .bssid = NULL,
+    .channel = 0,
+    .show_hidden = false
+};
+ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_conf, false));
+...
+ESP_ERROR_CHECK(esp_wifi_scan_stop());
+```
+
+Nach erfolgreichem Scan können die Ergebnisse mit der Methode ```esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_records)``` abgerufen werden.
+Dabei muss der erste Parameter die Anzahl der Ergebnisse angegeben. 
+Diese bekommt man mit der Methode ```esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number)```.
+
+##### Beispiel
+
+```
+uint16_t ap_count = 0;
+esp_wifi_scan_get_ap_num(&ap_count);
+if (ap_count == 0)
+{
+    // No APs found
+}
+wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+if (!ap_list)
+{
+    // malloc error, ap_list is NULL
+}
+ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_list));
+```
+
 <a name="rtos_http_server"></a>
 ### 9.8 HTTP Server
+Für den HTTP-Server wird die netconn API von LwIP genutzt (http://www.nongnu.org/lwip/2_0_x/index.html).
 
-@Todo: Simon
+<a name="rtos_http_server_new"></a>
+#### 9.8.1 Eine (TCP-) Verbindung eröffnen
+Eine neue Verbindung lässt sich mit der Funktion ```struct netconn * netconn_new(enum netconn_type t)``` implementieren. 
+Die Form der Verbindung wird durch den Eingangsparameter (hier: NETCONN_TCP) bestimmt.
+Ist die Verbindung erfolgreich erstellt worden, kann sie mithilfe der Methode ```err_t netconn_bind(struct netconn * aNetConn, ip_addr_t * aAddr, u16_t aPort)``` an eine IP-Addresse und einen Port gebunden werden.
+Für die IP-Adresse kann ```IP_ADDR_ANY``` angegeben werden, um an eine beliebige Adresse zu binden. Eine TCP-Verbindung wird mit ```err_t netconn_listen(struct netconn * aNetconn)``` in den "listen mode" gesetzt.
 
+##### Beispiel
+```
+struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);
+```
+
+<a name="rtos_http_server_recv"></a>
+#### 9.8.2 Eingehende Verbindungsanfragen abfangen
+
+In einer Schleife können für eine eröffnete TCP-Verbindung eingehende Verbindungsanfragen abgefangen werden.
+Dies geschieht durch die Methode ```err_t netconn_accept(struct netconn * aNetConn, struct netconn ** aNewConn)```.
+Wird eine Verbindung festgestellt, wird eine neue netconn Struktur ```aNewConn``` für die weitere Nutzung allokiert.
+Bei einer erfolgreichen Verbindungsetablierung liefert die Methode```err_t netconn_recv(struct netconn * aNetConn, struct netbuf ** aNetBuf)``` den Buffer mit den empfangenen Daten der zuvor neu allokierten Struktur und schreibt sie in ```aNetBuf```.
+
+Im finalen Schritt werden die empfangenen Daten aus dem Buffer ```aNetBuf``` mithilfe der Methode ```err_t netbuf_data(struct netbuf * aNetBuf, void ** aData, u16_t * aLen)``` extrahiert und in ```aData``` geschrieben.
+
+##### Beispiel 
+```
+struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+struct netconn *client = NULL;
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);
+
+while (1) {
+    err_t err = netconn_accept(xNetConn, &client);
+    if (err == ERR_OK) {
+        struct netbuf *xNetBuf;
+        if ((err = netconn_recv(client, &xNetBuf)) == ERR_OK) {
+            void *data;
+            u16_t len;
+            netbuf_data(xNetBuf, &data, &len);
+            // data can now be used
+        }
+    }
+}
+```
+
+<a name="rtos_http_server_send"></a>
+#### 9.8.3 Daten über eine TCP-Verbindung senden
+Mit der Methode ```err_t netconn_write(struct netconn * aNetConn, const void * aData, size_t aSize, u8_t aApiFlags)``` lassen sich Daten über eine bestehende TCP-Verbindung zurücksenden.
+Dabei ist ```aNetConn``` die TCP-Verbindung, ```aData``` der Adressanfang der zu sendenen Daten und ```aSize``` die Länge der zu sendenden Daten.
+```aApiFlags``` kann entweder ```NETCONN_NOCOPY``` sein, falls die Daten für die Zeit der Überbringung stabil sind oder ```NETCONN_COPY```, falls nicht.
+
+##### Beispiel
+```
+char buf[256];
+const char *webpage = 
+{
+    "HTTP/1.1 200 OK\r\n"
+    "Content-type: text/html\r\n\r\n"
+    "<html>"
+    "<head><title>Test Server</title></head>"
+    "<body>"
+    "<h1>Hello World</h1>"
+    "</body>"
+    "</html>"
+}
+// write webpage to buffer
+snprintf(buf, sizeof(buf), webpage);
+
+netconn_write(client, buf, strlen(buf), NETCONN_COPY);
+```
+
+<a name="rtos_http_server_close"></a>
+#### 9.8.4 Verbindungen beenden
+Mit ```void netbuf_delete(struct netbuf * aNetBuf)``` kann ein netbuf Objekt gelöscht und sein Speicher deallokiert werden.
+Die komplette Verbindung lässt sich mit ```err_t netconn_close(struct netconn * aNetConn)``` schließen und mit ```err_t netconn_delete(struct netconn * aNetConn)``` löschen.
+```
+netbuf_delete(nb);
+netconn_close(client);
+netconn_delete(client)
+```
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
 
@@ -1154,17 +1452,233 @@ Die detaillierte Funktionsweise der Sonnenstundenaufzeichnung wird im folgenden 
 
 <img src="images/sun_hours_pap.png" alt="Programmablaufplan Sonnenstundenaufzeichnung">
 
-<a name="eg_func_server"></a>
-#### 10.5.2 Webserver
-Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert.
-
-@Simon
-
-
 <a name="eg_func_ap"></a>
-#### 10.5.3 Access-Point
+#### 10.5.2 Access-Point / WiFi-Manager 
+Für eine detaillierte Beschreibung der WiFi-Methoden und Funktionsweise siehe [Kapitel 9.7](#rtos_wifi). 
+Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen. 
+ 
+Es gibt zwei verschiedene Ausgangslagen beim Start des ESP. Entweder er hat die Credentials eines zuvor verbundenen WLAN-Netzwerkes gespeichert oder nicht.
+Dies wird differenziert, indem das WiFi zunächst im Station Mode gestartet wird und versucht wird, sich zu verbinden.
+Bei gespeicherten Credentials sowie dem Vorhandensein des gespeicherten WLAN-Netzwerkes in Reichweite führt dies zu einer erfolgreichen Verbindung und somit zu [Kapitel 10.5.2.1.](#eg_func_ap_with_creds)
+Der Ablauf bei einem fehlerhaften Rückgabewert wird in [Kapitel 10.5.2.2](#eg_func_ap_without_creds) behandelt.
 
-@Simon
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+// Try connecting first, will connect to station if it has saved credentials
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+ESP_ERROR_CHECK(esp_wifi_start());
+esp_err_t err = esp_wifi_connect();
+// if it doesn't return ESP_OK, start ap mode
+if (err != ESP_OK)
+{
+    ESP_LOGI(TAG, "Start in AP Mode");
+    ap_wifi_init();
+}
+else
+{
+    // BUG: After erase_flash, esp_wifi_connect returns ESP_OK but never actually connects
+    // create task to wait and check if it really connected -> https://github.com/esp8266/Arduino/issues/2235
+    xTaskCreate(&check_conn_task, "wifi_config_server", 4096, NULL, 2, &check_conn_handle);
+}
+```
+
+<a name="eg_func_ap_with_creds"></a>
+##### 10.5.2.1 Start mit gespeicherten Credentials
+Normalerweise könnte nach der erfolgreichen Verbindung sofort der Webserver mit der Easy Grow Webpage zur Steuerung der Bewässerungsanlage gestartet werden.
+Ein Bug verhindert dies jedoch: Falls zuvor der Flash-Speicher des ESP gelöscht wurde, liefert ```esp_wifi_connect()``` fälschlicherweise ```ESP_OK``` zurück, obwohl keine Verbindung vorhanden ist.
+Der Bug wird umgangen, indem mithilfe eines Tasks eine kurze Zeit gewartet wird. Anschließend wird geprüft, ob tatsächlich eine Verbindung besteht, indem geschaut wird, ob eine IP zugewiesen wurde.
+Sobald eine IP zugewiesen wurde, wird der Webserver mit ```start_http(webMode webMode)``` im Modus ```EASY_MOISTURE``` gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+case SYSTEM_EVENT_STA_GOT_IP:
+    ...
+    //Start moisture control http server
+    start_http(EASY_MOISTURE);
+    GOT_IP = true;
+    break;
+```
+
+Ist nach dem Ablaufen des Tasks keine IP vorhanden, gelangen wir über den Aufruf von ```ap_wifi_init()``` zu [Kapitel 10.5.2.2](#eg_func_ap_without_creds).
+
+<a name="eg_func_ap_without_creds"></a>
+##### 10.5.2.2 Start ohne gespeicherte Credentials
+Hat der ESP keine gespeicherten Credentials, muss das WiFi in den kombinierten Modus gesetzt werden (Station und AP). 
+Dies ist nötig, da wir sowohl einen Access Point eröffnen wollen, als auch gleichzeitig den Station Mode benötigen, um nach verfügbaren WLAN-Netzwerken zu scannen. 
+Das WiFi und der Scan werden konfiguriert und anschließend gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+/*
+ * Start wifi in AP-Mode (Access Point)
+ */
+void ap_wifi_init()
+{
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+            .password = EXAMPLE_ESP_WIFI_PASS,
+            .max_connection = EXAMPLE_MAX_STA_CONN,
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+        },
+    };
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0)
+    {
+    	wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    }
+    //Has to be AP + Station mode, in order to scan for available aps
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
+			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+    wifi_scan_config_t scan_conf = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,
+        .show_hidden = false
+    };
+
+    ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_conf, true));
+} 
+```
+Ist der Scan beendet, werden die gefundenen WLAN-Netzwerke ausgelesen und mit der Funktion ```void set_aps(wifi_ap_record_t aps[], uint16_t apCount)``` in der Datei ```easy_http_server.c``` gesetzt.
+Anschließend wird der Scan gestoppt und der HTTP-Server über ```void start_http(webMode webMode)``` im Config Mode ```EASY_CONFIG``` gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+case SYSTEM_EVENT_SCAN_DONE:
+{
+    uint16_t ap_count = 0;
+    //get number of available access points
+    esp_wifi_scan_get_ap_num(&ap_count);
+    if (ap_count == 0)
+    {
+        ESP_LOGI(TAG, "No AP found");
+    }
+    wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+    if (!ap_list)
+    {
+        ESP_LOGI(TAG, "malloc error, ap_list is NULL");
+        break;
+    }
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_list));
+    set_aps(ap_list, ap_count);
+    esp_wifi_scan_stop();
+    free(ap_list);
+    //Start config http server
+    start_http(EASY_CONFIG);
+    break;
+}
+```
+
+<a name="eg_func_server"></a>
+#### 10.5.3 Webserver
+Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert.
+Für eine detaillierte Beschreibung der Funktionsweise des Servers und seiner Methoden siehe [Kapitel 9.8](#rtos_http_server).
+Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen.
+
+<a name="eg_func_server_start"></a>
+##### 10.5.3.1 Starten des Webserver-Tasks
+Der Server läuft, wie bereits in [Kapitel 9.4](#rtos_xtasks) erwähnt, in einem eigenen Task. 
+Über die Methode ```void start_http(webMode webMode)``` wird der Task gestartet oder, falls es bereits einen Task gibt, mit ```void vTaskResume(TaskHandle_t xTaskToResume)```fortgesetzt. 
+Der übergebene  ```webMode``` wird in der Datei global gesetzt. Je nach Modus liefert der Server später eine andere Webpage zurück. 
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+void start_http(webMode webMode) {
+    mode = webMode;
+    
+    if(httpd_task_initialized) {
+        vTaskResume(httpd_task_handle);
+    } else {
+        xTaskCreate(&httpd_task, "wifi_config_server", 14096, NULL, 2, &httpd_task_handle);
+        httpd_task_initialized = 1;
+    }
+}
+```
+
+<a name="eg_func_server_page"></a>
+##### 10.5.3.2 Webpage vorbereiten und senden
+Im gestarteten Task werden nun die in [Kapitel 9.8](#rtos_http_server) beschriebenen Funktionen verwendet, um einen HTTP-Server zu starten.
+Ruft der Nutzer nun mithilfe eines GET-Requests die Seite ab, wird dies abgefangen und die dem ```webMode``` entsprechende Webpage zurückgesendet. <br/>
+Die verschiedenen Webpages liegen jeweils als ```static char *``` in der Datei ```easy_data.c```.
+Dynamische Daten, wie die verfügbaren Access Points für die ```EASY_CONFIG```-Page, werden mithilfe der ```snprintf()```-Funktion an die mit ```%s``` markierten Stellen in den Webpage-String hineingeschrieben.
+
+##### Ausschnitt aus ```easy_data.c```
+```
+static  char *WEBPAGE_NEW_CONFIG =
+{
+    ...
+    "<div class='panel'>"
+        "<h3>Verf&uuml;gbare WLAN:</h3>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+    "</div>"
+    ...
+};
+```
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+char webpage[5500];
+strcpy(webpage, WEBPAGE_HEAD);
+if (mode == EASY_CONFIG) {
+    strcat(webpage, WEBPAGE_NEW_CONFIG);
+    snprintf(buf, sizeof(buf), webpage, available_aps[0],
+            available_aps[1], available_aps[2],
+            available_aps[3], available_aps[4]);
+} else if (mode == EASY_DOCUMENTATION) {
+    strcat(webpage, WEBPAGE_DOCUMENTATION);
+    snprintf(buf, sizeof(buf), webpage);
+} else if (mode == EASY_MOISTURE) {
+...
+}
+```
+
+<a name="eg_func_server_interact"></a>
+##### 10.5.3.3 Interaktionen auf der Webpage
+Um Interaktionen zu realisieren, wurden Buttons eingeführt, die beim Klicken verschiedene Pfade an die URL anhängen und dorthin weiterleiten. 
+Der erneute Request wird vom Server abgefangen und der angehängte Pfad kann ausgelesen werden.
+Somit lässt sich beispielsweise bei einem Klick eines Feuchtigkeits-Buttons die Funktion für das Einstellen der Feuchtigkeit aufrufen.
+
+##### Ausschnitt aus ```easy_data.c```
+```
+static  char *WEBPAGE_MOISTURE =
+{
+    ...
+    "<div class='button-container'>"
+        ...
+        "<button class='b-lo' onclick=\"location.href='/low'\" type='button'>Niedrig</button>"
+        "<button class='b-me' onclick=\"location.href='/medium'\" type='button'>Mittel</button>"
+        "<button class='b-hi' onclick=\"location.href='/high'\" type='button'>Hoch</button>"
+        ...
+    "</div>"
+    ...
+}
+```
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+{
+...
+} else if (!strncmp(ptr, "/high", max_uri_len)) {
+    set_moisture_level(HIGH);
+} else if (!strncmp(ptr, "/medium", max_uri_len)) {
+    set_moisture_level(MID);
+} else if (!strncmp(ptr, "/low", max_uri_len)) {
+    set_moisture_level(LOW);
+}
+```
 
 <a name="eg_func_dns"></a>
 #### 10.5.4 Easy_DNS

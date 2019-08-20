@@ -120,25 +120,4 @@ static  char *WEBPAGE_NEW_CONFIG =
    "</div></body></html>"
 };
 
-static  char *WEBPAGE_CONFIG =
-{
-    "<h2>EasyGrow Config Page</h2>"
-	"<h4>Verfuegbare WLAN:</h4>"
-	"<p>%s</p>"
-	"<p>%s</p>"
-	"<p>%s</p>"
-	"<p>%s</p>"
-	"<p>%s</p>"
-	"<form action='/submit'>"
-	"<p>Wlan-Name eingeben: <input type='text' name='SSID' /></p>"
-	"<p>Passwort eingeben: <input type='password' name='PW' /></p>"
-	"<input type='submit' value='Abschicken' />"
-		"</form>"
-	"<button onclick=\"location.href='/ap'\" type='button'>"
-	"AP Mode</button>"
-	"<button onclick=\"location.href='/docu'\" type='button'>"
-		"Documentation</button>"
-    "</div></body></html>"
-};
-
 #endif /* MAIN_INCLUDE_EASY_DATA_H_ */
