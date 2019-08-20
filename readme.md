@@ -404,7 +404,7 @@ https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclip
 ***Die folgenden Schritte beschreiben die in diesem Projekt angewandte Nutzung unter Mac/OSx. 
 Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem Link gefunden werden: https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup-windows.html#eclipse-windows-setup***
 
-**Projekt importieren/anlegen**
+#### **Projekt importieren/anlegen**
 
 1. In Eclipse über File -> Import entweder das idf-Template von github oder eines der Beispiele im Unterverzeichnis ESP8266_RTOS_SDK/examples auswählen.
 2. Im aufpoppenden Dialog "C/C++" und -> "Existing code as Makefile Projekt" auswählen und "Next" klicken
@@ -412,9 +412,8 @@ Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem L
 4. Auf der selben Seite unter "Toolchain for Indexer Settings" "Cross GCC auswählen", dann "Finish" klicken.
 
 
-**Projekt Einstellungen**
-
-Das neue Projekt wird im Projekt-Explorer angezeigt. 
+#### **Projekt in Eclipse konfigurieren**
+Das neue Projekt sollte nun im Projekt-Explorer von Eclipse angezeigt werden. 
 
 1. Auf das neu importierte Projekt im Explorer rechts klicken und "Properties" auswählen.
 2. Unter "Environment" auf "C/C++ Build" klicken und "Add.." auswählen. 
@@ -426,14 +425,29 @@ Vor dem angehängten Pfad muss ein Doppelpunkt angehängt werden.
 6. Erneut "Add.." betätigen und die Umgebungsvariable ```PYTHONPATH``` mit dem Wert ```/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages``` hinzufügen.
 Somit überschreibt das systemseitig installierte Python alle in Eclipse vorkommenden Instanzen von Python.
 
+Die hier verwendeten Umgebungsvariablen lassen sich unter MacOS außerdem in der .bash_profile Datei einsehen und bearbeiten. 
+Diese kann  beispielsweise über ```nano .bash_profile``` aufgerufen werden.
+
 <img src="images/paths.png" alt="Setting Paths" width="100%">
+So könnte die vollständig konfigurierte "Environment" Umgebung aussehen.
 
 Anschließend zum Reiter "C/C++ General" - "Preprocessor Include Paths" navigieren. 
 
-1. In den Providers Tab wechseln.
-2. In 
+1. In den 'Providers' Tab wechseln.
+2. Aus der Liste der Provider “CDT Cross GCC Built-in Compiler Settings” anklicken
+3. “Command to get compiler specs” zu ```xtensa-lx106-elf-gcc ${FLAGS} -E -P -v -dD "${INPUTS}"``` ändern```.
+5. "Compiler Command Pattern" ändern in ```xtensa-lx106-elf-(gcc|g\+\+\c\+\+\+|cc|cpp|clang)```
 
+Nun zur "C/C++ General" -> "Indexer" Einstellungs Seite wechseln
 
+1. "Enable project specific settings" aktivieren, um die restlichen Einstellungen auf dieser Seite zu aktivieren.
+2. Die Option "Allow heuristic resolution of includes" deaktivieren. Wenn diese Option aktiviert ist 
+kann es vorkommen, dass Eclipse die benötigten Header Verzeichnisse nicht findet.
+3. Zu "C/C++ Build" -> "Behavior" navigieren
+4. "Enable parallel build" aktivieren, um mehrere Build-Tasks parallel laufen lassen zu können.
+
+Die genannte offizielle Anleitung beschreibt zwar auch das Bauen und Flashen in Eclipse, jedoch wurde dies im Rahmen dieses Projektes
+aufgrund der höheren Flexibilität und Geschwindigkeit ausschließlich über die Kommandozeile vorgenommen, wie im Folgenden beschrieben. 
 
 <a name="esp_idf"></a>
 ### 5.2 ESP IDF
