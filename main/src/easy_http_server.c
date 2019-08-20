@@ -70,7 +70,19 @@ const char* getMoistureOutputString(uint16_t level) {
 	      case 1: return "Niedrig";
 	      case 2: return "Mittel";
 	      case 3: return "Hoch";
-	      default: return "Ausgeschaltet";
+	      default: return "Kein Sensor verbunden.";
+
+	   }
+	}
+
+const char* getWaterLevelOutputString(WaterLevel level) {
+
+	 switch (level)
+	   {
+	      case FULL: return "Voll";
+	      case GOOD: return "Mittelvoll";
+	      case EMPTY: return "Leer";
+	      default: return "Kein Wassertank angeschlossen.";
 
 	   }
 	}
@@ -166,21 +178,19 @@ void httpd_task(void *pvParameters) {
 						snprintf(buf, sizeof(buf), webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
-					} else if (mode == EASY_REDIRECT) {
-						strcat(webpage, WEBPAGE_NEW_CONFIG);
-						snprintf(buf, sizeof(buf), webpage);
 					} else if (mode == EASY_DOCUMENTATION) {
 						strcat(webpage, WEBPAGE_DOCUMENTATION);
 						snprintf(buf, sizeof(buf), webpage);
 					} else if (mode == EASY_MOISTURE) {
 						MoistureValue mv = get_moisture_level();
-						WaterLevel wl = get_water_level();
 						strcat(webpage, WEBPAGE_MOISTURE);
 
-						char *outputVal = getMoistureOutputString(mv.level_target);
+						char *moistureVal = getMoistureOutputString(mv.level_target);
+
+						char *waterLevel = getMoistureOutputString(get_water_level());
 
 						snprintf(buf, sizeof(buf), webpage, mv.level_target,
-								outputVal, mv.level_percentage, wl,
+								moistureVal, mv.level_percentage, waterLevel,
 								xTaskGetTickCount() * portTICK_PERIOD_MS / 1000,
 								(int) heap_caps_get_free_size(MALLOC_CAP_8BIT));
 					}

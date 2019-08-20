@@ -1,14 +1,18 @@
 # Easy Grow Dokumentation
 
-Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene Einstellungsmöglichkeiten der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
-Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und ermöglicht die Langlebigkeit der Pflanzen.
+Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene, vordefinierte Einstellungsmöglichkeiten für den Grad der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden.
+Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und unterstützt somit die Langlebigkeit der Pflanzen.
 
-<img src="images/overview.jpg" width="500">
+<div style="width:100%; background:red; margin:0 20px 0 20px; text-align:center;">
+<img src="images/mockup.png" width="100%"></div>
+</div>
+
 
 ## Externe Komponenten
 Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle ```libesphttpd```.
 In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere Informationen sowie das Original finden sich unter  https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c.
 
+Für den HTTP-Server wird zusätzlich die netconn API von LwIP genutzt (https://www.nongnu.org/lwip/2_0_x/index.html)
 ## Inhaltsverzeichnis
 - [1. Features](#features)
 - [2. Erstellen der Dokumentation mit make](#make_documentation)
@@ -28,7 +32,7 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
     * [3.6 NodeMCU GPIO-Mapping auf ESP8266](#gpio_mapping_esp)
 - [4. Aufsetzen der Softwareumgebung](#sw_env) 
     * [4.1 ESP8266 Toolchain-Setup mit Docker](#tool_docker)
-        + [4.1.1 Installierung von Docker](#inst_docker)
+        + [4.1.1 Installation von Docker](#inst_docker)
             - [4.1.1.1 MacOS](#inst_docker_mac)
             - [4.1.1.2 Windows](#inst_docker_win)
         + [4.1.2 Bauen des Docker-Images](#build_docker)
@@ -49,15 +53,25 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 - [9. ESP8266 RTOS SDK](#rtos_sdk)
     * [9.1 Überblick](#rtos_overview)
     * [9.2 Konzepte](#rtos_concept)
-    * [9.3 xTasks](#rtos_xtasks)
-    * [9.4 Beispiel Projekt](#example_project)
+    * [9.3 Beispiel Projekt](#example_project)
+    * [9.4 Tasks](#rtos_xtasks)
+        + [9.4.1 Implementierung](#rtos_xtasks_impl)
+        + [9.4.2 Verwendung im Projekt](#rtos_xtasks_usage)
     * [9.5 GPIO](#rtos_gpio)
         + [9.5.1 Konfiguration](#rtos_gpio_conf)
         + [9.5.2 Interrupt Service Routine](#rtos_gpio_isr)
         + [9.5.3 Analogeingang](#rtos_gpio_analog)
     * [9.6 Timer](#rtos_timer)
     * [9.7 WiFi](#rtos_wifi)
+        + [9.7.1 Event Handler](#rtos_wifi_event)
+        + [9.7.2 Initialisierung und Einstellung des Modus](#rtos_wifi_init)
+        + [9.7.3 Konfiguration und Verbindung](#rtos_wifi_connect)
+        + [9.7.4 Nach verfügbaren Access Points scannen](#rtos_wifi_scan)
     * [9.8 HTTP Server](#rtos_http_server)
+        + [9.8.1 Eine (TCP-) Verbindung eröffnen](#rtos_http_server_connect)
+        + [9.8.2 Eingehende Verbindungsanfragen abfangen](#rtos_http_server_recv)
+        + [9.8.3 Daten über eine TCP-Verbindung senden](#rtos_http_server_send)
+        + [9.8.4 Verbindungen beenden](#rtos_http_server_close)
     * [9.9 Schreiben und Lesen des Flash-Speichers](#rtos_flash)
 - [10. Easy Grow Projekt](#easy_grow)
     * [10.1 Hardware-Komponenten](#eg_hardware)
@@ -71,13 +85,25 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
             - [10.5.1.1 Einstellung der Erdfeuchtigkeit](#eg_func_hw_logic_set_moisture)
             - [10.5.1.2 Messung der Erdfeuchtigkeit](#eg_func_hw_logic_read_moisture)
             - [10.5.1.3 Bewässerung der Pflanze](#eg_func_hw_logic_watering)
-            - [10.5.1.4 Programmablaufplan](#eg_func_hw_logic_pap)
-            - [10.5.1.5 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
-        + [10.5.2 Webserver](#eg_func_server)
-        + [10.5.2 Access-Point](#eg_func_ap)
-        + [10.5.3 Easy_DNS](#eg_func_dns)
+            - [10.5.1.4 Aufzeichnung der Sonnenstunden](#eg_func_hw_logic_sun_hours)
+            - [10.5.1.5 Programmablaufplan](#eg_func_hw_logic_pap)
+        + [10.5.2 Access-Point / WiFi-Manager](#eg_func_ap)
+            - [10.5.2.1 Start mit gespeicherten Credentials](#eg_func_ap_with_creds)
+            - [10.5.2.2 Start ohne gespeicherte Credentials](#eg_func_ap_without_creds)
+        + [10.5.3 Webserver](#eg_func_server)
+            - [10.5.3.1 Starten des Webserver-Tasks](#eg_func_server_start)
+            - [10.5.3.2 Webpage vorbereiten und senden](#eg_func_server_page)
+            - [10.5.3.3 Interaktionen auf der Webpage](#eg_func_server_interact)
+        + [10.5.4 Easy_DNS](#eg_func_dns)   
+        + [10.5.5 Bedienung der Weboberflächen](#eg_func_server_gui)    
+            - [10.5.5.1 Setupwebseite](#eg_func_server_gui-initial)
+            - [10.5.5.2 Access-Point Webseite](#eg_func_server_gui-ap)
+    * [10.6 Git / CICD](#git)
+        - [10.6.1 Continuous Integration](#git-cicd)
+    * [10.7 Produktdesign](#eg_design)
 - [11. Changelog](#changelog)
 <!-- toc -->
+
 
 <a name="features"></a>
 ## 1. Features
@@ -85,16 +111,20 @@ In der Datei ```easy_dns.c``` ist die Lizenz und der Author vermerkt, weitere In
 - Gießen der Pflanze (Automatisiert und Manuell)
 
 - Einstellen der gewünschten Feuchtigkeit
-<img src="images/crop_states.gif" width="450">   
+
+<img src="images/crop_states.gif"  width="500">   
 
 - Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk
-<img src="images/wifi_all.gif" width="450">
 
-- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
-<img src="images/wifi_setup.gif" width="450">
+<img src="images/wifi_all.gif" width="500">
+  
+- Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit</p>
+
+<img src="images/wifi_setup.gif" width="500">
+
 
 <a name="make_documentation"></a>
-## 2 Erstellen der Dokumentation mit 'make'
+## 2. Erstellen der Dokumentation mit 'make'
 
 ```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
 
@@ -244,7 +274,7 @@ Um Anwendungen für ESP8266 zu entwickeln, wird folgendes benötigt:
 Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:
 
 1. Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)
-2. Installierung auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
+2. Installation auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)
 
 Für die Installation wird Docker empfohlen.
 
@@ -252,7 +282,7 @@ Für die Installation wird Docker empfohlen.
 ### 4.1 ESP8266 Toolchain-Setup mit Docker
 
 <a name="inst_docker"></a>
-#### 4.1.1 Installierung von Docker
+#### 4.1.1 Installation von Docker
 
 <a name="inst_docker_mac"></a>
 ##### 4.1.1.1 MacOs
@@ -331,7 +361,7 @@ Es gibt zwei Möglichkeiten einen Container vom ```docker-esp8266``` Image zu in
 ##### 4.1.4.1 MacOS
 
 1. Wechsle in den ```docker``` Ordner im Projektverzeichnis: ```$ cd <project_path>/docker```
-2. Starte den Container mit dem Script: ```$ ./docker.sh```. Dieser Script startet einen Container für das ```docker-esp8266``` Image. Der Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert er den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
+2. Starte den Container mithilfe des Scripts: ```$ ./docker.sh```. Dieses Script startet einen Container für das ```docker-esp8266``` Image. Das Script mountet zudem das Projektverzeichnis in das ```/easy-grow``` Verzeichnis des Containers. Zudem exportiert es den Hosts ```/dev/ttyUSB0``` Port an den Port ```/dev/ttyUSB0``` des Containers.
 
 <a name="cont_docker_win"></a>
 ##### 4.1.4.2 Windows
@@ -364,7 +394,61 @@ Die Toolchain befindet sich im Pfad ```<path>/ESP/xtensa-lx106-elf``` wohingegen
 
 <a name="eclipse"></a>
 ### 5.1 Eclipse IDE
-TODO @Tim
+
+Um eine gemeinsame Enwicklungsumgebung innerhalb des Teams zu schaffen, wurde die Eclipse IDE gewählt. Diese bietet
+ eine grafische Oberfläche zum Schreiben, Kompillieren und Debuggen von ESP8266_RTOS_SDK Projekten in C.
+Nach dem Download des plattformabhängig richtigen Installers von https://www.eclipse.org/downloads/ sollte beim ersten Start "Eclipse for C/C++ Development" ausgewählt werden.
+Um die Entwicklunsumgebung initial zu konfigurieren sind die folgenden Schritte notwendig, welche einer offiziellen ausführlichen Anleitung von Espressif unter 
+https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup.html entnommen wurden.
+
+***Die folgenden Schritte beschreiben die in diesem Projekt angewandte Nutzung unter Mac/OSx. 
+Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem Link gefunden werden: https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup-windows.html#eclipse-windows-setup***
+
+#### **Projekt importieren/anlegen**
+
+1. In Eclipse über File -> Import entweder das idf-Template von github oder eines der Beispiele im Unterverzeichnis ESP8266_RTOS_SDK/examples auswählen.
+2. Im aufpoppenden Dialog "C/C++" und -> "Existing code as Makefile Projekt" auswählen und "Next" klicken
+3. Auf der nächsten Seite "Existing Code Location" als Verzeichnis auswählen. Hier sollte nicht der Pfad zum ESP8266_RTOS_SDK Verzeichnis selbst stehen, welcher erst später gebraucht wird. Das angegebene Verzeichnis sollte eine Datei namens "Makefile" enthalten.
+4. Auf der selben Seite unter "Toolchain for Indexer Settings" "Cross GCC auswählen", dann "Finish" klicken.
+
+
+#### **Projekt in Eclipse konfigurieren**
+Das neue Projekt sollte nun im Projekt-Explorer von Eclipse angezeigt werden. 
+
+1. Auf das neu importierte Projekt im Explorer rechts klicken und "Properties" auswählen.
+2. Unter "Environment" auf "C/C++ Build" klicken und "Add.." auswählen. 
+3. ``BATCH_BUILD`` mit dem Wert 1 eintragen`
+4. Erneut "Add.." klicken und ``IDF_PATH`` hinzufügen. Der Wert sollte der vollständige Pfad sein, in dem das ESP8266_RTOS_SDK installiert ist.
+5. Die Umgebungsvariable ``PATH`` bearbeiten und hier den Pfad zur Xtensa-Toolchain angeben (Welche im Rahmen des ESP8266_RTOS_SDK-Setups installiert wurde),
+falls dieser noch nicht bereits im ``PATH`` aufgeführt wird. Ein typischer Pfad zur Toolchain könnte so aussehen: ```/home/user-name/esp/xtensa-lx106-elf/bin```.
+Vor dem angehängten Pfad muss ein Doppelpunkt angehängt werden.
+6. Erneut "Add.." betätigen und die Umgebungsvariable ```PYTHONPATH``` mit dem Wert ```/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages``` hinzufügen.
+Somit überschreibt das systemseitig installierte Python alle in Eclipse vorkommenden Instanzen von Python.
+
+
+<img src="images/paths.png" alt="Setting Paths" width="100%">
+So könnte die vollständig konfigurierte "Environment" Umgebung aussehen.
+
+Die hier verwendeten Umgebungsvariablen lassen sich unter MacOS außerdem in der .bash_profile Datei einsehen und bearbeiten. 
+Diese kann  beispielsweise über ```nano .bash_profile``` aufgerufen werden.
+
+Anschließend zum Reiter "C/C++ General" - "Preprocessor Include Paths" navigieren. 
+
+1. In den "Providers" Tab wechseln.
+2. Aus der Liste der Provider “CDT Cross GCC Built-in Compiler Settings” anklicken
+3. “Command to get compiler specs” zu ```xtensa-lx106-elf-gcc ${FLAGS} -E -P -v -dD "${INPUTS}"``` ändern.
+5. "Compiler Command Pattern" ändern in ```xtensa-lx106-elf-(gcc|g\+\+\c\+\+\+|cc|cpp|clang)```.
+
+Nun zur "C/C++ General" -> "Indexer" Einstellungs-Seite wechseln.
+
+1. "Enable project specific settings" aktivieren, um die restlichen Einstellungen auf dieser Seite zu aktivieren.
+2. Die Option "Allow heuristic resolution of includes" deaktivieren. Wenn diese Option aktiviert ist 
+kann es vorkommen, dass Eclipse die benötigten Header Verzeichnisse nicht findet.
+3. Zu "C/C++ Build" -> "Behavior" navigieren
+4. "Enable parallel build" aktivieren, um mehrere Build-Tasks parallel laufen lassen zu können.
+
+Die genannte, offizielle Anleitung beschreibt zwar auch das Bauen und Flashen in Eclipse, jedoch wurde dies im Rahmen dieses Projektes
+aufgrund der höheren Flexibilität und Geschwindigkeit ausschließlich über die Kommandozeile vorgenommen, wie im Folgenden beschrieben. 
 
 <a name="esp_idf"></a>
 ### 5.2 ESP IDF
@@ -497,7 +581,89 @@ Komponentenverzeichnisse enthalten ein Komponenten-Makefile ```component.mk```. 
 Jede Komponente kann auch eine ```Kconfig```-Datei enthalten, die die Komponentenkonfigurationsoperationen definiert, die über die Projektkonfiguration eingestellt werden können. Einige Komponenten können auch ```Kconfig.projbuild``` und ```Makefile.projbuild``` Dateien beinhalten, die spezielle Dateien für übergeordnete Teile des Projekts sind.
 
 <a name="rtos_xtasks"></a>
-### 9.4 xTasks
+### 9.4 Tasks
+
+Tasks sind ein wichtiges Feature von FreeRTOS. Mithilfe von Tasks können verschiedene Code-Abschnitte (scheinbar) parallel ausgeführt werden. 
+Scheinbar deshalb, da ein Prozessor in der Realität zu einem bestimmten Zeitpunkt nur eine Aufgabe erledigen kann. 
+Die vorgetäuschte Gleichzeitigkeit wird durch das schnelle Wechseln zwischen implementierten Tasks erreicht.
+
+<a name="rtos_xtasks_impl"></a>
+#### 9.4.1 Implementierung 
+Für einen Task muss zunächst eine Funktion implementiert werden, die den auszuführenden Code beinhaltet. 
+Die Funktion hat keinen Rückgabewert und nimmt als Eingangswert einen Zeiger vom Typ void, welcher genutzt werden kann, um Informationen jeglicher Art in die Funktion hineinzugeben. 
+Da Task-Funktionen nichts zurückgeben, beinhalten sie meist eine kontinuierliche Schleife. 
+Falls ein Task dennoch innerhalb seiner Funktion endet, sollte er sich mithilfe von ```vTaskDelete(null)``` beenden, um einen sauberen Abbruch zu garantieren. 
+
+##### Beispiel
+
+```
+void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+    
+    vTaskDelete( NULL );
+}
+```
+
+Ein Task wird mit der Funktion ```xTaskCreate()``` kreiert, welche folgende Eingabeparameter erwartet:
+
+| __Typ__ | __Name__ | __Zweck__ |
+| :---    | :---     | :---      |
+| ```TaskFunction_t``` | ```pvTaskCode``` | Unsere zuvor erstellte Task-Funktion |
+| ```const char * const``` | ```pcName``` | Ein beschreibender Name für den Task, hauptsächlich für Debugging hilfreich |
+| ```configSTACK_DEPTH_TYPE``` | ```usStackDepth``` | Die Anzahl der Wörter (nicht Bytes!), die für den Stack dieses Tasks allokiert werden sollen |
+| ```void``` | ```*pvParameters``` | Ein Wert, der als Parameter in die Task-Funktion hineingegeben wird |
+| ```UBaseType_t``` | ```uxPriority``` | Die Priorität, mit der der erstellte Task ausgeführt wird |
+| ```TaskHandle_t``` | ```*pxCreatedTask``` | (optional) Weist dem Task einem zuvor instantiierten Handler zu. Dieser kann genutzt werden, um den Task beispielsweise zu pausieren oder zu löschen   |
+
+Bei einem Erfolg gibt ```xTaskCreate``` ```pdPASS``` zurück, ansonsten ```errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY```. 
+Ein laufender Task kann mit der Funktion ```xTaskDelete(TaskHandle_t xTask)``` gelöscht werden, indem der dem Task zugewiesene Handler als Eingabeparameter angegeben wird.
+
+##### Komplettes Beispiel
+
+```
+void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+}
+
+void anotherFunction()
+{
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+    
+    /* Task erstellen */
+    xReturned = xTaskCreate(vATaskFunction, "NAME", 512, ( void * ) 1, 2, &xHandle );
+    
+    if( xReturned == pdPASS )
+    {
+        /* Der Task wurde erstellt.  Der Handler kann nun zum Löschen des Tasks genutzt werden. */
+        vTaskDelete( xHandle );
+    }
+}
+
+
+```
+<a name="rtos_xtasks_usage"></a>
+#### 9.4.2 Verwendung im Projekt
+
+Im Easy Grow Projekt werden Tasks an 4 verschiedenen Stellen verwendet:
+1. Zur kontinuierlichen Abfrage der GPIO Pins
+2. Für den DNS Server
+3. Für den Webserver
+4. Zur Überprüfung, ob tatsächlich eine WiFi-Verbindung existiert
+
+Bei Letzterem handelt es sich um einen Bug Fix, der mit dem Löschen des Flash-Speichers des ESP zusammenhängt. 
+Das Löschen des Speichers sorgt dafür, dass zuvor gespeicherte WiFi-Credentials verschwinden, der ESP jedoch zunächst fehlerhaft zurückgibt, dass eine Verbindung exisiert.
+Hier kommt der Task ins Spiel, der nach einer gewissen Zeit überprüft, ob tatsächlich eine WiFi-Verbindung vorhanden ist. 
+
+Die Tasks werden in Kapitel 10 nochmal genauer beschrieben.
 
 <a name="rtos_gpio"></a>
 ### 9.5 GPIO
@@ -854,11 +1020,259 @@ Die ```esp_timer``` API bietet auch eine Funktion, um die seit dem Start vergang
 <a name="rtos_wifi"></a>
 ### 9.7 WiFi
 
+Das ESP8266_RTOS_SDK bietet die ```esp8266/include/esp_wifi.h``` Datei an, die Unterstützung für WiFi-spezifische Funktionen bereit stellt. 
+Dies umfasst unter Anderem:
+
+1. Einen Station Mode, der genutzt werden kann, um den ESP mit einem Access Point (z.B. das heimische WLAN) zu verbinden.
+2. Einen AP Mode, der es ermöglicht, einen Access Point zu eröffnen, mit dem sich andere Geräte verbinden können.
+3. Einen kombinierten Modus (Station & AP), wodurch der ESP sowohl als Access Point fungieren als auch mit einem anderen Access Point verbunden sein kann. 
+4. Verschiedene Sicherheitseinstellungen für die oben genannten Modi (WPA, WPA2, WEP, etc).
+5. Das Scannen nach verfügbaren Access Points.
+
+Bei vielen der folgenden Codebeispielen wird die Funktion ```ESP_ERROR_CHECK()``` verwendet. 
+Dies ist eine Helfer-Funktion, die erspart, dass jede Funktion, die ```esp_err_t``` zurück liefert, auf einen potentiellen Fehler untersuchen werden muss. 
+
+<a name="rtos_wifi_event"></a>
+#### 9.7.1 Event Handler
+Das ESP8266_RTOS_SDK liefert mit dem WiFi auch einen Event Handler. 
+Dieser kann mithilfe von ```esp_err_t esp_event_loop_init(system_event_cb_t cb, void *ctx)``` initialisiert werden, wobei ```cb``` der eigentliche event_handler ist. 
+Innerhalb von ```cb ``` können anschließend alle WiFi-bezogenen Events abgefangen werden.
+
+##### Beispiel
+```
+static esp_err_t event_handler(void *ctx, system_event_t *event)
+{
+    switch (event->event_id)
+    {
+        case SYSTEM_EVENT_SCAN_DONE:
+        {
+            ...
+            break;
+        }
+        case SYSTEM_EVENT_STA_START:
+        {    
+            ...
+            break;
+        }
+    }
+}
+...
+ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));
+```
+
+<a name="rtos_wifi_init"></a>
+#### 9.7.2 Initialisierung und Einstellung des Modus
+WiFi muss immer zunächst mit der Funktion ```esp_err_t esp_wifi_init(const wifi_init_config_t *config)``` initialisiert werden.
+Für den Eingangsparameter ```*config``` gibt es eine Standardkonfiguration, die meistens den Anforderungen genügt.
+
+##### Beispiel
+``` 	
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();                                        	
+ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+```
+Mithilfe der Methode ```esp_err_t esp_wifi_set_mode(wifi_mode_t mode)``` kann der gewünschte Modus (Station, AP, kombiniert) eingestellt werden.
+
+##### Beispiel
+```
+// Wahlweise WIFI_MODE_AP, WIFI_MODE_STA oder WIFI_MODE_APSTA
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+```
+
+<a name="rtos_wifi_config_connect"></a>
+#### 9.7.3 Konfiguration und Verbindung
+Für die Konfiguration des WiFi wird die Methode ```esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf)``` bereit gestellt. 
+Der erste Parameter bestimmt das Template (Wahl aus ESP_IF_WIFI_STA, ESP_IF_WIFI_AP und ESP_IF_MAX), der zweite enthält die eigentliche Konfiguration.
+
+##### Beispiel
+```
+wifi_config_t wifi_config = {
+    .ap = {
+        .ssid = "MyWifiSSID",
+        .password = "MyPassword",
+        .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    },
+};
+ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+```
+Mit den Funktionen ```esp_err_t esp_wifi_start(void)``` und ```esp_err_t esp_wifi_stop(void)``` wird anschließend der gewählte Modus mit den festgelegten Konfigurationen gestartet beziehungsweise beendet.
+Für den Station- bzw. den kombinierten Modus muss zusätzlich ```esp_err_t esp_wifi_connect(void)``` aufgerufen werden, damit sich der ESP mit dem Access Point verbindet.
+Gleichermaßen lässt sich die Verbindung mit ```esp_err_t esp_wifi_disconnect(void)``` auch wieder trennen. 
+
+<a name="rtos_wifi_scan"></a>
+#### 9.7.4 Nach verfügbaren Access Points scannen
+Im Station- und kombinierten Modus besteht die Möglichkeit, nach verfügbaren Access Points zu scannen.
+Dafür lässt sich die Methode ```esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block)``` verwenden. 
+Mit dem ersten Eingabeparameter wird die Konfiguration übergeben, der zweite Parameter bestimmt, ob der Scan blockieren oder direkt zurückgeben soll.
+Mit ```esp_err_t esp_wifi_scan_stop(void)``` kann der Scan zudem gestoppt werden.
+
+##### Beispiel
+
+```
+wifi_scan_config_t scan_conf = {
+    .ssid = NULL,
+    .bssid = NULL,
+    .channel = 0,
+    .show_hidden = false
+};
+ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_conf, false));
+...
+ESP_ERROR_CHECK(esp_wifi_scan_stop());
+```
+
+Nach erfolgreichem Scan können die Ergebnisse mit der Methode ```esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_records)``` abgerufen werden.
+Dabei muss der erste Parameter die Anzahl der Ergebnisse angegeben. 
+Diese bekommt man mit der Methode ```esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number)```.
+
+##### Beispiel
+
+```
+uint16_t ap_count = 0;
+esp_wifi_scan_get_ap_num(&ap_count);
+if (ap_count == 0)
+{
+    // No APs found
+}
+wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+if (!ap_list)
+{
+    // malloc error, ap_list is NULL
+}
+ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_list));
+```
+
 <a name="rtos_http_server"></a>
 ### 9.8 HTTP Server
+Für den HTTP-Server wird die netconn API von LwIP genutzt (http://www.nongnu.org/lwip/2_0_x/index.html).
 
+<a name="rtos_http_server_new"></a>
+#### 9.8.1 Eine (TCP-) Verbindung eröffnen
+Eine neue Verbindung lässt sich mit der Funktion ```struct netconn * netconn_new(enum netconn_type t)``` implementieren. 
+Die Form der Verbindung wird durch den Eingangsparameter (hier: NETCONN_TCP) bestimmt.
+Ist die Verbindung erfolgreich erstellt worden, kann sie mithilfe der Methode ```err_t netconn_bind(struct netconn * aNetConn, ip_addr_t * aAddr, u16_t aPort)``` an eine IP-Addresse und einen Port gebunden werden.
+Für die IP-Adresse kann ```IP_ADDR_ANY``` angegeben werden, um an eine beliebige Adresse zu binden. Eine TCP-Verbindung wird mit ```err_t netconn_listen(struct netconn * aNetconn)``` in den "listen mode" gesetzt.
+
+##### Beispiel
+```
+struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);
+```
+
+<a name="rtos_http_server_recv"></a>
+#### 9.8.2 Eingehende Verbindungsanfragen abfangen
+
+In einer Schleife können für eine eröffnete TCP-Verbindung eingehende Verbindungsanfragen abgefangen werden.
+Dies geschieht durch die Methode ```err_t netconn_accept(struct netconn * aNetConn, struct netconn ** aNewConn)```.
+Wird eine Verbindung festgestellt, wird eine neue netconn Struktur ```aNewConn``` für die weitere Nutzung allokiert.
+Bei einer erfolgreichen Verbindungsetablierung liefert die Methode```err_t netconn_recv(struct netconn * aNetConn, struct netbuf ** aNetBuf)``` den Buffer mit den empfangenen Daten der zuvor neu allokierten Struktur und schreibt sie in ```aNetBuf```.
+
+Im finalen Schritt werden die empfangenen Daten aus dem Buffer ```aNetBuf``` mithilfe der Methode ```err_t netbuf_data(struct netbuf * aNetBuf, void ** aData, u16_t * aLen)``` extrahiert und in ```aData``` geschrieben.
+
+##### Beispiel 
+```
+struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+struct netconn *client = NULL;
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);
+
+while (1) {
+    err_t err = netconn_accept(xNetConn, &client);
+    if (err == ERR_OK) {
+        struct netbuf *xNetBuf;
+        if ((err = netconn_recv(client, &xNetBuf)) == ERR_OK) {
+            void *data;
+            u16_t len;
+            netbuf_data(xNetBuf, &data, &len);
+            // data can now be used
+        }
+    }
+}
+```
+
+<a name="rtos_http_server_send"></a>
+#### 9.8.3 Daten über eine TCP-Verbindung senden
+Mit der Methode ```err_t netconn_write(struct netconn * aNetConn, const void * aData, size_t aSize, u8_t aApiFlags)``` lassen sich Daten über eine bestehende TCP-Verbindung zurücksenden.
+Dabei ist ```aNetConn``` die TCP-Verbindung, ```aData``` der Adressanfang der zu sendenen Daten und ```aSize``` die Länge der zu sendenden Daten.
+```aApiFlags``` kann entweder ```NETCONN_NOCOPY``` sein, falls die Daten für die Zeit der Überbringung stabil sind oder ```NETCONN_COPY```, falls nicht.
+
+##### Beispiel
+```
+char buf[256];
+const char *webpage = 
+{
+    "HTTP/1.1 200 OK\r\n"
+    "Content-type: text/html\r\n\r\n"
+    "<html>"
+    "<head><title>Test Server</title></head>"
+    "<body>"
+    "<h1>Hello World</h1>"
+    "</body>"
+    "</html>"
+}
+// write webpage to buffer
+snprintf(buf, sizeof(buf), webpage);
+
+netconn_write(client, buf, strlen(buf), NETCONN_COPY);
+```
+
+<a name="rtos_http_server_close"></a>
+#### 9.8.4 Verbindungen beenden
+Mit ```void netbuf_delete(struct netbuf * aNetBuf)``` kann ein netbuf Objekt gelöscht und sein Speicher deallokiert werden.
+Die komplette Verbindung lässt sich mit ```err_t netconn_close(struct netconn * aNetConn)``` schließen und mit ```err_t netconn_delete(struct netconn * aNetConn)``` löschen.
+```
+netbuf_delete(nb);
+netconn_close(client);
+netconn_delete(client)
+```
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
+
+Um kleinere Werte persistent auf dem ESP-8266 speichern zu können orientiert sich der implementierte Code stark an der 
+Umsetzung der von Arduino intern verwendeten Methoden (https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.cpp read und write) des EEPROM. 
+(engl. Abk. für electrically erasable programmable read-only memory) Diese nutzen freie Bytes innerhalb des SPI Flash Speicherbereichs zum Lesen und Schreiben.
+
+
+**Beispiel:**
+
+```c
+void flash_write(void *value, FlashDataType dataType)
+{
+	uint32_t startSector = getStartSector(dataType);
+
+	ESP_LOGI(TAG, "[flash_write]: Writing value to sector [%d], size: %d\n", startSector, SPI_FLASH_SEC_SIZE);
+
+	esp_err_t status = spi_flash_erase_sector(startSector);
+	if (status == SPI_FLASH_RESULT_OK)
+	{
+
+		status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
+								 value, sizeof(value));
+
+		if (status == SPI_FLASH_RESULT_OK)
+		{
+			ESP_LOGI(TAG, "[flash_write]: Successfully written to flash!");
+			ret = true;
+		}
+		else
+		{
+			ESP_LOGI(TAG, "[flash_write]: Error with writing to flash, Error Code: [%d]", status);
+		}
+	}
+}
+```
+So wird beispielsweise beim Schreiben eines Wertes zunächst der entsprechende Startsektor für die jeweilige Variable ausgewählt. 
+Durch den Enum ```FlashDataType``` der mit in die Funktion gegeben wird,  hat jede Variable einen
+fest definierten Sektor im frei verfügbaren Bereich des SPI Flashs zugewiesen.
+Je nachdem welcher Wert gelesen oder geschrieben wird, unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range,
+ damit Werte sich nicht gegenseitig überschreiben können.
+ 
+Vor jedem Schreibvorgang wird zunächst mithilfe ``` spi_flash_erase_sector(startSector)``` vor dem Schreibvorgang der entsprechende Bereich gelöscht.
+Bei Erfolg, also ``` SPI_FLASH_RESULT_OK``` wird die Adresse mithilfe der Funktion ```spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
+ value, sizeof(value));``` ausgehend vom festgelegten ```startSector``` (zwischen den Speicheradressen 0x40200000 und 0x405FB000), 
+ in Höhe einer festgelegten ```SPI_FLASH_SEC_SIZE``` von 4096bytes mit dem ```value``` und dessen tatsächlicher Größe ```sizeof(value)``` überschrieben. 
+
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
@@ -942,7 +1356,7 @@ Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen
 <a name="eg_functionality"></a>
 ### 10.5 Funktionsweise
 
-Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystem.
+Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystems.
 
 <a name="eg_func_hw_logic"></a>
 #### 10.5.1 Hardware-Logik
@@ -1057,7 +1471,7 @@ Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-
 <a name="eg_func_hw_logic_pap"></a>
 ##### 10.5.1.4 Programmablaufplan
 
-<img src="images/easy_grow_pap.png" alt="Programmablaufplan des Bewässerungssystems">
+<img src="images/easy_grow_pap.png" width="100%" alt="Programmablaufplan des Bewässerungssystems">
 
 <a name="eg_func_hw_logic_sun_hours"></a>
 ##### 10.5.1.5 Aufzeichnung der Sonnenstunden
@@ -1096,14 +1510,237 @@ Die detaillierte Funktionsweise der Sonnenstundenaufzeichnung wird im folgenden 
 
 <img src="images/sun_hours_pap.png" alt="Programmablaufplan Sonnenstundenaufzeichnung">
 
-<a name="eg_func_server"></a>
-#### 10.5.2 Webserver
-
 <a name="eg_func_ap"></a>
-#### 10.5.2 Access-Point
+#### 10.5.2 Access-Point / WiFi-Manager 
+Für eine detaillierte Beschreibung der WiFi-Methoden und Funktionsweise siehe [Kapitel 9.7](#rtos_wifi). 
+Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen. 
+ 
+Es gibt zwei verschiedene Ausgangslagen beim Start des ESP. Entweder er hat die Credentials eines zuvor verbundenen WLAN-Netzwerkes gespeichert oder nicht.
+Dies wird differenziert, indem das WiFi zunächst im Station Mode gestartet wird und versucht wird, sich zu verbinden.
+Bei gespeicherten Credentials sowie dem Vorhandensein des gespeicherten WLAN-Netzwerkes in Reichweite führt dies zu einer erfolgreichen Verbindung und somit zu [Kapitel 10.5.2.1.](#eg_func_ap_with_creds)
+Der Ablauf bei einem fehlerhaften Rückgabewert wird in [Kapitel 10.5.2.2](#eg_func_ap_without_creds) behandelt.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_wifi_init(&cfg));
+
+// Try connecting first, will connect to station if it has saved credentials
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+ESP_ERROR_CHECK(esp_wifi_start());
+esp_err_t err = esp_wifi_connect();
+// if it doesn't return ESP_OK, start ap mode
+if (err != ESP_OK)
+{
+    ESP_LOGI(TAG, "Start in AP Mode");
+    ap_wifi_init();
+}
+else
+{
+    // BUG: After erase_flash, esp_wifi_connect returns ESP_OK but never actually connects
+    // create task to wait and check if it really connected -> https://github.com/esp8266/Arduino/issues/2235
+    xTaskCreate(&check_conn_task, "wifi_config_server", 4096, NULL, 2, &check_conn_handle);
+}
+```
+
+<a name="eg_func_ap_with_creds"></a>
+##### 10.5.2.1 Start mit gespeicherten Credentials
+Normalerweise könnte nach der erfolgreichen Verbindung sofort der Webserver mit der Easy Grow Webpage zur Steuerung der Bewässerungsanlage gestartet werden.
+Ein Bug verhindert dies jedoch: Falls zuvor der Flash-Speicher des ESP gelöscht wurde, liefert ```esp_wifi_connect()``` fälschlicherweise ```ESP_OK``` zurück, obwohl keine Verbindung vorhanden ist.
+Der Bug wird umgangen, indem mithilfe eines Tasks eine kurze Zeit gewartet wird. Anschließend wird geprüft, ob tatsächlich eine Verbindung besteht, indem geschaut wird, ob eine IP zugewiesen wurde.
+Sobald eine IP zugewiesen wurde, wird der Webserver mit ```start_http(webMode webMode)``` im Modus ```EASY_MOISTURE``` gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+case SYSTEM_EVENT_STA_GOT_IP:
+    ...
+    //Start moisture control http server
+    start_http(EASY_MOISTURE);
+    GOT_IP = true;
+    break;
+```
+
+Ist nach dem Ablaufen des Tasks keine IP vorhanden, gelangen wir über den Aufruf von ```ap_wifi_init()``` zu [Kapitel 10.5.2.2](#eg_func_ap_without_creds).
+
+<a name="eg_func_ap_without_creds"></a>
+##### 10.5.2.2 Start ohne gespeicherte Credentials
+Hat der ESP keine gespeicherten Credentials, muss das WiFi in den kombinierten Modus gesetzt werden (Station und AP). 
+Dies ist nötig, da wir sowohl einen Access Point eröffnen wollen, als auch gleichzeitig den Station Mode benötigen, um nach verfügbaren WLAN-Netzwerken zu scannen. 
+Das WiFi und der Scan werden konfiguriert und anschließend gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+/*
+ * Start wifi in AP-Mode (Access Point)
+ */
+void ap_wifi_init()
+{
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+            .password = EXAMPLE_ESP_WIFI_PASS,
+            .max_connection = EXAMPLE_MAX_STA_CONN,
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+        },
+    };
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0)
+    {
+    	wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    }
+    //Has to be AP + Station mode, in order to scan for available aps
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, "wifi_init_softap finished.SSID:%s password:%s",
+			 EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+    wifi_scan_config_t scan_conf = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,
+        .show_hidden = false
+    };
+
+    ESP_ERROR_CHECK(esp_wifi_scan_start(&scan_conf, true));
+} 
+```
+Ist der Scan beendet, werden die gefundenen WLAN-Netzwerke ausgelesen und mit der Funktion ```void set_aps(wifi_ap_record_t aps[], uint16_t apCount)``` in der Datei ```easy_http_server.c``` gesetzt.
+Anschließend wird der Scan gestoppt und der HTTP-Server über ```void start_http(webMode webMode)``` im Config Mode ```EASY_CONFIG``` gestartet.
+
+##### Ausschnitt aus ```easy_wifi_manager.c```
+```
+case SYSTEM_EVENT_SCAN_DONE:
+{
+    uint16_t ap_count = 0;
+    //get number of available access points
+    esp_wifi_scan_get_ap_num(&ap_count);
+    if (ap_count == 0)
+    {
+        ESP_LOGI(TAG, "No AP found");
+    }
+    wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+    if (!ap_list)
+    {
+        ESP_LOGI(TAG, "malloc error, ap_list is NULL");
+        break;
+    }
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&ap_count, ap_list));
+    set_aps(ap_list, ap_count);
+    esp_wifi_scan_stop();
+    free(ap_list);
+    //Start config http server
+    start_http(EASY_CONFIG);
+    break;
+}
+```
+
+<a name="eg_func_server"></a>
+#### 10.5.3 Webserver
+Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert.
+Für eine detaillierte Beschreibung der Funktionsweise des Servers und seiner Methoden siehe [Kapitel 9.8](#rtos_http_server).
+Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen.
+
+<a name="eg_func_server_start"></a>
+##### 10.5.3.1 Starten des Webserver-Tasks
+Der Server läuft, wie bereits in [Kapitel 9.4](#rtos_xtasks) erwähnt, in einem eigenen Task. 
+Über die Methode ```void start_http(webMode webMode)``` wird der Task gestartet oder, falls es bereits einen Task gibt, mit ```void vTaskResume(TaskHandle_t xTaskToResume)```fortgesetzt. 
+Der übergebene  ```webMode``` wird in der Datei global gesetzt. Je nach Modus liefert der Server später eine andere Webpage zurück. 
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+void start_http(webMode webMode) {
+    mode = webMode;
+    
+    if(httpd_task_initialized) {
+        vTaskResume(httpd_task_handle);
+    } else {
+        xTaskCreate(&httpd_task, "wifi_config_server", 14096, NULL, 2, &httpd_task_handle);
+        httpd_task_initialized = 1;
+    }
+}
+```
+
+<a name="eg_func_server_page"></a>
+##### 10.5.3.2 Webpage vorbereiten und senden
+Im gestarteten Task werden nun die in [Kapitel 9.8](#rtos_http_server) beschriebenen Funktionen verwendet, um einen HTTP-Server zu starten.
+Ruft der Nutzer nun mithilfe eines GET-Requests die Seite ab, wird dies abgefangen und die dem ```webMode``` entsprechende Webpage zurückgesendet. <br/>
+Die verschiedenen Webpages liegen jeweils als ```static char *``` in der Datei ```easy_data.c```.
+Dynamische Daten, wie die verfügbaren Access Points für die ```EASY_CONFIG```-Page, werden mithilfe der ```snprintf()```-Funktion an die mit ```%s``` markierten Stellen in den Webpage-String hineingeschrieben.
+
+##### Ausschnitt aus ```easy_data.c```
+```
+static  char *WEBPAGE_NEW_CONFIG =
+{
+    ...
+    "<div class='panel'>"
+        "<h3>Verf&uuml;gbare WLAN:</h3>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+            "<p class='wifiLink'>%s</p>"
+    "</div>"
+    ...
+};
+```
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+char webpage[5500];
+strcpy(webpage, WEBPAGE_HEAD);
+if (mode == EASY_CONFIG) {
+    strcat(webpage, WEBPAGE_NEW_CONFIG);
+    snprintf(buf, sizeof(buf), webpage, available_aps[0],
+            available_aps[1], available_aps[2],
+            available_aps[3], available_aps[4]);
+} else if (mode == EASY_DOCUMENTATION) {
+    strcat(webpage, WEBPAGE_DOCUMENTATION);
+    snprintf(buf, sizeof(buf), webpage);
+} else if (mode == EASY_MOISTURE) {
+...
+}
+```
+
+<a name="eg_func_server_interact"></a>
+##### 10.5.3.3 Interaktionen auf der Webpage
+Um Interaktionen zu realisieren, wurden Buttons eingeführt, die beim Klicken verschiedene Pfade an die URL anhängen und dorthin weiterleiten. 
+Der erneute Request wird vom Server abgefangen und der angehängte Pfad kann ausgelesen werden.
+Somit lässt sich beispielsweise bei einem Klick eines Feuchtigkeits-Buttons die Funktion für das Einstellen der Feuchtigkeit aufrufen.
+
+##### Ausschnitt aus ```easy_data.c```
+```
+static  char *WEBPAGE_MOISTURE =
+{
+    ...
+    "<div class='button-container'>"
+        ...
+        "<button class='b-lo' onclick=\"location.href='/low'\" type='button'>Niedrig</button>"
+        "<button class='b-me' onclick=\"location.href='/medium'\" type='button'>Mittel</button>"
+        "<button class='b-hi' onclick=\"location.href='/high'\" type='button'>Hoch</button>"
+        ...
+    "</div>"
+    ...
+}
+```
+
+##### Ausschnitt aus ```easy_http_server.c```
+```
+{
+...
+} else if (!strncmp(ptr, "/high", max_uri_len)) {
+    set_moisture_level(HIGH);
+} else if (!strncmp(ptr, "/medium", max_uri_len)) {
+    set_moisture_level(MID);
+} else if (!strncmp(ptr, "/low", max_uri_len)) {
+    set_moisture_level(LOW);
+}
+```
 
 <a name="eg_func_dns"></a>
-#### 10.5.3 Easy_DNS
+#### 10.5.4 Easy_DNS
+
 
 Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen. 
 Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden.
@@ -1111,6 +1748,194 @@ Bei der Erstellung des DNS Task wird der Namensserver für den UDP Port 53 regis
 So kann ein Hostname oder eine IPv4 Adresse einem Port, hier alle eigehenden IP-Adressen dem DNS Port, zugewiesen werden. 
 Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ignoriert. 
 DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. ```connectivitycheck.android.com```) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.
+
+
+<a name="eg_func_server_gui"></a>
+##### 10.5.5 Bedienung der Weboberflächen
+
+Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen Steuern. 
+Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
+
+<a name="eg_func_server_gui-initial"></a>
+##### 10.5.5.1 Setupwebseite
+<img src="images/wifi-mockup.png" width="100%">
+
+Nach der automatischen Weiterleitung bei Auswahl des ```EasyGrow_Initial_Config``` Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet.
+Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. 
+In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
+Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
+
+**(1)** Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus
+
+**(2)** Öffnen der Access Point Ansicht (Steuerung des Systems)
+
+**(3)** Öffnen der Systemdokumentation
+
+
+<a name="eg_func_server_gui-ap"></a>
+##### 10.5.5.2 Access-Point Webseite
+<img src="images/overview-mockup.png" width="100%">
+
+Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
+Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
+Die angzeigten Werte werden durch einen Reload der Webseite, alle 5 Sekunden aktualisiert.
+
+Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese sind: (von Oben nach Unten) 
+- der gewählte Feuchtigkeitswert (Soll-Wert) 
+- der aktuelle Feuchtigkeitswert (Ist-Wert, in %)
+- der Wasserstand im Tank (Niedrig, Normal, Hoch)
+- die gemessenen täglichen Sonnenstunden
+- Laufzeit des Systems (uptime)
+- der restliche frei verfügbare Speicherplatz (in byte, zu monitoring Zwecken)
+
+Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bieten die folgende Funktionalität: 
+
+**(1)** Zurücksetzen der Wifi-Konfiguration & Verlassen des Popups
+
+**(2)** Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)
+
+**(3)** Manuelles Betätigen der Wasserpumpe
+
+
+
+<a name="git"></a>
+### 10.6 Git
+Als Version Control System (VCS) wird das MI-Gitlab der Hochschule der Medien genutzt.
+Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches
+besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte. Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren.
+Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. 
+Es ist daher auch gängigige Praxis, Commits im Master-Branch mit einer Versionsnummer zu versehen.
+
+Dadurch, dass die gesamte Feature-Entwicklung in bestimmten Feature-Branches und nicht im Master-Branch stattfindet, können Entwickler 
+an einem bestimmten Feature arbeiten, ohne die Stabilität des gesamten Codes zu beeinträchtigen oder zu gefährden. 
+Feature-Branches ermöglichen es außerdem, bestimmten Code zu reviewen bevor dieser in das offizielle Projekt integriert wird. 
+Sobald auf dem Dev-Branch genügend Features für einen Release zusammengekommen sind, 
+wird ein Release-Branch abgeforked und erlaubt es noch abschließende Bug-Fixes oder Dokuentation hinzuzufügen. 
+Sobald dies abgeschlossen ist, kann der Release-Branch mit einer Versionsnummer versehen und in den Master-Branch gemerged werden.
+Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen. 
+
+
+<a name="git-cicd"></a>
+#### 10.6.1 Continuous Integration
+
+Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet.  
+Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, 
+welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden.
+Dieses Vorgehen ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, 
+dass der gesamte Code den festgelegten Anforderungen entspricht. 
+Die einzelnen Schritte inerhalb einer GitLab CI/CD Pipeline werden über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. 
+Diese wird im Folgenden beschrieben.
+
+```yaml
+image: mirohero/docker-esp8266
+
+sdk-test:
+  script:
+    - cd ${CI_PROJECT_DIR}/tests
+    - chmod +x sdk-test.sh
+    - ./sdk-test.sh
+
+build-test:   
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - make
+  only:
+    - master
+    - dev
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}"
+    when: always
+    expire_in: 7d
+    paths:
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
+
+```
+
+**(1)** Docker image
+```yaml
+image: mirohero/docker-esp8266
+```
+Für den Bau einer GitLab-Build-Pipeline würde sich im Normalfall ebenfalls Docker zum Bau gut eignen. 
+Da die MI-Gitlab Pipeline jedoch das Bauen eines Docker-in-Docker Images nicht unterstützt, wurde sie mit diesem Befehl so konfiguriert, dass sie ein 
+im Docker Hub bereitgestelltes Image (https://hub.docker.com/r/mirohero/docker-esp8266) pullt, welches alle benötigten Abhängigkeiten des esp8266 enthält.
+
+**(2)** SDK Test Stage
+```yaml
+sdk-test:
+  script:
+    - cd ${CI_PROJECT_DIR}/tests
+    - chmod +x sdk-test.sh
+    - ./sdk-test.sh
+```
+In dieser Stage der Pipeline wird durch das Ausführen eines Skriptes die Funktionalität des installierten SDKs getestet. 
+Über Kommandozeilenbefehle navigiert die .yml Datei in den Unterordner /tests, macht das Test-Script ```sdk-test.sh``` ausführbar und startet es.
+
+**(3)** Build Test Stage
+```yaml
+build-test:   
+  script:
+    - cd ${CI_PROJECT_DIR}
+    - make
+  only:
+    - master
+    - dev
+  artifacts:
+    name: "${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}"
+    when: always
+    expire_in: 7d
+    paths:
+      - "${CI_PROJECT_DIR}/build/easy_grow.bin"
+```
+Diese letzte Stage führt einen ```make``` Befehl im Hauptverzeichnis aus und baut so den implementierten C - Code des Projektes. 
+```only``` gibt an, dass der Job nur für den entsprechenden Branches -master und -dev auszuführen ist.
+Artifacts, beschreiben die Liste von Dateien oder Verzeichnissen, welche final von einem CICD Job erstellt werden, sobald dieser beendet ist. 
+An dieser Stelle werden der Artefaktname, der Pfad und das Ablaufdatum (7Tage) gesetzt um die entsprechenden Dateien zu bauen. 
+Dabei werden die folgenden (von GitLab) vordefinierten Umgebungsvariablen genutzt:
+
+```CI_JOB_NAME```:
+Der Name des Jobs, wie er in der .gitlab-ci.yml Datei vordefiniert ist.
+
+```CI_COMMIT_REF_NAME```:
+Der Branch- oder Commit-Name, für den das Projekt gebaut wird.
+
+```CI_JOB_ID```:
+Eine eindeutige ID des aktuellen Jobs, die GitLab CI intern erzeugt und verwendet.
+
+```CI_PROJECT_DIR```:
+Der vollständige Pfad auf dem das Repository geklont wird und auf dem der Job ausgeführt wird. 
+
+
+
+<a name="eg_design"></a>
+### 10.7 Produktdesign
+
+Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. 
+Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. 
+Mithilfe der kostenfreien online Platform www.tinkercad.com wurde ein entsprechendes 3D-Modell entwickelt, welches die gelisteten, gewünschten Funktionalitäten bietet.
+Die entwickelte, schützende Kunststoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit 
+Wasser gefüllten Topf stülpen. Dabei entsteht zusammen mit dem Gehäuse ein säulenförmiger Standfuß für eine beliebige zu bewässernde Pflanze.
+Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bedienelemente wie LEDs und Schalter befestigen. 
+Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.
+
+Auf dem folgenden Bild ist das fertige 3D-Modell in Frontalansicht zu sehen. 
+Sichtbar sind hier beispielsweise die Öffnungen für (von links nach rechts): 
+- eine Power-LED
+- die beiden vertikal angeordneten LEDS zur Wasserstandsanzeige
+- Schalter zum Senken der gewählten Feuchtigkeit
+- drei nebeneinander angeordnete LEDS zum Anzeigen des gewählten Feuchtigkeitsstands
+- Schalter zum Erhöhen der gewählten Feuchtigkeit
+
+<img src="images/3D-model.png" width="100%">
+
+Das gewählte Material PETG (Polyethylene Terephthalate Glycol-modified), ist ein beliebtes 3D-Druckmaterial welches die jeweiligen Vorteile von ABS und PLA Kunststoffen vereint. 
+PETG-Kunststoff bietet steife, dauerhafte Festigkeit (wie ABS) und einfache Handhabung (wie PLA) - da beim Druck kein Heizbett erforderlich ist. 
+Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB
+
+Auf besondere, abdichtende Eigenschaften wurde bei der Wahl des Werkstoffes für diesen Prototyp noch kein Wert gelegt. 
+Bei einer produktiver Umsetzung des Projektes wäre ein wasserabweisendes Material, sowie der Einsatz von Gummidichtungsringen an verschiedenen Stellen empfehlenswert.
+Gedruckt wurde der Prototyp mithilfe eines Tevo Tarantula 3D-Druckers im privaten Gebrauch: https://www.tevo.cn/products/3d-printers/tevo-tarantula/
+
+
 
 <a name="changelog"></a>
 ## 11. [Changelog](changelog.md)
