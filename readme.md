@@ -1753,7 +1753,7 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 <a name="eg_func_server_gui"></a>
 ##### 10.5.5 Bedienung der Weboberflächen
 
-Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen Steuern. 
+Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen steuern. 
 Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
 
 <a name="eg_func_server_gui-initial"></a>
