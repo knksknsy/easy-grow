@@ -178,9 +178,6 @@ void httpd_task(void *pvParameters) {
 						snprintf(buf, sizeof(buf), webpage, available_aps[0],
 								available_aps[1], available_aps[2],
 								available_aps[3], available_aps[4]);
-					} else if (mode == EASY_REDIRECT) {
-						strcat(webpage, WEBPAGE_NEW_CONFIG);
-						snprintf(buf, sizeof(buf), webpage);
 					} else if (mode == EASY_DOCUMENTATION) {
 						strcat(webpage, WEBPAGE_DOCUMENTATION);
 						snprintf(buf, sizeof(buf), webpage);
