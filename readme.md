@@ -1229,8 +1229,8 @@ netconn_delete(client)
 <a name="rtos_flash"></a>
 ### 9.9 Schreiben und Lesen des Flash-Speichers
 
-Um kleinere Werte persistent auf dem ESP-8266 speichern zu können orientiert sich der implementierte Code an der 
-Umsetzung der innerhalb Arduino intern verwendeten Methoden (https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.cpp read und write) des EEPROM. 
+Um kleinere Werte persistent auf dem ESP-8266 speichern zu können orientiert sich der implementierte Code stark an der 
+Umsetzung der von Arduino intern verwendeten Methoden (https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.cpp read und write) des EEPROM. 
 (engl. Abk. für electrically erasable programmable read-only memory) Diese nutzen freie Bytes innerhalb des SPI Flash Speicherbereichs zum Lesen und Schreiben.
 
 
