@@ -1267,8 +1267,15 @@ Durch den Enum ```FlashDataType``` der mit in die Funktion gegeben wird,  hat je
 fest definierten Sektor im frei verfügbaren Bereich des SPI Flashs zugewiesen.
 Je nachdem welcher Wert gelesen oder geschrieben wird unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range,
  damit Werte sich nicht gegenseitig überschreiben können.
-Vor jedem Schreibvorgang wird mithilfe ``` spi_flash_erase_sector(startSector)``` zuerst der entsprechende Bereich gelöscht, 
-und bei Erfolg: ``` SPI_FLASH_RESULT_OK``` mithilfe der Funktion ```*spi_flash_write``` überschrieben.
+Vor jedem Schreibvorgang wird mithilfe ``` spi_flash_erase_sector(startSector)``` vor dem Schreibvorgang der entsprechende Bereich gelöscht.
+Bei Erfolg; also ``` SPI_FLASH_RESULT_OK``` wird die Adresse mithilfe der Funktion ```spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
+ value, sizeof(value));``` ausgehend vom festgelegten ```startSector``` (zwischen den Speicheradressen 0x40200000 und 0x405FB000), 
+ in Höhe einer festgelegten ```SPI_FLASH_SEC_SIZE``` von 4096bytes mit dem ```value``` und dessen tatsächlicher Größe ```sizeof(value)``` überschrieben. 
+                                                                    					 
+ überschrieben.
+
+_FS_END 
+#define _FS_RANGE 0x40200000
 
 <a name="easy_grow"></a>
 ## 10. Easy Grow Projekt
