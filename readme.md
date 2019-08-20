@@ -1265,7 +1265,7 @@ void flash_write(void *value, FlashDataType dataType)
 So wird beispielsweise beim Schreiben eines Wertes zunächst der entsprechende Startsektor für die jeweilige Variable ausgewählt. 
 Durch den Enum ```FlashDataType``` der mit in die Funktion gegeben wird,  hat jede Variable einen
 fest definierten Sektor im frei verfügbaren Bereich des SPI Flashs zugewiesen.
-Je nachdem welcher Wert gelesen oder geschrieben wird unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range,
+Je nachdem welcher Wert gelesen oder geschrieben wird, unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range,
  damit Werte sich nicht gegenseitig überschreiben können.
 Vor jedem Schreibvorgang wird mithilfe ``` spi_flash_erase_sector(startSector)``` vor dem Schreibvorgang der entsprechende Bereich gelöscht.
 Bei Erfolg; also ``` SPI_FLASH_RESULT_OK``` wird die Adresse mithilfe der Funktion ```spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
