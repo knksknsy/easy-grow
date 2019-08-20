@@ -378,7 +378,46 @@ Die Toolchain befindet sich im Pfad ```<path>/ESP/xtensa-lx106-elf``` wohingegen
 
 <a name="eclipse"></a>
 ### 5.1 Eclipse IDE
-TODO @Tim
+
+Um eine gemeinsame Enwicklungs-Umgebung innerhalb des Teams zu schaffen, wurde die Eclipse IDE gewählt. Diese bietet
+ eine grafische Oberfläche zum Schreiben, Kompillieren und Debuggen von ESP8266_RTOS_SDK Projekten in C.
+Nach dem Download des plattformabhängig richtigen Installers von https://www.eclipse.org/downloads/ sollte beim ersten Start "Eclipse for C/C++ Development (CDT)" ausgewählt werden.
+Um die Entwickluns-Umgebung initial zu konfigurieren sind die folgenden Schritte notwendig, welche einer offiziellen ausführlichen Anleitung von Espressif unter 
+https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup.html entnommen wurden.
+
+***Die folgenden Schritte beschreiben die in diesem Projekt angewandte Nutzung unter Mac/OSx. 
+Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem Link gefunden werden: https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup-windows.html#eclipse-windows-setup***
+
+**Projekt importieren/anlegen**
+
+1. In Eclipse über File -> Import entweder das idf-Template von github oder eines der Beispiele im Unterverzeichnis ESP8266_RTOS_SDK/examples auswählen.
+2. Im aufpoppenden Dialog "C/C++" und -> "Existing code as Makefile Projekt" auswählen und "Next" klicken
+3. Auf der nächsten Seite "Existing Code Location" als Verzeichnis auswählen. Hier soll nicht der Pfad zum ESP8266_RTOS_SDK Verzeichnis selbst stehen, der später erst gebraucht wird. Das angegebene Verzeichnis sollte eine Datei namens "Makefile" enthalten.
+4. Auf der selben Seite unter "Toolchain for Indexer Settings" "Cross GCC auswählen", dann "Finish" klicken.
+
+
+**Projekt Einstellungen**
+
+Das neue Projekt wird im Projekt-Explorer angezeigt. 
+
+1. Auf das neu importierte Projekt im Explorer rechts klicken und "Properties" auswählen.
+2. Unter "Environment" auf "C/C++ Build" klicken und "Add.." auswählen. 
+3. ``BATCH_BUILD`` mit dem Wert 1 eintragen`
+4. Erneut "Add.." klicken und ``IDF_PATH`` hinzufügen. Der Wert sollte der vollständige Pfad sein, in dem das ESP8266_RTOS_SDK installiert ist.
+5. Die Umgebungsvariable ``PATH`` bearbeiten und hier den Pfad zur Xtensa-Toolchain angeben (Welche im Rahmen des ESP8266_RTOS_SDK-Setups installiert wurde),
+falls dieser noch nicht bereits im ``PATH`` aufgeführt wird. Ein typischer Pfad zur Toolchain könnte so aussehen: ```/home/user-name/esp/xtensa-lx106-elf/bin```.
+Vor dem angehängten Pfad muss ein Doppelpunkt angehängt werden.
+6. Erneut "Add.." betätigen und die Umgebungsvariable ```PYTHONPATH``` mit dem Wert ```/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages``` hinzufügen.
+Somit überschreibt das systemseitig installierte Python alle in Eclipse vorkommenden Instanzen von Python.
+
+<img src="images/paths.png" alt="Setting Paths" width="100%">
+
+Anschließend zum Reiter "C/C++ General" - "Preprocessor Include Paths" navigieren. 
+
+1. In den Providers Tab wechseln.
+2. In 
+
+
 
 <a name="esp_idf"></a>
 ### 5.2 ESP IDF
@@ -1246,7 +1285,7 @@ image: mirohero/docker-esp8266
 ```
 Für den Bau einer GitLab-Build-Pipeline würde sich im Normalfall ebenfalls Docker zum Bau gut eignen. 
 Da die MI-Gitlab Pipeline jedoch das Bauen eines Docker-in-Docker Images nicht unterstützt, wurde sie mit diesem Befehl so konfiguriert, dass sie ein 
-im Docker Hub bereitgestelltes Image pullt, welches alle benötigten Abhängigkeiten des esp8266 enthält.
+im Docker Hub bereitgestelltes Image (https://hub.docker.com/r/mirohero/docker-esp8266) pullt, welches alle benötigten Abhängigkeiten des esp8266 enthält.
 
 **(2)** SDK Test Stage
 ```yaml
