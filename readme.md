@@ -1752,7 +1752,7 @@ DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzw
 
 
 <a name="eg_func_server_gui"></a>
-##### 10.5.5 Bedienung der Weboberflächen
+#### 10.5.5 Bedienung der Weboberflächen
 
 Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen steuern. 
 Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
@@ -1764,20 +1764,28 @@ Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.
 Nach der automatischen Weiterleitung bei Auswahl des ```EasyGrow_Initial_Config``` Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet.
 Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. 
 In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld ``Wlan-Name`` als ausgewählt dargestellt wird.
-Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:
+Über das Feld ``Passwort eingeben`` lässt sich im Anschluss das benötigte Wifi Passwort eingeben. 
+Die darunterliegenden Buttons bieten die folgende Funktionalität:
 
-**(1)** Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus
+**(1)** Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups & Wechsel in den Station Modus.
 
 **(2)** Öffnen der Access Point Ansicht (Steuerung des Systems)
 
 **(3)** Öffnen der Systemdokumentation
+
+#####WICHTIG für Punkt 1: 
+Nach dem Absenden der Credentials schließt sich das ```EasyGrow_Initial_Config``` Netzwerk. Falls es weiterhin auftaucht, wurde vermutlich etwas falsch eingegeben und das Setup muss von vorne begonnen werden.
+Falls nicht, verbindet man sein Endgerät nun mit dem zuvor eingegebenen Netzwerk. 
+Die IP-Adresse des ESP im Netzwerk kann nicht mehr übermittelt werden, weswegen sie herausgefunden werden muss.
+Dies lässt sich bei vielen Netzanbietern über das Router-Menü tun. (meist 192.168.1.1 oder 192.168.2.1). Alternativ lassen sich Apps wie Fing
+(https://play.google.com/store/apps/details?id=com.overlook.android.fing&hl=de) verwenden. Sobald die richtige IP-Adresse gefunden wurde, muss sie nur noch im Browser der Wahl eingegeben werden.
 
 
 <a name="eg_func_server_gui-ap"></a>
 ##### 10.5.5.2 Access-Point Webseite
 <img src="images/overview-mockup.png" width="100%">
 
-Nach Klick auf den Button AP-Mode in der vorherigen Ansicht gelangt man auf diese Ansicht, die Access-Point Webseite. 
+Nach Klick auf den Button AP-Mode in der vorherigen Ansicht oder nach erfolgreicher Verbindung zum Heimnetzwerk und Eingabe der IP-Adresse des ESP im Browser, gelangt man auf diese Ansicht, die Access-Point Webseite. 
 Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. 
 Die angzeigten Werte werden durch einen Reload der Webseite, alle 5 Sekunden aktualisiert.
 

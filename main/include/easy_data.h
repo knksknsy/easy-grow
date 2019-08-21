@@ -62,7 +62,7 @@ static  char *WEBPAGE_HEAD =
 
 static  char *WEBPAGE_MOISTURE =
 {
-	"<meta http-equiv='Refresh' content='5; url=192.168.4.1' />"
+	"<meta http-equiv='Refresh' content='5' />"
 	"<h2>Easy Grow</h2>"
 	"<div class='panel'>"
 		"<p>Gew&auml;hlte Feuchtigkeit:  <meter max= 3.0 min= 0.0 value='%d'></meter><span>&nbsp;%s</span></p>"
@@ -105,7 +105,6 @@ static  char *WEBPAGE_NEW_CONFIG =
 		    "<button type='submit' value='Abschicken'>Abschicken</button>"
 		    "<button onclick=\"location.href='/ap'\" type='button'>AP Mode</button>"
 			"<button onclick=\"location.href='/docu'\" type='button'>Documentation</button>"
-			"<button onclick=\"location.href='/reset'\" type='button'>Reset</button>"
 		"</form>"
 	"</div>"
 		"<script type='text/javascript'>"
