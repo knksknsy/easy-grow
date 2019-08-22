@@ -126,7 +126,13 @@ Für den HTTP-Server wird zusätzlich die netconn API von LwIP genutzt (https://
 <a name="make_documentation"></a>
 ## 2. Erstellen der Dokumentation mit 'make'
 
-```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet.
+```make documentation``` bietet die Möglichkeit die aktuelle Dokumentation aus der Datei ```readme.md``` 
+in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. 
+Für die Erstellung des HTMLs wird [Pandoc](https://pandoc.org/) benötigt. Der Benutzer kann sich somit 
+die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. 
+Jedoch werden Bilder dabei nicht abgebildet. Leider war das erstellte Dokument im Fall unserer Dokumentation viel zu groß
+für die geringe Speichergröße des ESP was zu einem Overflow und Absturz führte. Daher wird über die Seite 'Dokumentation' 
+nun auf dieses GitLab Repository verwiesen.
 
 <a name="esp8266"></a>
 ## 3. ESP8266 Mikrocontroller
@@ -1769,7 +1775,7 @@ In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine 
 
 **(2)** Öffnen der Access Point Ansicht (Steuerung des Systems)
 
-**(3)** Öffnen der Systemdokumentation
+**(3)** Öffnen der Systemdokumentation (Die Anzeige dieser gesamten Dokumentation war durch den kleinen Gerätespeicher leider nicht möglich. Daher wird über einen Link auf diese GitLab Seite verwiesen.)
 
 
 <a name="eg_func_server_gui-ap"></a>
