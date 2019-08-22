@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html>
+<head>
+      <meta charset='utf-8'>
+      <meta name='generator' content='pandoc'>
+      <meta name='viewport' content='width=device-width, initial-scale=1.0, user-scalable=yes'>
+      <title>Documentation</title>
+      <style type='text/css'>code{white-space: pre;}</style>
+      <style type='text/css'>
+    div.sourceCode { overflow-x: auto; }
+    table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
+      margin: 0; padding: 0; vertical-align: baseline; border: none; }
+    table.sourceCode { width: 100%; line-height: 100%; }
+    td.lineNumbers { text-align: right; padding-right: 4px; padding-left: 4px; border-right: 1px solid #aaaaaa; }
+    td.sourceCode { padding-left: 5px; }
+    code > span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code > span.dt { color: #902000; } /* DataType */
+    code > span.dv { color: #40a070; } /* DecVal */
+    code > span.bn { color: #40a070; } /* BaseN */
+    code > span.fl { color: #40a070; } /* Float */
+    code > span.ch { color: #4070a0; } /* Char */
+    code > span.st { color: #4070a0; } /* String */
+    code > span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code > span.ot { color: #007020; } /* Other */
+    code > span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code > span.fu { color: #06287e; } /* Function */
+    code > span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code > span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+    code > span.cn { color: #880000; } /* Constant */
+    code > span.sc { color: #4070a0; } /* SpecialChar */
+    code > span.vs { color: #4070a0; } /* VerbatimString */
+    code > span.ss { color: #bb6688; } /* SpecialString */
+    code > span.im { } /* Import */
+    code > span.va { color: #19177c; } /* Variable */
+    code > span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code > span.op { color: #666666; } /* Operator */
+    code > span.bu { } /* BuiltIn */
+    code > span.ex { } /* Extension */
+    code > span.pp { color: #bc7a00; } /* Preprocessor */
+    code > span.at { color: #7d9029; } /* Attribute */
+    code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+      </style>
+      <!--[if lt IE 9]>
+        <script src='//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js'></script>
+      <![endif]-->
+    </head>
+<body>
+<h1 id='easy-grow-dokumentation'>Easy Grow Dokumentation</h1>
+<p>Easy Grow ist ein automatisches Bewässerungssystem für Pflanzen. Das System bietet drei verschiedene, vordefinierte Einstellungsmöglichkeiten für den Grad der Erdfeuchtigkeit. Diese Einstellungen können direkt über das System oder über ein Heimnetzwerk mittels einer Web-Applikation vorgenommen werden. Das Bewässerungssystem hält die Erdfeuchtigkeit über den ganzen Tag feucht und unterstützt somit die Langlebigkeit der Pflanzen.</p>
+<div style='width:100%; margin:0 20px 0 20px; text-align:center;'>
+    <img src='images/mockup.png' width='100%'>
+    </div>
+</div>
+<h2 id='externe-komponenten'>Externe Komponenten</h2>
+<p>Dieses Projekt nutzt Teile des DNS Servers aus der freien Quelle <code>libesphttpd</code>. In der Datei <code>easy_dns.c</code> ist die Lizenz und der Author vermerkt, weitere Informationen sowie das Original finden sich unter https://github.com/Spritetm/libesphttpd/blob/master/util/captdns.c.</p>
+<p>Für den HTTP-Server wird zusätzlich die netconn API von LwIP genutzt (https://www.nongnu.org/lwip/2_0_x/index.html) ## Inhaltsverzeichnis - <a href='#features'>1. Features</a> - <a href='#make_documentation'>2. Erstellen der Dokumentation mit make</a> - <a href='#esp8266'>3. ESP8266 Mikrocontroller</a> * <a href='#nodemcu'>3.1 NodeMCU Plattform</a> * <a href='#digital_io'>3.2 Digitale I/O</a> + <a href='#restrictions'>3.2.1 Spannungs- und Strombegrenzungen</a> + <a href='#usable_pins'>3.2.2 Verwendbare Pins</a> + <a href='#boot_modes'>3.2.3 Boot-Modi</a> + <a href='#pull_up_down'>3.2.4 Interne Pull-Up/-Down-Widerstände</a> * <a href='#pwm'>3.3 Pulsweitenmodulation</a> * <a href='#analog_input'>3.4 Analogeingang</a> * <a href='#communication'>3.5 Kommunikation</a> + <a href='#serial'>3.5.1 Serial</a> + <a href='#i2c'>3.5.2 I2C</a> + <a href='#spi'>3.5.3 SPI</a> * <a href='#gpio_mapping_esp'>3.6 NodeMCU GPIO-Mapping auf ESP8266</a> - <a href='#sw_env'>4. Aufsetzen der Softwareumgebung</a> * <a href='#tool_docker'>4.1 ESP8266 Toolchain-Setup mit Docker</a> + <a href='#inst_docker'>4.1.1 Installation von Docker</a> - <a href='#inst_docker_mac'>4.1.1.1 MacOS</a> - <a href='#inst_docker_win'>4.1.1.2 Windows</a> + <a href='#build_docker'>4.1.2 Bauen des Docker-Images</a> + <a href='#serial_port'>4.1.3 Freigeben des seriellen Ports vom Hosts zum Docker-Container</a> - <a href='#serial_port_mac'>4.1.3.1 MacOS</a> - <a href='#serial_port_windows'>4.1.3.2 Windows</a> + <a href='#cont_docker'>4.1.4 Ausführen des Docker-Containers</a> - <a href='#cont_docker_mac'>4.1.4.1 MacOS</a> - <a href='#cont_docker_win'>4.1.4.2 Windows</a> * <a href='#local'>4.2 ESP8266 Toolchain-Setup auf einer lokalen Maschine (Nur MacOS)</a> - <a href='#idf_config'>5. Konfiguration des Espressif IoT Development Frameworks</a> * <a href='#eclipse'>5.1 Eclipse IDE</a> * <a href='#esp_idf'>5.2 ESP IDF</a> - <a href='#make'>6. File includes mit make</a> * <a href='#flash_argumente'>6.1 Flash-Argumente</a> - <a href='#build'>7. Bauen, Flashen und Monitoring</a> - <a href='#led_example'>8. Bauen und Flashen des LED-Beispiels</a> - <a href='#rtos_sdk'>9. ESP8266 RTOS SDK</a> * <a href='#rtos_overview'>9.1 Überblick</a> * <a href='#rtos_concept'>9.2 Konzepte</a> * <a href='#example_project'>9.3 Beispiel Projekt</a> * <a href='#rtos_xtasks'>9.4 Tasks</a> + <a href='#rtos_xtasks_impl'>9.4.1 Implementierung</a> + <a href='#rtos_xtasks_usage'>9.4.2 Verwendung im Projekt</a> * <a href='#rtos_gpio'>9.5 GPIO</a> + <a href='#rtos_gpio_conf'>9.5.1 Konfiguration</a> + <a href='#rtos_gpio_isr'>9.5.2 Interrupt Service Routine</a> + <a href='#rtos_gpio_analog'>9.5.3 Analogeingang</a> * <a href='#rtos_timer'>9.6 Timer</a> * <a href='#rtos_wifi'>9.7 WiFi</a> + <a href='#rtos_wifi_event'>9.7.1 Event Handler</a> + <a href='#rtos_wifi_init'>9.7.2 Initialisierung und Einstellung des Modus</a> + <a href='#rtos_wifi_connect'>9.7.3 Konfiguration und Verbindung</a> + <a href='#rtos_wifi_scan'>9.7.4 Nach verfügbaren Access Points scannen</a> * <a href='#rtos_http_server'>9.8 HTTP Server</a> + <a href='#rtos_http_server_connect'>9.8.1 Eine (TCP-) Verbindung eröffnen</a> + <a href='#rtos_http_server_recv'>9.8.2 Eingehende Verbindungsanfragen abfangen</a> + <a href='#rtos_http_server_send'>9.8.3 Daten über eine TCP-Verbindung senden</a> + <a href='#rtos_http_server_close'>9.8.4 Verbindungen beenden</a> * <a href='#rtos_flash'>9.9 Schreiben und Lesen des Flash-Speichers</a> - <a href='#easy_grow'>10. Easy Grow Projekt</a> * <a href='#eg_hardware'>10.1 Hardware-Komponenten</a> * <a href='#stromversorgung'>10.2 Stromversorgung</a> + <a href='#stromvebrauch'>10.2.1 Stromverbrauch</a> + <a href='#batteriebetrieb'>10.2.2 Batteriebetrieb</a> * <a href='#eg_gpio'>10.3 GPIO-Mapping</a> * <a href='#eg_circuit'>10.4 Schaltbild</a> * <a href='#eg_functionality'>10.5 Funktionsweise</a> + <a href='#eg_func_hw_logic'>10.5.1 Hardware-Logik</a> - <a href='#eg_func_hw_logic_set_moisture'>10.5.1.1 Einstellung der Erdfeuchtigkeit</a> - <a href='#eg_func_hw_logic_read_moisture'>10.5.1.2 Messung der Erdfeuchtigkeit</a> - <a href='#eg_func_hw_logic_watering'>10.5.1.3 Bewässerung der Pflanze</a> - <a href='#eg_func_hw_logic_sun_hours'>10.5.1.4 Aufzeichnung der Sonnenstunden</a> - <a href='#eg_func_hw_logic_pap'>10.5.1.5 Programmablaufplan</a> + <a href='#eg_func_ap'>10.5.2 Access-Point / WiFi-Manager</a> - <a href='#eg_func_ap_with_creds'>10.5.2.1 Start mit gespeicherten Credentials</a> - <a href='#eg_func_ap_without_creds'>10.5.2.2 Start ohne gespeicherte Credentials</a> + <a href='#eg_func_server'>10.5.3 Webserver</a> - <a href='#eg_func_server_start'>10.5.3.1 Starten des Webserver-Tasks</a> - <a href='#eg_func_server_page'>10.5.3.2 Webpage vorbereiten und senden</a> - <a href='#eg_func_server_interact'>10.5.3.3 Interaktionen auf der Webpage</a> + <a href='#eg_func_dns'>10.5.4 Easy_DNS</a><br />
+    + <a href='#eg_func_server_gui'>10.5.5 Bedienung der Weboberflächen</a><br />
+    - <a href='#eg_func_server_gui-initial'>10.5.5.1 Setupwebseite</a> - <a href='#eg_func_server_gui-ap'>10.5.5.2 Access-Point Webseite</a> * <a href='#git'>10.6 Git / CICD</a> - <a href='#git-cicd'>10.6.1 Continuous Integration</a> * <a href='#eg_design'>10.7 Produktdesign</a> - <a href='#changelog'>11. Changelog</a> <!-- toc --></p>
+<p><a name='features'></a> ## 1. Features</p>
+<ul>
+    <li><p>Gießen der Pflanze (Automatisiert und Manuell)</p></li>
+    <li><p>Einstellen der gewünschten Feuchtigkeit</p></li>
+    </ul>
+<p><img src='images/crop_states.gif'  width='500'></p>
+<ul>
+    <li>Verbinden zum heimischen WLAN oder Steuerung über eigenes WiFi-Netzwerk</li>
+    </ul>
+<p><img src='images/wifi_all.gif' width='500'></p>
+<ul>
+    <li>Darstellung einer Übersichtswebseite mit gewünschter und derzeitiger Feuchtigkeit
+        </p></li>
+    </ul>
+<p><img src='images/wifi_setup.gif' width='500'></p>
+<p><a name='make_documentation'></a> ## 2. Erstellen der Dokumentation mit 'make'</p>
+<p><code>make documentation</code> bietet die Möglichkeit die aktuelle Dokumentation aus der Datei <code>readme.md</code> in ein HTML-File umzuwandeln und diese im Anschluss auf einer Webseite des ESP anzuzeigen. Für die Erstellung des HTMLs wird <a href='https://pandoc.org/'>Pandoc</a> benötigt. Der Benutzer kann sich somit die aktuelle Dokumentation des Projekts in dem produktiven System anzeigen lassen. Jedoch werden Bilder dabei nicht abgebildet. Leider war das erstellte Dokument im Fall unserer Dokumentation viel zu groß für die geringe Speichergröße des ESP was zu einem Overflow und Absturz führte. Daher wird über die Seite 'Dokumentation' nun auf dieses GitLab Repository verwiesen.</p>
+<p><a name='esp8266'></a> ## 3. ESP8266 Mikrocontroller</p>
+<p>Der ESP8266 ist ein System on a Chip (SoC), hergestellt von der chinesischen Firma Espressif. Es besteht aus einer Tensilica L106 32-Bit Mikrocontroller-Einheit (MCU) und einem Wi-Fi-Transceiver. Es verfügt über 11 GPIO-Pins (General Purpose Input/Output Pins) und einen Analogeingang. Es kann wie jeder andere Mikrocontroller programmiert werden.</p>
+<p>Die Wi-Fi-Kommunikation kann genutzt werden, um sich mit einem Heimnetzwerk zu verbinden, einen Webserver mit echten Webseiten zu hosten und Smartphones mit ihm verbinden zu lassen.</p>
+<p><a name='nodemcu'></a> ### 3.1 NodeMCU Plattform</p>
+<p>ESP8266 ist nur der Name des Chips, viele Unternehmen haben ihre eigenen Boards entwickelt, die diesen Chip verwenden, so dass es viele verschiedene EESP8266 Boards auf dem Markt gibt. In diesem Projekt wurde die NodeMCU Plattform verwendet und im Weiteren die Eigenschaften und Funktionalitäten näher beschrieben.</p>
+<p>Die Features des NodeMCU Development Boards sind folgende: - “USB-to-Serial Converter” zur Programmierung - 3,3 V-Regler für die Stromversorgung - On-Board-LEDs zum Debuggen - Spannungsteiler zur Skalierung des Analogeingangs - Einen Flash-Speicher mit 4 MB Kapazität</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: center;'><strong>GPIO</strong></th>
+        <th style='text-align: center;'><strong>3,3V Vreg</strong></th>
+        <th style='text-align: center;'><strong>USB-to-Serial</strong></th>
+        <th style='text-align: center;'><strong>Auto-Reset</strong></th>
+        <th style='text-align: center;'><strong>Auto-Program</strong></th>
+        <th style='text-align: center;'><strong>Flash</strong></th>
+        <th style='text-align: center;'><strong>ADC Range</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: center;'>11</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>4MB (32Mb)</td>
+        <td style='text-align: center;'>0-3,3 V</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Dieses Board wird im Gerätemanager (Windows) oder in <code>lsusb</code> (Linux) angezeigt, sobald es angeschlossen wird. Es verfügt über einen integrierten 3,3 V-Regler und kann direkt über USB programmiert werden, so dass keine externen Komponenten benötigt werden, um es zu betreiben.</p>
+<p>Der ESP8266 sollte mit maximal 3,3 V betrieben werden, da es bei einem 5V-Netzteil zerstört wird. Die I/O-Pins des ESP8266 sind nicht 5 V tolerant und werden ebenfalls bei einer 5 V Spannung zerstört. Der ESP8266 kann zudem nur 12 mA pro Ausgangspin erzeugen oder absenken.</p>
+<p>Des Weiteren teilt der ESP8266 die Systemressourcen und die CPU-Zeit zwischen ihren „Sketches“ und dem Wi-Fi-Treiber. Auch Features wie Pulsweitenmodulation (PWM), Interrupts oder I2C werden in der Software emuliert.</p>
+<p><a name='digital_io'></a> ### 3.2 Digitale I/O</p>
+<p>Der ESP8266 verfügt über digitale Ein-/Ausgangspins (I/O oder GPIO, General Purpose Input/Output Pins). Sie können als digitale Eingänge zum Lesen einer digitalen Spannung oder als digitale Ausgänge, entweder 0 V (Senkstrom) oder 3,3 V (Quellenstrom), verwendet werden.</p>
+<p><a name='restrictions'></a> #### 3.2.1 Spannungs- und Strombegrenzungen</p>
+<p>Der ESP8266 ist ein 3,3 V Mikrocontrollern, so dass seine GPIOs auch mit 3,3 V arbeiten. Die Pins sind nicht 5 V tolerant, wenn mehr als 3,6 V auf einen Pin angewendet werden, wird der Chip zerstört. Der maximale Strom, der von einem einzelnen GPIO-Pin bezogen werden kann, beträgt 12 mA.</p>
+<p><a name='usable_pins'></a> #### 3.2.2 Verwendbare Pins</p>
+<p>Der ESP8266 hat 17 GPIO-Pins (0-16), von denen jedoch nur 11 verwendet werden können, da 6 Pins (GPIO 6-11) zum Anschluss des Flash-Speicherchips verwendet werden. Dies ist der kleine 8-beinige Chip direkt neben dem ESP8266. Wenn diese Pins verwendet werden, kann dieser Zugriff das Programm zum Absturz bringen.</p>
+<p>GPIO 1 und 3 werden als TX und RX der seriellen Hardware-Schnittstelle (UART) verwendet, so dass sie in den meisten Fällen nicht als normale I/O beim Senden/Empfangen serieller Daten verwendet werden können.</p>
+<p><a name='boot_modes'></a> #### 3.2.3 Boot-Modi</p>
+<p>Einige I/O-Pins haben eine spezielle Funktion beim Booten. Sie wählen einen von 3 Boot-Modi:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>GPIO15</strong></th>
+        <th style='text-align: left;'><strong>GPIO0</strong></th>
+        <th style='text-align: left;'><strong>GPIO2</strong></th>
+        <th style='text-align: left;'><strong>Modus</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'>0 V</td>
+        <td style='text-align: left;'>0 V</td>
+        <td style='text-align: left;'>3,3 V</td>
+        <td style='text-align: left;'>UART Bootloader</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>0 V</td>
+        <td style='text-align: left;'>3,3 V</td>
+        <td style='text-align: left;'>3,3 V</td>
+        <td style='text-align: left;'>Boot Sketch<br>(SPI Flash)</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>3,3 V</td>
+        <td style='text-align: left;'>X</td>
+        <td style='text-align: left;'>X</td>
+        <td style='text-align: left;'>SDIO Modus</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Diese Bedingungen werden erfüllt, in dem zusätzliche Widerstände durch den Leiterplattenhersteller des NodeMCUs eingebaut wurden. Dies hat jedoch einige Auswirkungen:</p>
+<ul>
+    <li>GPIO15 ist immer low gezogen, so dass der interne Pull-Up-Widerstand nicht verwendet werden kann. Dies muss beachtet werden, sobald der GPIO 15 als Eingang verwendet wird um einen Schalter zu lesen oder an ein Gerät mit einen Open-Collector-Ausgang oder einen Open-Drain-Ausgang angeschlossen wird, wie z.B. I2C.</li>
+    <li>GPIO0 wird im Normalbetrieb auf high gezogen, so dass es nicht als Hi-Z-Eingang verwendet werden kann.</li>
+    <li>GPIO2 kann beim Booten nicht auf low sein, so dass kein Schalter daran angeschlossen werden kann</li>
+    </ul>
+<p><a name='pull_up_down'></a> #### 3.2.4 Interne Pull-Up/-Down-Widerstände</p>
+<p>GPIO 0-15 haben alle einen eingebauten Pull-Up-Widerstand. GIPO 16 hat einen eingebauten Pull-Down-Widerstand.</p>
+<p><a name='pwm'></a> ### 3.3 Pulsweitenmodulation</p>
+<p>Der ESP8266 unterstützt keine Hardware-PWM, jedoch wird Software-PWM auf allen digitalen Pins unterstützt. Der Standard-PWM-Bereich beträgt 10 Bit bei 1 kHz. Der Bereich kann aber bis zu 14 Bit bei 1 kHz verändert werden.</p>
+<p><a name='analog_input'></a> ### 3.4 Analogeingang</p>
+<p>Der ESP8266 verfügt über einen einzigen Analogeingang mit einem Eingangsbereich von 0-1 V. Wenn eine Spannung von 3,3 V geliefert wird, kann der Chip beschädigt werden. Der NodeMCU hat einen integrierten resistiven Spannungsteile, um einen Bereich von 0-3,3 V zu erhalten. Es kann zudem ein Trimpot als Spannungsteiler verwendet werden. Der ADC (Analog-Digital-Wandler) hat eine Auflösung von 10 Bit.</p>
+<p><a name='communication'></a> ### 3.5 Kommunikation</p>
+<p><a name='serial'></a> #### 3.5.1 Serial</p>
+<p>Der ESP8266 verfügt über zwei Hardware-UARTS (Serielle Schnittstellen):</p>
+<p>UART0 an den Pins 1 und 3 (TX0 bzw. RX0) und UART1 an den Pins 2 und 8 (TX1 bzw. RX1), jedoch wird GPIO 8 zum Anschluss des Flash-Speicherchips verwendet. Das bedeutet, dass UART1 nur Daten übertragen kann.</p>
+<p>UART0 hat auch eine Hardware-Flusskontrolle an den Pins 15 und 13 (RTS0 bzw. CTS0). Diese beiden Pins können auch als alternative TX0- und RX0-Pins verwendet werden.</p>
+<p><a name='i2c'></a> #### 3.5.2 I2C</p>
+<p>Der ESP hat keine Hardware TWI (Two Wire Interface), ist aber in Software implementiert. Das bedeutet, dass so ziemlich alle zwei digitalen Pins verwendet werden können. Standardmäßig verwendet die I2C-Bibliothek Pin 4 als SDA und Pin 5 als SCL. Die maximale Geschwindigkeit beträgt ca. 450 kHz.</p>
+<p><a name='spi'></a> #### 3.5.3 SPI</p>
+<p>Der ESP8266 verfügt über einen SPI-Anschluss, der dem Benutzer zur Verfügung steht, der als HSPI bezeichnet wird. Es verwendet GPIO14 als CLK, 12 als MISO, 13 als MOSI und 15 als Slave Select (SS). Es kann sowohl im Slave- als auch im Master-Modus (in der Software) verwendet werden.</p>
+<p><a name='gpio_mapping_esp'></a> ### 3.6 NodeMCU GPIO-Mapping auf ESP8266</p>
+<p><img src='images/nodemcu.png' alt='NodeMCU GPIO-Mapping auf ESP8266'></p>
+<p><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /> = Zur Verwendung empfohlen</p>
+<p><img src='https://via.placeholder.com/15/FFCC00/808080?text=+' /> = Kann zu unerwartetes Verhalten führen (vor allem beim Booten)</p>
+<p><img src='https://via.placeholder.com/15/FF0000/808080?text=+' /> = Nicht zur Verwendung empfohlen</p>
+<table style='width:35%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Label</strong></th>
+        <th style='text-align: left;'><strong>GPIO</strong></th>
+        <th style='text-align: left;'><strong>Input</strong></th>
+        <th style='text-align: left;'><strong>Output</strong></th>
+        <th style='text-align: left;'><strong>Bemerkung</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'>D0</td>
+        <td style='text-align: left;'>16</td>
+        <td style='text-align: left;'>Kein Interrupt</td>
+        <td style='text-align: left;'>Kein PWM oder I2C Support</td>
+        <td style='text-align: left;'>HIGH beim Boot.<br>Wird verwendet um vom Deep-Sleep aufzuwecken.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D1</td>
+        <td style='text-align: left;'>5</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>Oft als SCL (I2C) verwendet.</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D2</td>
+        <td style='text-align: left;'>4</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>Oft als SCL (I2C) verwendet.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D3</td>
+        <td style='text-align: left;'>0</td>
+        <td style='text-align: left;'>Pulled UP</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>Verbunden mit dem FLASH-Taster.<br>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D4</td>
+        <td style='text-align: left;'>2</td>
+        <td style='text-align: left;'>Pulled UP</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>HIGH beim Boot.<br>Mit dem On-Board-LED verbunden.<br>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D5</td>
+        <td style='text-align: left;'>14</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>SPI (SCLK)</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D6</td>
+        <td style='text-align: left;'>12</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>SPI (MISO)</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D7</td>
+        <td style='text-align: left;'>13</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /></td>
+        <td style='text-align: left;'>SPI (MOSI)</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D8</td>
+        <td style='text-align: left;'>15</td>
+        <td style='text-align: left;'>Pulled to GND</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FFCC00/808080?text=+' /></td>
+        <td style='text-align: left;'>SPI (CS)<br>Boot schlägt fehl wenn auf HIGH gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>RX</td>
+        <td style='text-align: left;'>3</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FFCC00/808080?text=+' /></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FF0000/808080?text=+' /><br>RX pin</td>
+        <td style='text-align: left;'>HIGH beim Boot.</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>TX</td>
+        <td style='text-align: left;'>1</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FF0000/808080?text=+' /><br>TX pin</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FFCC00/808080?text=+' /></td>
+        <td style='text-align: left;'>HIGH beim Boot.<br>Debug-Ausgabe beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>A0</td>
+        <td style='text-align: left;'>ADC0</td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/00FF00/808080?text=+' /><br></td>
+        <td style='text-align: left;'><img src='https://via.placeholder.com/15/FF0000/808080?text=+' /></td>
+        <td style='text-align: left;'>Analog Input</td>
+        </tr>
+    </tbody>
+    </table>
+<p><a name='sw_env'></a> ## 4. Aufsetzen der Softwareumgebung</p>
+<p>Das Projekt &quot;Easy Grow&quot; wurde mittels des ESP8266 RTOS Software Development Kits (ESP-IDF Style) entwickelt. In diesem Kapitel wird der Setup der Software-Umgebung beschrieben. Der Setup bezieht sich auf die Installation der Toolchain, um Applikationen für den ESP8266 Chip zu bauen, sowie die Installation des ESP8266 RTOS SDKs, welche die API für den ESP8266 und Scripte für den Betrieb der Toolchain beinhaltet. Das ESP8266 RTOS SDK basiert auf das Real-Time-Betriebssystem FreeRTOS für Embedded-Devices. Die Grundlagen hierfür werden im Kapitel <a href='#rtos_sdk'>9. ESP8266 RTOS SDK</a> behandelt.</p>
+<p>Um Anwendungen für ESP8266 zu entwickeln, wird folgendes benötigt:</p>
+<ul>
+    <li>PC, der mit einem Windows-, Linux- oder Mac-Betriebssystem ausgestattet ist.</li>
+    <li>Toolchain zur Entwicklung der Anwendung für ESP8266.</li>
+    <li>ESP8266 RTOS SDK, das die API für ESP8266 und die Toolchain enthält.</li>
+    <li>Das ESP8266-Board (NodeMCU) selbst und ein USB-Kabel zum Anschluss an den PC.</li>
+    </ul>
+<p><img src='images/what-you-need.png' alt='' width='500'></p>
+<p>Es stehen zwei Setup-Möglichkeiten zur Verfügung um die ESP8266 Software-Umgebung aufzusetzen:</p>
+<ol type='1'>
+    <li>Mittels eines Docker-Images (Linux Ubuntu 16.04 64bit)</li>
+    <li>Installation auf einer lokalen Maschine mittels eines Scripts (Nur MacOS)</li>
+    </ol>
+<p>Für die Installation wird Docker empfohlen.</p>
+<p><a name='tool_docker'></a> ### 4.1 ESP8266 Toolchain-Setup mit Docker</p>
+<p><a name='inst_docker'></a> #### 4.1.1 Installation von Docker</p>
+<p><a name='inst_docker_mac'></a> ##### 4.1.1.1 MacOs</p>
+<ol type='1'>
+    <li>Brew installieren: https://brew.sh</li>
+    <li>Docker Engine und Docker-Machine installieren:<br/><code>$ brew install docker</code></li>
+    <li>Cask zum Brew Tap hinzufügen:<br/><code>$ brew tap caskroom/cask</code></li>
+    <li>Docker Client installieren:<br/><code>$ brew cask install docker</code></li>
+    <li>Optional: Falls Virtualbox nach dem 2. Schritt fehlt. Virtualbox installieren mit:<br/><code>$ brew cask install virtualbox</code></li>
+    </ol>
+<p><a name='inst_docker_win'></a> ##### 4.1.1.2 Windows</p>
+<p>Folge den Anweisungen auf https://docs.docker.com/docker-for-windows.</p>
+<p><a name='build_docker'></a> #### 4.1.2 Bauen des Docker-Images</p>
+<p>Das Docker-Image muss nur einmal gebaut werden. Mit <code>$ docker images</code> kann überprüft werden, ob das Image bereits installiert wurde.</p>
+<p>Das Image muss nicht installiert werden, falls die Zeile <code>docker-esp8266</code> im Terminal ausgegeben wird.</p>
+<p>Falls <code>docker-esp8266</code> im Terminal nicht erscheint, müssen die folgenden Schritte ausgeführt werden:</p>
+<ol type='1'>
+    <li>Wechsle das Verzeichnis indem sich die <code>Dockerfile</code> befindet:<br/><code>$ cd &lt;project_path&gt;/docker</code></li>
+    <li>Baue das Docker-Image: <code>$ docker build -t docker-esp8266 .</code></li>
+    </ol>
+<p>Im 2. Schritt wird ein Ubuntu-Image gebaut und die vorausgesetzten Packages für den ESP8266 Toolchain installiert. Der Befehl führt nach der Ausführung einen Script aus, der die Toolchain installiert.</p>
+<p><a name='serial_port'></a> #### 4.1.3 Freigeben des seriellen Ports vom Hosts zum Docker-Container</p>
+<p><a name='serial_port_mac'></a> ##### 4.1.3.1 MacOS</p>
+<p>Für MacOS muss der &quot;CP210x USB to UART Bridge VCP&quot; Treiber installiert werden.</p>
+<p>Lade den Treiber herunter und folge den Anweisungen auf der Silicon Labs Website (https://www.silabs.com/products/development-tools/software/usb-to-uart-bridge-vcp-drivers).</p>
+<p>Überprüfe ob der Treiber erfolgreich installiert wurde. Die folgende Zeile <code>$ ls /dev/tty.*</code> sollte <code>/dev/tty.SLAB_USBtoUART</code> ausgeben.</p>
+<p>Die nächsten Schritte zeigen, wie ein serieller Port vom Host an den Docker-Container freigegeben werden kann. Hierfür muss zunächst ein Virtualbox Treiber für die Docker-Maschine erzeugt werden.</p>
+<ol type='1'>
+    <li><code>$ docker-machine create --driver virtualbox default</code></li>
+    <li>Überprüfe ob der Treiber erzeugt wurde: <code>$ docker-machine ls</code></li>
+    <li>Stoppe die Docker-Maschine: <code>$ docker-machine stop</code></li>
+    <li><p>Jetzt kann die VM konfiguriert und der serielle Port exportiert werden. Öffne die Virtualbox Anwendung. Wähle die 'default' VM aus und klicke auf den 'Settings' Button, um die USB Einstellungen vorzunehmen. <img src='images/virtualbox_default_settings.png' width='500' alt='Virtualbox 'default' VM Einstellungen'></p></li>
+    <li><p>Klicke auf 'Ports' und anschließend auf den 'USB' Tab. Aktiviere die 'Enable USB Controller' Checkbox. Wähle 'USB 2.0 (EHCI) Controller' aus. Füge einen USB Filter hinzu (USB Icon mit grünem Plus Symbol). Wähle den 'Silicon Labs CP2102 USB to UART Bridge Controller [0100]' Treiber aus. <img src='images/virtualbox_port_usb.png' width='500' alt='Virtualbox serieller Port'></p></li>
+    <li>Falls USB 2.0 nicht ausgewählt werden kann, muss der 'Oracle VM VirtualBox Extension Pack' installiert werden. Die Anweisungen für die Installation befindet sich hier: https://www.virtualbox.org/wiki/Downloads</li>
+    <li>Starte die Docker-Maschine mit: <code>$ docker-machine start</code></li>
+    <li><p>Es müssen einige Umgebungsvariablen gesetzt werden, damit Docker die VM verwendet anstelle des nativen Modus. Das <code>$ docker-machine env</code> Kommando gibt die notwendigen Schritte für das Setzen der Variablen an. Führe folgenden Befehl aus um diese zu setzen: <code>$ eval &quot;$(docker-machine env default)&quot;</code></p></li>
+    </ol>
+<p>Der serielle Port des Hosts ist nun vom Docker-Container aus ansprechbar.</p>
+<p><a name='serial_port_win'></a> ##### 4.1.3.2 Windows</p>
+<p>Leider gibt es bis auf Weiteres keine Unterstützung der 'Device Assignment' und 'Sharing Workloads' in Hyper-V-isolierte Windows Containern.</p>
+<p><a name='cont_docker'></a> #### 4.1.4 Ausführen des Docker-Containers</p>
+<p>Stelle sicher, dass Docker installiert, das <code>docker-esp8266</code> Image gebaut und der serielle Port des Hosts an den Docker-Container freigegeben wurde, bevor der Docker container gestartet werden soll.</p>
+<p>Es gibt zwei Möglichkeiten einen Container vom <code>docker-esp8266</code> Image zu instanziieren:</p>
+<ol type='1'>
+    <li>Über den <code>docker.sh</code> Script.<br/>(Nur MacOS)</li>
+    <li>Über den <code>docker run</code> Befehl.<br/>(Empfohlen für Windows)</li>
+    </ol>
+<p><a name='cont_docker_mac'></a> ##### 4.1.4.1 MacOS</p>
+<ol type='1'>
+    <li>Wechsle in den <code>docker</code> Ordner im Projektverzeichnis: <code>$ cd &lt;project_path&gt;/docker</code></li>
+    <li>Starte den Container mithilfe des Scripts: <code>$ ./docker.sh</code>. Dieses Script startet einen Container für das <code>docker-esp8266</code> Image. Das Script mountet zudem das Projektverzeichnis in das <code>/easy-grow</code> Verzeichnis des Containers. Zudem exportiert es den Hosts <code>/dev/ttyUSB0</code> Port an den Port <code>/dev/ttyUSB0</code> des Containers.</li>
+    </ol>
+<p><a name='cont_docker_win'></a> ##### 4.1.4.2 Windows</p>
+<p>Führe folgendes Befehl im Projektverzeichnis <code>&lt;project_path&gt;</code> aus:<br/> <code>docker run -ti --rm --name esp8266 -v &lt;project_path&gt;:/easy-grow docker-esp8266 /bin/bash</code></p>
+<p><a name='local'></a> ### 4.2 ESP8266 Toolchain-Setup auf einer lokalen Maschine (Nur MacOS)</p>
+<p>Wechsle in das <code>setup</code> Verzeichnis im Projektverzeichnis um die Softwareumgebung für den ESP8266 aufzusetzen. Dort befindet sich der <code>initial_setup.sh</code> Script, der folgendes automatisch aufsetzt:</p>
+<ul>
+    <li>Die Toolchain um Applikationen für den ESP8266 zu bauen.</li>
+    <li>Die ESP8266 RTOS SDK, die die API und Scripte beinhaltet um die Toolchain zu betreiben.</li>
+    </ul>
+<p>Übergebe das <code>--dir &lt;path&gt;</code> Argument, um die Softwareumgebung in einem beliebigen Verzeichnis zu installieren. Wird dieses Argument nicht gesetzt, wird standardmäßig die Softwareumgebung im <code>ESP</code> Ordner des Projektverzeichnis installiert.</p>
+<p>Die Toolchain befindet sich im Pfad <code>&lt;path&gt;/ESP/xtensa-lx106-elf</code> wohingegen die SDK sich im Pfad <code>&lt;path&gt;/ESP/ESP8266_RTOS_SDK</code> befindet.</p>
+<p>Öffne ein neues Terminalfenster und füge den folgende Befehl ein um das Setup zu starten: - Wechsle in das <code>setup</code> Verzeichnis im Projektpfad:<br><code>$ cd setup</code> - Führe den Script als ein User aus (nicht als Root):<br><code>$ ./initial-setup.sh</code> - Warte bis das Setup beendet ist. - Vergiss nicht dein <code>bash_profile</code> nach dem Setup zu sourcen:<br> <code>$ source ~/.bash_profile</code></p>
+<p><a name='idf_config'></a> ## 5. Konfiguration des Espressif IoT Development Frameworks</p>
+<p><a name='eclipse'></a> ### 5.1 Eclipse IDE</p>
+<p>Um eine gemeinsame Enwicklungsumgebung innerhalb des Teams zu schaffen, wurde die Eclipse IDE gewählt. Diese bietet eine grafische Oberfläche zum Schreiben, Kompillieren und Debuggen von ESP8266_RTOS_SDK Projekten in C. Nach dem Download des plattformabhängig richtigen Installers von https://www.eclipse.org/downloads/ sollte beim ersten Start &quot;Eclipse for C/C++ Development&quot; ausgewählt werden. Um die Entwicklunsumgebung initial zu konfigurieren sind die folgenden Schritte notwendig, welche einer offiziellen ausführlichen Anleitung von Espressif unter https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup.html entnommen wurden.</p>
+<p><strong><em>Die folgenden Schritte beschreiben die in diesem Projekt angewandte Nutzung unter Mac/OSx. Eine ausführliche Anleitung zur Konfiguration unter Windows kann unter diesem Link gefunden werden: https://docs.espressif.com/projects/esp8266-rtos-sdk/en/latest/get-started/eclipse-setup-windows.html#eclipse-windows-setup</em></strong></p>
+<h4 id='projekt-importierenanlegen'><strong>Projekt importieren/anlegen</strong></h4>
+<ol type='1'>
+    <li>In Eclipse über File -&gt; Import entweder das idf-Template von github oder eines der Beispiele im Unterverzeichnis ESP8266_RTOS_SDK/examples auswählen.</li>
+    <li>Im aufpoppenden Dialog &quot;C/C++&quot; und -&gt; &quot;Existing code as Makefile Projekt&quot; auswählen und &quot;Next&quot; klicken</li>
+    <li>Auf der nächsten Seite &quot;Existing Code Location&quot; als Verzeichnis auswählen. Hier sollte nicht der Pfad zum ESP8266_RTOS_SDK Verzeichnis selbst stehen, welcher erst später gebraucht wird. Das angegebene Verzeichnis sollte eine Datei namens &quot;Makefile&quot; enthalten.</li>
+    <li>Auf der selben Seite unter &quot;Toolchain for Indexer Settings&quot; &quot;Cross GCC auswählen&quot;, dann &quot;Finish&quot; klicken.</li>
+    </ol>
+<h4 id='projekt-in-eclipse-konfigurieren'><strong>Projekt in Eclipse konfigurieren</strong></h4>
+<p>Das neue Projekt sollte nun im Projekt-Explorer von Eclipse angezeigt werden.</p>
+<ol type='1'>
+    <li>Auf das neu importierte Projekt im Explorer rechts klicken und &quot;Properties&quot; auswählen.</li>
+    <li>Unter &quot;Environment&quot; auf &quot;C/C++ Build&quot; klicken und &quot;Add..&quot; auswählen.</li>
+    <li><code>BATCH_BUILD</code> mit dem Wert 1 eintragen`</li>
+    <li>Erneut &quot;Add..&quot; klicken und <code>IDF_PATH</code> hinzufügen. Der Wert sollte der vollständige Pfad sein, in dem das ESP8266_RTOS_SDK installiert ist.</li>
+    <li>Die Umgebungsvariable <code>PATH</code> bearbeiten und hier den Pfad zur Xtensa-Toolchain angeben (Welche im Rahmen des ESP8266_RTOS_SDK-Setups installiert wurde), falls dieser noch nicht bereits im <code>PATH</code> aufgeführt wird. Ein typischer Pfad zur Toolchain könnte so aussehen: <code>/home/user-name/esp/xtensa-lx106-elf/bin</code>. Vor dem angehängten Pfad muss ein Doppelpunkt angehängt werden.</li>
+    <li>Erneut &quot;Add..&quot; betätigen und die Umgebungsvariable <code>PYTHONPATH</code> mit dem Wert <code>/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages</code> hinzufügen. Somit überschreibt das systemseitig installierte Python alle in Eclipse vorkommenden Instanzen von Python.</li>
+    </ol>
+<p><img src='images/paths.png' alt='Setting Paths' width='100%'> So könnte die vollständig konfigurierte &quot;Environment&quot; Umgebung aussehen.</p>
+<p>Die hier verwendeten Umgebungsvariablen lassen sich unter MacOS außerdem in der .bash_profile Datei einsehen und bearbeiten. Diese kann beispielsweise über <code>nano .bash_profile</code> aufgerufen werden.</p>
+<p>Anschließend zum Reiter &quot;C/C++ General&quot; - &quot;Preprocessor Include Paths&quot; navigieren.</p>
+<ol type='1'>
+    <li>In den &quot;Providers&quot; Tab wechseln.</li>
+    <li>Aus der Liste der Provider “CDT Cross GCC Built-in Compiler Settings” anklicken</li>
+    <li>“Command to get compiler specs” zu <code>xtensa-lx106-elf-gcc ${FLAGS} -E -P -v -dD &quot;${INPUTS}&quot;</code> ändern.</li>
+    <li>&quot;Compiler Command Pattern&quot; ändern in <code>xtensa-lx106-elf-(gcc|g\+\+\c\+\+\+|cc|cpp|clang)</code>.</li>
+    </ol>
+<p>Nun zur &quot;C/C++ General&quot; -&gt; &quot;Indexer&quot; Einstellungs-Seite wechseln.</p>
+<ol type='1'>
+    <li>&quot;Enable project specific settings&quot; aktivieren, um die restlichen Einstellungen auf dieser Seite zu aktivieren.</li>
+    <li>Die Option &quot;Allow heuristic resolution of includes&quot; deaktivieren. Wenn diese Option aktiviert ist kann es vorkommen, dass Eclipse die benötigten Header Verzeichnisse nicht findet.</li>
+    <li>Zu &quot;C/C++ Build&quot; -&gt; &quot;Behavior&quot; navigieren</li>
+    <li>&quot;Enable parallel build&quot; aktivieren, um mehrere Build-Tasks parallel laufen lassen zu können.</li>
+    </ol>
+<p>Die genannte, offizielle Anleitung beschreibt zwar auch das Bauen und Flashen in Eclipse, jedoch wurde dies im Rahmen dieses Projektes aufgrund der höheren Flexibilität und Geschwindigkeit ausschließlich über die Kommandozeile vorgenommen, wie im Folgenden beschrieben.</p>
+<p><a name='esp_idf'></a> ### 5.2 ESP IDF</p>
+<ol type='1'>
+    <li>Führe <code>$ make menuconfig</code> im Projektverzeichnis aus um das Framework zu konfigurieren.</li>
+    <li>Wähle 'Serial flasher config' aus. Ändere den 'Default serial port' zu <code>/dev/ttyUSB0</code>. Das wird nur vorausgesetzt, wenn MacOS or Linux verwendet wird. Unter Windows Hosts wird es nicht benötigt, da es keine Unterstützung für 'Device Assignments' gibt.</li>
+    <li>Wähle 'Flash SPI mode' aus und wähle anschließend 'DIO' aus.</li>
+    <li>Speichere die Einstellungen und verlasse das Konfigurationsmenü.</li>
+    </ol>
+<p><a name='make'></a> ## 6. File includes mit make</p>
+<p>Das vordefinierte Makefile des SDKs bietet verschiedene Möglichkeiten Dateien einzubinden. Dafür benötigt jedes Projekt ein eigenes Makefile, das auf das SDK-Makefile verweist:</p>
+<pre><code>PROJECT_NAME := easy_grow
+
+include $(IDF_PATH)/make/project.mk</code></pre>
+<p>In diesem können weitere Include-Pfade spezifiziert werden, dies funktioniert in Abhängigkeit der Commit-Version sowie des Pfades dennoch nicht zuverlässig. <code>COMPONENT_ADD_INCLUDEDIRS</code> <code>COMPONENT_SRCDIRS</code></p>
+<p>Daher wurden in dem Projekt EasyGrow Pseudo-Makefiles in die relevanten Ordner eingefügt. Diese leeren <code>component.mk</code> Dateien werden im Buildprozess erkannt und Dateien auf gleiche Dateiebene hinzugefügt.</p>
+<p><a name='flash_argumente'></a> ### 6.1 Flash-Argumente</p>
+<p><code>make build</code> ruft den Buildprozess auf und die erzeugte Firmware kann mit <code>make flash</code> auf den Mikrocontroller übertragen werden. <code>make flash</code> nutzt hierbei die Einstellungen aus der <code>sdkconfig</code>. Diese Datei kann manuell erzeugt oder mit <code>make menuconfig</code> generiert werden. In ihr sind Daten wie die Baudrate und der USB-Port enthalten.</p>
+<p>Die Anweisungen, um die <code>sdkconfig</code> mit den minimalen Einstellungen für das Projekt zu generieren, befinden sich im Kapitel <a href='#esp_idf'>5.2 Konfiguration des Espressif IoT Development Frameworks</a>.</p>
+<p>Diese Einstellungen können mit <code>make print_flash_cmd</code> ausgegeben werden und bei direktem flashen über das Phyton-Programm <code>esptool.py</code> direkt gesetzt werden:</p>
+<p><code>python esptool.py --chip esp8266 --port /dev/ttyUSB0 --baud 921600 --before default_reset --after hard_reset write_flash -z --flash_mode qio --flash_freq 40m --flash_size detect 0 bootloader/bootloader.bin 0x10000 example_app.bin 0x8000 partitions_singleapp.bin</code></p>
+<p>Der Aufruf über das <code>esptool</code> erfolgt innerhalb des Makefiles und bildet somit keinen differenten Flash-Prozess ab.</p>
+<p><a name='build'></a> ## 7. Bauen, Flashen und Monitoring</p>
+<ol type='1'>
+    <li>Baue das Projekt mit <code>$ make</code> aus dem Projektverzeichnis.</li>
+    <li>Führe <code>$ make flash</code> aus, um den nodeMCU zu flashen. Dieser Schritt funktioniert nur unter MacOS und Linux, jedoch nicht unter Windows Hosts.</li>
+    <li>Verbinde den nodeMCU nach dem Flashen. Um das Monitoring auszuführen führe <code>$ make monitor</code> aus. Dieser Schritt funktioniert nur unter MacOS und Linux, jedoch nicht unter Windows Hosts.</li>
+    </ol>
+<p><a name='led_example'></a> ## 8. Bauen und Flashen des LED-Beispiels</p>
+<ol type='1'>
+    <li>Klone das Git Repository:<br><code>$ git clone git@gitlab.mi.hdm-stuttgart.de:embedded/ss19/easy-grow.git</code></li>
+    <li>Wechsle in das Projektverzeichnis <code>easy-grow</code>:<br><code>$ cd easy-grow</code></li>
+    <li>Checke den <code>example</code> Branch aus:<br><code>$ git checkout example</code></li>
+    <li>Wechsle in das <code>docker</code> Verzeichnis:<br><code>$ cd docker</code></li>
+    <li>Verbinde den ESP8266 nodeMCU mittels USB.</li>
+    <li>Führe den <code>docker.sh</code> Script aus. Dieser Script erzeugt das Docker Image <code>docker-esp8266</code> und initialisier einen Container mit der ESP IDF Umgebung.<br><code>$ ./docker.sh</code></li>
+    <li>Wechsle innerhalb des Containers zum <code>easy-grow</code> Projektverzeichnis:<br><code>$ cd easy-grow</code></li>
+    <li>Konfiguriere den 'serial flasher' der ESP IDF. Weitere Informationen befinden sich hier: <a href='#idf_config'>5. Konfiguration des Espressif IoT Development Frameworks</a>.</li>
+    <li>Baue das Projekt, flashe den nodeMCU, und aktiviere das Monitoring mit:<br><code>$ make &amp;&amp; make flash &amp;&amp; make monitor</code>.<br> Falls eine Fehlermeldung erscheint, führe den folgenden Befehl erneut aus: <code>$ make flash &amp;&amp; make monitor</code>.</li>
+    </ol>
+<p><a name='rtos_sdk'></a> ## 9. ESP8266 RTOS SDK</p>
+<p>Das ESP8266 SDK ist eine Opensource IoT-Plattform für die Anwendungsentwicklung. Es wurde von Espressif entwickelt. Die SDK basiert auf dem Echtzeit-Betriebssystem RTOS, welches auf FreeRTOS basiert.</p>
+<p>Das RTOS ist ein Multi-Tasking-Betriebssstem. Es können Standard Schnittstellen verwendet werden, um die Realisierung von Ressourcenmanagement, Recyclingoperationen, Ausführungsverzögerungen, Inter-Task-Messaging und -Synchronisation und andere aufgabenorientierte Prozessgestaltung Ansätze zu ermöglichen.</p>
+<p><a name='rtos_overview'></a> ### 9.1 Überblick</p>
+<p>Ein ESP8266_RTOS_SDK-Projekt kann als Zusammenfassung mehrerer Komponenten betrachtet werden. Beispielsweise könnte es für ein HTTP-Request, das die aktuelle Erdfeuchtigkeit anzeigt, Folgendes geben:</p>
+<ul>
+    <li>Die SoC-Basisbibliotheken (<code>libc</code>, ROM-Bindings etc.)</li>
+    <li>Die WiFi-Treiber</li>
+    <li>Ein TCP/IP-Stack</li>
+    <li>Das FreeRTOS-Betriebssystem</li>
+    <li>Das Hauptcode, der das Ganze zusammenfügt</li>
+    </ul>
+<p>ESP8266_RTOS_SDK macht diese Komponenten explizit und konfigurierbar. Dazu sucht die Build-Umgebung beim Kompilieren eines Projektes alle Komponenten in den SDK-Verzeichnissen, den Projektverzeichnissen und (optional) in zusätzlichen benutzerdefinierten Komponentenverzeichnissen nach (siehe Kapitel <a href='#make'>6. File includes mit make</a> für Letzeres).</p>
+<p>Anschließend kann der Benutzer das ESP8266_RTOS_SDK-Projekt mithilfe eines textbasierten Menüsystems konfigurieren, um jede Komponente anzupassen (siehe Kapitel <a href='#idf_config'>5. Konfiguration des Espressif IoT Development Frameworks</a>). Nachdem die Komponenten im Projekt konfiguriert sind, kompiliert der Build-Prozess das Projekt.</p>
+<p><a name='rtos_concepts'></a> ### 9.2 Konzepte</p>
+<p>Ein &quot;Projekt&quot; ist ein Verzeichnis, das alle Dateien und Konfigurationen enthält, um eine einzige ausführbare &quot;App&quot; zu erstellen, sowie zusätzliche unterstützende Outputs wie eine Partitionstabelle, Daten-/Dateisystempartitionen und einen Bootloader.</p>
+<p>&quot;Projektkonfiguration&quot; wird in einer einzigen Datei namens <code>sdkconfig</code> im Stammverzeichnis des Projekts gespeichert. Diese Konfigurationsdatei wird über <code>make menuconfig</code> geändert, um die Konfiguration des Projekts anzupassen. Ein einzelnes Projekt enthält genau eine Projektkonfiguration.</p>
+<p>Eine &quot;App&quot; ist eine ausführbare Datei, die von ESP8266_RTOS_SDK erstellt wird. Ein einzelnes Projekt erstellt in der Regel zwei Apps - eine &quot;Project App&quot; (die Hauptausführungsdatei, d.h. Ihre benutzerdefinierte Firmware) und eine &quot;Bootloader-App&quot;, das die &quot;Project App&quot; startet.</p>
+<p>&quot;Komponenten&quot; sind modulare eigenständige Codeteile, die in statische Bibliotheken (<code>.a</code>-Dateien) kompiliert und in eine App eingebunden werden. Einige werden von ESP8266_RTOS_SDK selbst bereitgestellt, andere können von anderen Stellen bezogen werden.</p>
+<p>Einige Dinge sind nicht Teil des Projekts:</p>
+<p>ESP8266_RTOS_SDK ist nicht Teil des Projekts. Stattdessen ist es eigenständig und über die Umgebungsvariable <code>IDF_PATH</code> mit dem Projekt verknüpft, die den Pfad des ESP8266_RTOS_SDK-Verzeichnisses enthält. Auf diese Weise kann das IDF-Framework vom Projekt entkoppelt werden.</p>
+<p>Die Toolchain für die Kompilierung ist nicht Teil des Projekts. Die Toolchain sollte in der System-Befehlszeile <code>PATH</code> installiert werden, oder der Pfad zur Toolchain kann als Teil des Compiler-Präfix in der Projektkonfiguration festgelegt werden</p>
+<p><a name='example_project'></a> ### 9.3 Beispiel Projekt</p>
+<p>Ein Beispiel-Projekt-Verzeichnis könnte folgendermaßen aussehen:</p>
+<pre><code>- project/
+            - Makefile
+            - sdkconfig
+            - components/   - component1/   - component.mk
+                                            - Kconfig
+                                            - src1.c
+                            - component2/   - component.mk
+                                            - Kconfig
+                                            - src1.c
+                                            - include/      - component2.h
+            - main/         - src1.c
+                            - src2.c
+                            - component.mk
+            - build/</code></pre>
+<p>Folgende Elemente sind im Beispiel <code>project</code> enthalten:</p>
+<ul>
+    <li>Ein Top-Level-Projekt Makefile. Dieses Makefile setzt die Variable <code>PROJECT_NAME</code>und definiert (optional) projektweite Make-Variablen. Es enthält die Haupt-Makefile <code>$(IDF_PATH)/make/project.mk</code>, die den Rest des EPS8266_RTOS_SDK Build System implementiert.</li>
+    <li>Die Projekt-Konfigurationsdatei <code>sdkconfig</code>. Diese Datei wird erstellt, bzw. aktualisiert, wenn <code>make menuconfig</code> ausgeführt wird und enthält die Konfiguration für alle Komponenten des Projekts (einschließlich ESP8266_RTOS_SDK selbst).</li>
+    <li>Das optionale Verzeichnis <code>components</code> enthält Komponenten, die Teil des Projekts sind. Ein Projekt muss keine solchen benutzerdefinierten Komponenten enthalten, aber es kann nützlich sein, um wiederverwendbaren Code zu strukturieren oder Komponenten von Drittanbietern aufzunehmen, die nicht Teil von ESP8266_RTOS_SDK sind.</li>
+    <li>Das Verzeichnis <code>main</code> ist eine spezielle Pseudokomponente, die Quellcode für das Projekt selbst enthält. <code>main</code> ist ein Standardname, die Makefile-Variablen <code>COMPONENT_DIRS</code> enthält diese Komponente. Diese Variable kann aber verändert werden (oder <code>EXTRA_COMPONENT_DIRS</code> setzen), um nach Komponenten an anderen Stellen zu suchen.</li>
+    <li>Das Verzeichnis <code>build</code> ist der Ort, an dem der Build-Output erstellt wird. Nachdem der Make-Prozess ausgeführt wurde, enthält dieses Verzeichnis temporäre Objektdateien und Bibliotheken sowie endgültige binäre Output-Dateien. Dieses Verzeichnis wird in der Regel nicht der Source Control hinzugefügt oder mit dem Projekt-Quellcode verteilt.</li>
+    </ul>
+<p>Komponentenverzeichnisse enthalten ein Komponenten-Makefile <code>component.mk</code>. Dies kann Variablendefinitionen zur Steuerung des Build-Prozesses der Komponente un deren Integration in das Gesamtprojekt enthalten.</p>
+<p>Jede Komponente kann auch eine <code>Kconfig</code>-Datei enthalten, die die Komponentenkonfigurationsoperationen definiert, die über die Projektkonfiguration eingestellt werden können. Einige Komponenten können auch <code>Kconfig.projbuild</code> und <code>Makefile.projbuild</code> Dateien beinhalten, die spezielle Dateien für übergeordnete Teile des Projekts sind.</p>
+<p><a name='rtos_xtasks'></a> ### 9.4 Tasks</p>
+<p>Tasks sind ein wichtiges Feature von FreeRTOS. Mithilfe von Tasks können verschiedene Code-Abschnitte (scheinbar) parallel ausgeführt werden. Scheinbar deshalb, da ein Prozessor in der Realität zu einem bestimmten Zeitpunkt nur eine Aufgabe erledigen kann. Die vorgetäuschte Gleichzeitigkeit wird durch das schnelle Wechseln zwischen implementierten Tasks erreicht.</p>
+<p><a name='rtos_xtasks_impl'></a> #### 9.4.1 Implementierung Für einen Task muss zunächst eine Funktion implementiert werden, die den auszuführenden Code beinhaltet. Die Funktion hat keinen Rückgabewert und nimmt als Eingangswert einen Zeiger vom Typ void, welcher genutzt werden kann, um Informationen jeglicher Art in die Funktion hineinzugeben. Da Task-Funktionen nichts zurückgeben, beinhalten sie meist eine kontinuierliche Schleife. Falls ein Task dennoch innerhalb seiner Funktion endet, sollte er sich mithilfe von <code>vTaskDelete(null)</code> beenden, um einen sauberen Abbruch zu garantieren.</p>
+<h5 id='beispiel'>Beispiel</h5>
+<pre><code>void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+    
+    vTaskDelete( NULL );
+}</code></pre>
+<p>Ein Task wird mit der Funktion <code>xTaskCreate()</code> kreiert, welche folgende Eingabeparameter erwartet:</p>
+<table style='width:21%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>TaskFunction_t</code></td>
+        <td style='text-align: left;'><code>pvTaskCode</code></td>
+        <td style='text-align: left;'>Unsere zuvor erstellte Task-Funktion</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>const char * const</code></td>
+        <td style='text-align: left;'><code>pcName</code></td>
+        <td style='text-align: left;'>Ein beschreibender Name für den Task, hauptsächlich für Debugging hilfreich</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>configSTACK_DEPTH_TYPE</code></td>
+        <td style='text-align: left;'><code>usStackDepth</code></td>
+        <td style='text-align: left;'>Die Anzahl der Wörter (nicht Bytes!), die für den Stack dieses Tasks allokiert werden sollen</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>void</code></td>
+        <td style='text-align: left;'><code>*pvParameters</code></td>
+        <td style='text-align: left;'>Ein Wert, der als Parameter in die Task-Funktion hineingegeben wird</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>UBaseType_t</code></td>
+        <td style='text-align: left;'><code>uxPriority</code></td>
+        <td style='text-align: left;'>Die Priorität, mit der der erstellte Task ausgeführt wird</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>TaskHandle_t</code></td>
+        <td style='text-align: left;'><code>*pxCreatedTask</code></td>
+        <td style='text-align: left;'>(optional) Weist dem Task einem zuvor instantiierten Handler zu. Dieser kann genutzt werden, um den Task beispielsweise zu pausieren oder zu löschen</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Bei einem Erfolg gibt <code>xTaskCreate</code> <code>pdPASS</code> zurück, ansonsten <code>errCOULD_NOT_ALLOCATE_REQUIRED_MEMORY</code>. Ein laufender Task kann mit der Funktion <code>xTaskDelete(TaskHandle_t xTask)</code> gelöscht werden, indem der dem Task zugewiesene Handler als Eingabeparameter angegeben wird.</p>
+<h5 id='komplettes-beispiel'>Komplettes Beispiel</h5>
+<pre><code>void vATaskFunction( void *pvParameters )
+{
+    for( ;; )
+    {
+        -- Auszuführender Code --
+    }
+}
+
+void anotherFunction()
+{
+    BaseType_t xReturned;
+    TaskHandle_t xHandle = NULL;
+    
+    /* Task erstellen */
+    xReturned = xTaskCreate(vATaskFunction, &quot;NAME&quot;, 512, ( void * ) 1, 2, &amp;xHandle );
+    
+    if( xReturned == pdPASS )
+    {
+        /* Der Task wurde erstellt.  Der Handler kann nun zum Löschen des Tasks genutzt werden. */
+        vTaskDelete( xHandle );
+    }
+}
+
+</code></pre>
+<p><a name='rtos_xtasks_usage'></a> #### 9.4.2 Verwendung im Projekt</p>
+<p>Im Easy Grow Projekt werden Tasks an 4 verschiedenen Stellen verwendet: 1. Zur kontinuierlichen Abfrage der GPIO Pins 2. Für den DNS Server 3. Für den Webserver 4. Zur Überprüfung, ob tatsächlich eine WiFi-Verbindung existiert</p>
+<p>Bei Letzterem handelt es sich um einen Bug Fix, der mit dem Löschen des Flash-Speichers des ESP zusammenhängt. Das Löschen des Speichers sorgt dafür, dass zuvor gespeicherte WiFi-Credentials verschwinden, der ESP jedoch zunächst fehlerhaft zurückgibt, dass eine Verbindung exisiert. Hier kommt der Task ins Spiel, der nach einer gewissen Zeit überprüft, ob tatsächlich eine WiFi-Verbindung vorhanden ist.</p>
+<p>Die Tasks werden in Kapitel 10 nochmal genauer beschrieben.</p>
+<p><a name='rtos_gpio'></a> ### 9.5 GPIO</p>
+<p>Das ESP8266_RTOS_SDK bietet die <code>esp8266/include/driver/gpio.h</code> Datei an, um die 11 verwendbaren Pins des ESP8266 Chips zu konfigurieren und zu verwenden.</p>
+<p><a name='rtos_gpio_conf'></a> #### 9.5.1 GPIO Konfiguration</p>
+<p>Die Konfiguration eines GPIOs erfolgt über die Struct <code>gpio_config_t</code> und beinhaltet folgende Members:</p>
+<table style='width:21%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>uint32_t</code></td>
+        <td style='text-align: left;'><code>pin_bit_mask</code></td>
+        <td style='text-align: left;'>GPIO Pin:<br>Gesetzt durch Bit-Maske<br>Jedes Bit wird auf einen GPIO abgebildet.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>gpio_mode_t</code></td>
+        <td style='text-align: left;'><code>mode</code></td>
+        <td style='text-align: left;'>GPIO Modus:<br>Input oder Output</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>gpio_pullup_t</code></td>
+        <td style='text-align: left;'><code>pull_up_en</code></td>
+        <td style='text-align: left;'>GPIO Pull-Up-Widerstand</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>gpio_pulldown_t</code></td>
+        <td style='text-align: left;'><code>pull_down_en</code></td>
+        <td style='text-align: left;'>GPIO Pull-Down-Widerstand</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>gpio_int_type_t</code></td>
+        <td style='text-align: left;'><code>intr_type</code></td>
+        <td style='text-align: left;'>GPIO Interrupt-Typ</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Durch die Enum <code>gpio_mode_t</code> wird der GPIO Modus definiert. Sie besitzt folgende Werte:</p>
+<table style='width:14%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_MODE_DISABLE = GPIO_MODE_DEF_DISABLE</code></td>
+        <td style='text-align: left;'>Deaktiviere GPIO als Input und Output</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_MODE_INPUT = GPIO_MODE_DEF_INPUT</code></td>
+        <td style='text-align: left;'>GPIO Input Modus</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_MODE_OUTPUT = GPIO_MODE_DEF_OUTPUT</code></td>
+        <td style='text-align: left;'>GPIO Output Modus</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_MODE_OUTPUT_OD = ((GPIO_MODE_DEF_OUTPUT)\|(GPIO_MODE_DEF_OD))</code></td>
+        <td style='text-align: left;'>Nur Output mit Open-Drain Modus</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Mittels der Enums <code>gpio_pullup_t</code> und <code>gpio_pulldown_t</code> werden die internen Pull-Up/-Down-Widerstände aktiviert bzw. deaktiviert. Sie besitzen folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_PULLUP_DISABLE = 0x0</code></td>
+        <td style='text-align: left;'>Deaktiviere den GPIO Pull-Up-Widerstand</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_PULLUP_ENABLE = 0x1</code></td>
+        <td style='text-align: left;'>Aktiviere den GPIO Pull-Up-Widerstand</td>
+        </tr>
+    </tbody>
+    </table>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_PULLDOWN_DISABLE = 0x0</code></td>
+        <td style='text-align: left;'>Deaktiviere den GPIO Pull-Down-Widerstand</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_PULLDOWN_ENABLE = 0x1</code></td>
+        <td style='text-align: left;'>Aktiviere den GPIO Pull-Down-Widerstand</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Durch die Enum <code>gpio_int_type_t</code> wird definiert, bei welcher Flanke ein Interrupt für ein GPIO ausgelöst werden soll. Sie beinhaltet folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_INTR_DISABLE = 0</code></td>
+        <td style='text-align: left;'>Deaktiviere GPIO Interrupt</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_INTR_POSEDGE = 1</code></td>
+        <td style='text-align: left;'>GPIO Interrupt bei steigender Flanke</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_INTR_NEGEDGE = 2</code></td>
+        <td style='text-align: left;'>GPIO Interrupt bei fallender Flanke</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_INTR_ANYEDGE = 3</code></td>
+        <td style='text-align: left;'>GPIO Interrupt bei steigender oder fallender Flanke</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_INTR_LOW_LEVEL = 4</code></td>
+        <td style='text-align: left;'>GPIO Interrupt bei Low-Level-Trigger</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GPIO_INTR_HIGH_LEVEL = 5</code></td>
+        <td style='text-align: left;'>GPIO Interrupt bei High-Level-Trigger</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>GPIO_INTR_MAX</code></td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Nachdem <code>gpio_config_t</code> initialisiert wurde, kann die GPIO mittels der folgenden Methode konfiguriert werden:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t gpio_config(<span class='dt'>const</span> gpio_config_t *gpio_cfg)</code></pre></div>
+<h5 id='beispiel-1'>Beispiel</h5>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&lt;driver/gpio.h&gt;</span>
+<span class='pp'>#define GPIO_PIN    16</span>
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_INPUT;
+gpio_cfg.pin_bit_mask = (1ULL &lt;&lt; GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_ANYEDGE;
+
+gpio_config(&amp;gpio_cfg);</code></pre></div>
+<p>Nach der Konfiguration kann der Wert eines GPIOs mit den Methoden gesetzt bzw. gelesen werden:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t gpio_set_level(gpio_num_t gpio_num, <span class='dt'>uint32_t</span> level)</code></pre></div>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='dt'>int</span> gpio_get_level(gpio_num_t gpio_num)</code></pre></div>
+<h4 id='beispiel-2'>Beispiel</h4>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&lt;driver/gpio.h&gt;</span>
+<span class='pp'>#define GPIO_PIN    16</span>
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_OUTPUT;
+gpio_cfg.pin_bit_mask = (1ULL &lt;&lt; GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_POSEDGE;
+
+gpio_config(&amp;gpio_cfg);
+
+gpio_get_level(GPIO_PIN);       <span class='co'>// level: 0</span>
+gpio_set_level(GPIO_PIN, <span class='dv'>1</span>);
+gpio_get_level(GPIO_PIN);       <span class='co'>// level: 1</span></code></pre></div>
+<p><a name='rtos_gpio_isr'></a> #### 9.5.2 Interrupt Service Routine</p>
+<p>Wurde <code>gpio_config_t.intr_type</code> gesetzt, so besteht die Möglichkeit, bei verändernden Flanken eines GPIOs, auf diese zu reagieren mittels der ISR.</p>
+<p>Hierfür ist es notwendig die folgende Methode, noch vor der Konfiguration der GPIO, aufzurufen. Es installiert den GPIO ISR-Handler-Dienst des Treibers, der GPIO-Interrupt-Handler pro Pin erlaubt.</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t gpio_install_isr_service(<span class='dt'>int</span> no_use)</code></pre></div>
+<p>Der Parameter <code>no_use</code> hat keine Bedeutung und muss lediglich mit 0 übergeben werden.</p>
+<p>Bei der Konfiguration eines GPIOs muss der ISR-Handler hinzugefügt werden. Hierfür verwendet man folgende Methode:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t gpio_isr_handler_add(gpio_num_t gpio_num, gpio_isr_t isr_handler, <span class='dt'>void</span> *args)</code></pre></div>
+<p><code>isr_handler</code> ist die ISR-Handler-Funktion, welche auf das entsprechende GPIO reagiert. Über <code>args</code> können Parameter dem ISR-Handler übergeben werden.</p>
+<p>Innerhalb der Funktion <code>isr_handler</code> sollte folgende Methode aufgerufen werden:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>BaseType_t xQueueSendFromISR(QueueHandle_t xQueue, <span class='dt'>const</span> <span class='dt'>void</span> *pvItemToQueue, BaseType_t *pxHigherPriorityTaskWoken)</code></pre></div>
+<p>Diese Methode setzt ein Element auf die Rückseite der <code>xQueue</code>. Es ist sicher, diese Funktion innerhalb einer ISR zu verwenden. Elemente (<code>pvItemToQueue</code>) werden als Copy und nicht als Referenz in die Queue gestellt. Daher ist es besser, einen Zeiger auf das Element zu speichern, das in die Queue gestellt wird.</p>
+<p>Eine Queue wird durch folgende Methode erzeugt:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>QueueHandle_t xQueueCreate(UBaseType_t uxQueueLength, UBaseType_t uxItemSize)</code></pre></div>
+<p><code>uxQueueLength</code> ist die maximale Zahl der Elemente einer Queue, die sie zur jederzeit beinhalten kann. <code>uxItemSize</code>gibt die Größe (in Bytes) eines Queue-Elements an.</p>
+<p><code>xQueue</code>-Elemente werden in einem <code>xTask</code> verarbeitet. Um ein Element einer Queue zu erhalten, muss folgende Methode, innerhalb des <code>xTask</code>s aufgerufen werden:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>BaseType_t xQueueReceive(QueueHandle_t xQueue, <span class='dt'>void</span> *pvBuffer, TickType_t xTicksToWait)</code></pre></div>
+<p>Elemente einer Queue werden als Copy übergeben, sodass ein Buffer (<code>pvBuffer</code>) einer entsprechenden Größe (in Bytes) übergeben werden muss.</p>
+<h5 id='beispiel-3'>Beispiel</h5>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&quot;freertos/task.h&quot;</span>
+<span class='pp'>#include </span><span class='im'>&quot;freertos/queue.h&quot;</span>
+<span class='pp'>#include </span><span class='im'>&lt;driver/gpio.h&gt;</span>
+<span class='pp'>#define GPIO_PIN    16</span>
+
+<span class='co'>// Queue-Handler für ISR</span>
+<span class='dt'>static</span> xQueueHandle queue = NULL;
+
+<span class='co'>// Installiert GPIO ISR Dienst</span>
+gpio_install_isr_service(<span class='dv'>0</span>);
+<span class='co'>// Erzeugen einer Queue, um GPIO Events einer ISR zu behandlen</span>
+queue = xQueueCreate(<span class='dv'>10</span>, <span class='kw'>sizeof</span>(<span class='dt'>uint32_t</span>));
+<span class='co'>// Erzeuge und starte einen xTask</span>
+xTaskCreate(task, <span class='st'>&quot;task&quot;</span>, <span class='dv'>4096</span>, NULL, <span class='dv'>10</span>, NULL);
+
+gpio_config_t gpio_cfg;
+gpio_cfg.mode = GPIO_MODE_INPUT;
+gpio_cfg.pin_bit_mask = (1ULL &lt;&lt; GPIO_PIN);
+gpio_cfg.intr_type = GPIO_INTR_POSEDGE;
+
+<span class='co'>// ISR-Handler an eine bestimmte GPIO hängen</span>
+gpio_isr_handler_add(GPIO_PIN, isr_handler, (<span class='dt'>void</span> *) GPIO_PIN);
+
+gpio_config(&amp;gpio_cfg);
+
+<span class='dt'>static</span> <span class='dt'>void</span> isr_handler(<span class='dt'>void</span> *arg)
+{
+    <span class='dt'>uint32_t</span> gpio_num = (<span class='dt'>uint32_t</span>) arg;
+    xQueueSendFromISR(queue, &amp;gpio_num, NULL);
+}
+
+<span class='dt'>static</span> <span class='dt'>void</span> task(<span class='dt'>void</span> *arg)
+{
+    <span class='dt'>uint32_t</span> gpio_num;
+    <span class='cf'>while</span> (<span class='dv'>1</span>)
+    {
+        <span class='co'>// Erhalte ein Element von der Queue</span>
+        <span class='cf'>if</span> (xQueueReceive(queue, &amp;gpio_num, portMAX_DELAY))
+        {
+            ...
+        }
+    }
+}</code></pre></div>
+<p><a name='rtos_gpio_analog'></a> #### 9.5.3 Analogeingang</p>
+<p>Das ESP8266_RTOS_SDK bietet die <code>esp8266/include/driver/adc.h</code> Datei an. Im Folgenden wird beschrieben, wie der Analogeingang des ESP8266 verwendet werden kann.</p>
+<h5 id='initialisierung-des-adc'>Initialisierung des ADC</h5>
+<p>Zunächst muss unter <code>menuconfig-&gt;Component config-&gt;PHY-&gt;vdd33_const</code> verändert werden. <code>vdd33_const</code> bietet ADC-Modus-Einstellungen, d.h. die Auswahl zwischen der Systemspannung oder externer Spannungsmessungen. Beim Messen der Systemspannung muss der <code>vdd33_const</code> Wert auf 255 eingestellt werden. Um die externe Spannung am <code>TOUT(ADC)</code> Pin zu lesen, benötigt <code>vdd33_const</code> einen Wert von &lt; 255. Wenn die ADC-Referenzspannung auf die aktuelle VDD33-Netzspannung eingestellt ist, beträgt der Wertebereich von <code>vdd33_const[18,36]</code> (Einheit 0,1 V). Wenn die ADC-Referenzspannung auf den Standardwert von 3,3 V als Versorgungsspannung eingestellt ist, ist der Bereich von <code>vdd33_const[0,18]</code> oder (36, 255).</p>
+<p>Das ESP8266_RTOS_SDK bieten die Struct <code>adc_config_t</code> zum Initialisieren des ADC Parameters an.</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>adc_mode_t</code></td>
+        <td style='text-align: left;'><code>mode</code></td>
+        <td style='text-align: left;'>ADC Modus</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>uint8_t</code></td>
+        <td style='text-align: left;'><code>clk_div</code></td>
+        <td style='text-align: left;'>ADC Sample Collection Clock<br>= 80M/<code>clk_div</code><br>Bereich [8, 32]</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die ADC-Arbeitsmodus Enum <code>adc_mode_t</code> hat folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>ADC_READ_TOUT_MODE = 0</code></td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>ADC_READ_VDD_MODE</code></td>
+        </tr>
+    </tbody>
+    </table>
+<p>Über folgende Methode wird der ADC initialisiert:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t adc_init(adc_config_t *config)</code></pre></div>
+<h6 id='beispiel-4'>Beispiel</h6>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&lt;driver/adc.h&gt;</span>
+<span class='pp'>#define GPIO_PIN    16</span>
+
+adc_config_t adc_cfg;
+adc_cfg.mode = ADC_READ_TOUT_MODE;
+adc_cfg.clk_div = <span class='dv'>8</span>;
+
+ESP_ERROR_CHECK(adc_init(&amp;adc_cfg));</code></pre></div>
+<h5 id='lesen-des-analogeingangs'>Lesen des Analogeingangs</h5>
+<p>Einzelne Messungen des <code>TOUT(ADC)</code> Pins (Einheit 1/1023 V) oder des VDD Pins (Einheit 1 mV) erfolgt über folgende Methode:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t adc_read(<span class='dt'>uint16_t</span> *data)</code></pre></div>
+<p>Der Zeiger <code>data</code> nimmt den ADC-Wert entgegen.</p>
+<p>Mehrere Messungen des <code>TOUT(ADC)</code> Pins (Einheit 1/1023 V) erfolgen über die folgende Methode:</p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'>esp_err_t adc_read_fast(<span class='dt'>uint16_t</span> *data, <span class='dt'>uint16_t</span> len)</code></pre></div>
+<p>Der Zeiger <code>data</code> nimmt den ADC-Wert entgegen. <code>len</code> bestimmt die Länge der ADC Werte, die ausgelesen werden sollen.</p>
+<h6 id='beispiel-5'>Beispiel</h6>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&quot;driver/adc.h&quot;</span>
+<span class='pp'>#define DEPTH   100</span>
+
+<span class='dt'>uint16_t</span> adc_data[DEPTH];
+
+<span class='cf'>if</span> (ESP_OK == adc_read_fast(adc_data, DEPTH))
+{
+    <span class='cf'>for</span> (<span class='dt'>int</span> x = <span class='dv'>0</span>; x &lt; DEPTH; x++)
+    {
+        printf(<span class='st'>&quot;adc_data[%d] = %d&quot;</span>, x, adc_data[x]);
+    }
+}</code></pre></div>
+<p><a name='rtos_timer'></a> ### 9.6 Timer</p>
+<p>Das ESP8266_RTOS_SDK bietet Software-Timer an, die jedoch einige Einschränkungen haben:</p>
+<ul>
+    <li>Die maximale Auflösung ist gleich der RTOS-Tick-Rate</li>
+    <li>Timer-Callbacks werden von einem Task mit niedriger Priorität ausgelöst</li>
+    </ul>
+<p>Hardware-Timer sind frei von beiden Einschränkungen, aber oft sind sie weniger komfortabel zu bedienen. Beispielsweise können Anwendungskomponenten Timer-Events benötigen, um bestimmten Zeiten in der Zukunft auszulösen, aber der Hardware-Timer enthält nur einen &quot;Vergleichswert&quot;, der für die Interrupt-Erzeugung verwendet wird. Dies bedeutet, dass einige Hilfsmittel auf dem Hardware-Timer aufgebaut werden müssen, um die Liste der anstehenden Ereignisse zu verwalten und die Callbacks für diese Events versenden zu können, wenn entsprechende Hardware-Interrupts auftreten.</p>
+<p>Die <code>esp_timer</code> API bietet eine solche Möglichkeit. Intern verwendet <code>esp_timer</code> einen 32-Bit-Hardware-Timer. <code>esp_timer</code> bietet einmalige und periodische Timer in Mikrosekunden-Zeitauflösung und 64-Bit-Bereich.</p>
+<p>Timer-Callbacks werden von einer <code>esp_timer</code>-Task mit hoher Priorität ausgelöst. Da alle Callbacks von derselben Task aus versendet werden, wird empfohlen, nur den geringstmöglichen Arbeitsaufwand von Callback selbst aus zu erledigen und stattdessen ein Event über eine Queue in einem Task mit niedriger Priorität zu senden.</p>
+<p>Wenn andere Tasks mit einer höheren Priorität als <code>esp_timer</code> ausgeführt werden, wird das Callback-Dispatching verzögert, bis der <code>esp_timer</code>-Task eine Chance zur Ausführung hat. Dies ist beispielsweise der Fall, wenn ein SPI-Flash-Vorgang durchgeführt wird.</p>
+<p>Das Erstellen und Starten eines Timers sowie das Versenden des Callbacks dauert einige Zeit. Daher gibt es eine untere Grenze für den Timeout-Wert von einmaligen <code>esp_timer</code>. Wenn <code>esp_timer_start_once()</code> mit einem Timeout-Wert von weniger als 20 µs aufgerufen wird, wird der Callback erst nach ca. 20 µs ausgelöst.</p>
+<p>Der periodische <code>esp_timer</code> schränkt die minimale Timerzeit ebenfalls um 50 µs ein. Periodische Software-Timer mit einem Zeitraum von weniger als 50 µs sind nicht sinnvoll, da sie den größten Teil der CPU-Zeit verbrauchen würden. Die Verwendung von dedizierten Hardware-Peripheriegeräten oder DMA-Funktionen werden empfohlen, wenn ein Timer mit einer kurzen Zeitspanne erforderlich ist.</p>
+<h4 id='verwendung-der-esp_timer-api'>Verwendung der <code>esp_timer</code> API</h4>
+<p>Ein Single-Timer wird durch den Typ <code>esp_timer_handle_t</code> repräsentiert. Dem Timer ist eine Callback-Funktion zugeordnet. Diese Callback-Funktion wird nach jedem Ablauf des Timers von der <code>esp_timer</code>-Task aufgerufen.</p>
+<ul>
+    <li>Um einen Timer zu erstellen, muss <code>esp_timer_create()</code> aufgerufen werden</li>
+    <li>Um den Timer zu löschen, muss <code>esp_timer_delete()</code> aufgerufen werden</li>
+    </ul>
+<p>Der Timer kann im One-Shot-Modus oder im periodischen Modus gestartet werden.</p>
+<ul>
+    <li>Um den Timer im One-Shot-Modus zu starten, muss <code>esp_timer_start_once()</code> aufgerufen und der Zeitintervall angegeben werden, nach dem der Callback erfolgen soll. Wenn der Callback erfolgt, gilt der Timer als gestoppt.</li>
+    <li>Um den Timer im periodischen Modus zu starten, muss <code>esp_timer_start_periodic()</code> aufgerufen und der Zeitraum, an dem der Callback erfolgt, übergeben werden. Der Timer läuft weiter, bis <code>esp_timer_stop()</code> aufgerufen wird.</li>
+    </ul>
+<p>Der Timer darf nicht laufen, wenn <code>esp_timer_start_once()</code> oder <code>esp_timer_start_periodic()</code> aufgerufen wird. Um einen laufenden Timer neu zu starten, muss zuerst <code>esp_timer_stop()</code> und dann eine der Startfunktionen aufgerufen werden.</p>
+<p>Um die <code>esp_timer</code> API zu verwenden, muss die <code>esp_common/include/esp_timer.h</code> Datei eingebunden werden.</p>
+<p>Die Konfiguration des Timers erfolgt durch den Sturct <code>esp_timer_create_args_t</code>, der folgendes beinhaltet:</p>
+<table style='width:21%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>esp_timer_cb_t</code></td>
+        <td style='text-align: left;'><code>callback</code></td>
+        <td style='text-align: left;'>Callback-Funktion, die aufgerufen werden soll, wenn der Timer abläuft</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>void*</code></td>
+        <td style='text-align: left;'><code>arg</code></td>
+        <td style='text-align: left;'>Argument, das an den Callback übergeben werden kann</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>esp_timer_dispatch_t</code></td>
+        <td style='text-align: left;'><code>dispatch_method</code></td>
+        <td style='text-align: left;'>Aufruf des Callbacks von einem Task oder einer ISR</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>const char*</code></td>
+        <td style='text-align: left;'><code>name</code></td>
+        <td style='text-align: left;'>Timer Name, welcher in der <code>esp_timer_dump</code> Funktion verwendet wird</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die Enum <code>esp_timer_dispatch_t</code> beinhaltet folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'>ESP_TIMER_TASK</td>
+        <td style='text-align: left;'>Callback wird von einem Task aufgerufen</td>
+        </tr>
+    </tbody>
+    </table>
+<h5 id='beispiel-6'>Beispiel</h5>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='pp'>#include </span><span class='im'>&quot;esp_timer.h&quot;</span>
+<span class='pp'>#define TIMER_TIME  100000</span>
+
+<span class='co'>// Erzeugung des Timers</span>
+<span class='dt'>const</span> esp_timer_create_args_t adc_timer_args = { .callback = &amp;timer_callback, .name = <span class='st'>&quot;timer_callback&quot;</span> }
+
+esp_timer_handle_t adc_timer;
+ESP_ERROR_CHECK(esp_timer_create(&amp;adc_timer_args, &amp;adc_timer));
+
+<span class='co'>// Starten des Timers</span>
+ESP_ERROR_CHECK(esp_timer_start_periodic(adc_timer, TIMER_TIME));
+
+<span class='dt'>void</span> timer_callback(<span class='dt'>void</span>* arg)
+{
+    <span class='dt'>int64_t</span> time_since_boot = esp_timer_get_time();
+    printf(<span class='st'>&quot;Timer called, time since boot: (%d)&quot;</span>, (<span class='dt'>int32_t</span>)time_since_boot);
+}</code></pre></div>
+<h4 id='abrufen-der-aktuellen-zeit'>Abrufen der aktuellen Zeit</h4>
+<p>Die <code>esp_timer</code> API bietet auch eine Funktion, um die seit dem Start vergangene Zeit in Mikrosekunden zu erhalten: <code>esp_timer_get_time()</code>. Diese Funktion gibt die Anzahl der Mikrosekunden seit der Initialisierung von <code>esp_timer</code> zurück, was normalerweise kurz vor dem Aufrug der <code>app_main</code>-Funktion geschieht.</p>
+<p><a name='rtos_wifi'></a> ### 9.7 WiFi</p>
+<p>Das ESP8266_RTOS_SDK bietet die <code>esp8266/include/esp_wifi.h</code> Datei an, die Unterstützung für WiFi-spezifische Funktionen bereit stellt. Dies umfasst unter Anderem:</p>
+<ol type='1'>
+    <li>Einen Station Mode, der genutzt werden kann, um den ESP mit einem Access Point (z.B. das heimische WLAN) zu verbinden.</li>
+    <li>Einen AP Mode, der es ermöglicht, einen Access Point zu eröffnen, mit dem sich andere Geräte verbinden können.</li>
+    <li>Einen kombinierten Modus (Station &amp; AP), wodurch der ESP sowohl als Access Point fungieren als auch mit einem anderen Access Point verbunden sein kann.</li>
+    <li>Verschiedene Sicherheitseinstellungen für die oben genannten Modi (WPA, WPA2, WEP, etc).</li>
+    <li>Das Scannen nach verfügbaren Access Points.</li>
+    </ol>
+<p>Bei vielen der folgenden Codebeispielen wird die Funktion <code>ESP_ERROR_CHECK()</code> verwendet. Dies ist eine Helfer-Funktion, die erspart, dass jede Funktion, die <code>esp_err_t</code> zurück liefert, auf einen potentiellen Fehler untersuchen werden muss.</p>
+<p><a name='rtos_wifi_event'></a> #### 9.7.1 Event Handler Das ESP8266_RTOS_SDK liefert mit dem WiFi auch einen Event Handler. Dieser kann mithilfe von <code>esp_err_t esp_event_loop_init(system_event_cb_t cb, void *ctx)</code> initialisiert werden, wobei <code>cb</code> der eigentliche event_handler ist. Innerhalb von <code>cb</code> können anschließend alle WiFi-bezogenen Events abgefangen werden.</p>
+<h5 id='beispiel-7'>Beispiel</h5>
+<pre><code>static esp_err_t event_handler(void *ctx, system_event_t *event)
+{
+    switch (event-&gt;event_id)
+    {
+        case SYSTEM_EVENT_SCAN_DONE:
+        {
+            ...
+            break;
+        }
+        case SYSTEM_EVENT_STA_START:
+        {    
+            ...
+            break;
+        }
+    }
+}
+...
+ESP_ERROR_CHECK(esp_event_loop_init(event_handler, NULL));</code></pre>
+<p><a name='rtos_wifi_init'></a> #### 9.7.2 Initialisierung und Einstellung des Modus WiFi muss immer zunächst mit der Funktion <code>esp_err_t esp_wifi_init(const wifi_init_config_t *config)</code> initialisiert werden. Für den Eingangsparameter <code>*config</code> gibt es eine Standardkonfiguration, die meistens den Anforderungen genügt.</p>
+<h5 id='beispiel-8'>Beispiel</h5>
+<pre><code>wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();                                            
+ESP_ERROR_CHECK(esp_wifi_init(&amp;cfg));</code></pre>
+<p>Mithilfe der Methode <code>esp_err_t esp_wifi_set_mode(wifi_mode_t mode)</code> kann der gewünschte Modus (Station, AP, kombiniert) eingestellt werden.</p>
+<h5 id='beispiel-9'>Beispiel</h5>
+<pre><code>// Wahlweise WIFI_MODE_AP, WIFI_MODE_STA oder WIFI_MODE_APSTA
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));</code></pre>
+<p><a name='rtos_wifi_config_connect'></a> #### 9.7.3 Konfiguration und Verbindung Für die Konfiguration des WiFi wird die Methode <code>esp_err_t esp_wifi_set_config(wifi_interface_t interface, wifi_config_t *conf)</code> bereit gestellt. Der erste Parameter bestimmt das Template (Wahl aus ESP_IF_WIFI_STA, ESP_IF_WIFI_AP und ESP_IF_MAX), der zweite enthält die eigentliche Konfiguration.</p>
+<h5 id='beispiel-10'>Beispiel</h5>
+<pre><code>wifi_config_t wifi_config = {
+    .ap = {
+        .ssid = &quot;MyWifiSSID&quot;,
+        .password = &quot;MyPassword&quot;,
+        .authmode = WIFI_AUTH_WPA_WPA2_PSK
+    },
+};
+ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &amp;wifi_config));</code></pre>
+<p>Mit den Funktionen <code>esp_err_t esp_wifi_start(void)</code> und <code>esp_err_t esp_wifi_stop(void)</code> wird anschließend der gewählte Modus mit den festgelegten Konfigurationen gestartet beziehungsweise beendet. Für den Station- bzw. den kombinierten Modus muss zusätzlich <code>esp_err_t esp_wifi_connect(void)</code> aufgerufen werden, damit sich der ESP mit dem Access Point verbindet. Gleichermaßen lässt sich die Verbindung mit <code>esp_err_t esp_wifi_disconnect(void)</code> auch wieder trennen.</p>
+<p><a name='rtos_wifi_scan'></a> #### 9.7.4 Nach verfügbaren Access Points scannen Im Station- und kombinierten Modus besteht die Möglichkeit, nach verfügbaren Access Points zu scannen. Dafür lässt sich die Methode <code>esp_err_t esp_wifi_scan_start(const wifi_scan_config_t *config, bool block)</code> verwenden. Mit dem ersten Eingabeparameter wird die Konfiguration übergeben, der zweite Parameter bestimmt, ob der Scan blockieren oder direkt zurückgeben soll. Mit <code>esp_err_t esp_wifi_scan_stop(void)</code> kann der Scan zudem gestoppt werden.</p>
+<h5 id='beispiel-11'>Beispiel</h5>
+<pre><code>wifi_scan_config_t scan_conf = {
+    .ssid = NULL,
+    .bssid = NULL,
+    .channel = 0,
+    .show_hidden = false
+};
+ESP_ERROR_CHECK(esp_wifi_scan_start(&amp;scan_conf, false));
+...
+ESP_ERROR_CHECK(esp_wifi_scan_stop());</code></pre>
+<p>Nach erfolgreichem Scan können die Ergebnisse mit der Methode <code>esp_err_t esp_wifi_scan_get_ap_records(uint16_t *number, wifi_ap_record_t *ap_records)</code> abgerufen werden. Dabei muss der erste Parameter die Anzahl der Ergebnisse angegeben. Diese bekommt man mit der Methode <code>esp_err_t esp_wifi_scan_get_ap_num(uint16_t *number)</code>.</p>
+<h5 id='beispiel-12'>Beispiel</h5>
+<pre><code>uint16_t ap_count = 0;
+esp_wifi_scan_get_ap_num(&amp;ap_count);
+if (ap_count == 0)
+{
+    // No APs found
+}
+wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+if (!ap_list)
+{
+    // malloc error, ap_list is NULL
+}
+ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&amp;ap_count, ap_list));</code></pre>
+<p><a name='rtos_http_server'></a> ### 9.8 HTTP Server Für den HTTP-Server wird die netconn API von LwIP genutzt (http://www.nongnu.org/lwip/2_0_x/index.html).</p>
+<p><a name='rtos_http_server_new'></a> #### 9.8.1 Eine (TCP-) Verbindung eröffnen Eine neue Verbindung lässt sich mit der Funktion <code>struct netconn * netconn_new(enum netconn_type t)</code> implementieren. Die Form der Verbindung wird durch den Eingangsparameter (hier: NETCONN_TCP) bestimmt. Ist die Verbindung erfolgreich erstellt worden, kann sie mithilfe der Methode <code>err_t netconn_bind(struct netconn * aNetConn, ip_addr_t * aAddr, u16_t aPort)</code> an eine IP-Addresse und einen Port gebunden werden. Für die IP-Adresse kann <code>IP_ADDR_ANY</code> angegeben werden, um an eine beliebige Adresse zu binden. Eine TCP-Verbindung wird mit <code>err_t netconn_listen(struct netconn * aNetconn)</code> in den &quot;listen mode&quot; gesetzt.</p>
+<h5 id='beispiel-13'>Beispiel</h5>
+<pre><code>struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);</code></pre>
+<p><a name='rtos_http_server_recv'></a> #### 9.8.2 Eingehende Verbindungsanfragen abfangen</p>
+<p>In einer Schleife können für eine eröffnete TCP-Verbindung eingehende Verbindungsanfragen abgefangen werden. Dies geschieht durch die Methode <code>err_t netconn_accept(struct netconn * aNetConn, struct netconn ** aNewConn)</code>. Wird eine Verbindung festgestellt, wird eine neue netconn Struktur <code>aNewConn</code> für die weitere Nutzung allokiert. Bei einer erfolgreichen Verbindungsetablierung liefert die Methode<code>err_t netconn_recv(struct netconn * aNetConn, struct netbuf ** aNetBuf)</code> den Buffer mit den empfangenen Daten der zuvor neu allokierten Struktur und schreibt sie in <code>aNetBuf</code>.</p>
+<p>Im finalen Schritt werden die empfangenen Daten aus dem Buffer <code>aNetBuf</code> mithilfe der Methode <code>err_t netbuf_data(struct netbuf * aNetBuf, void ** aData, u16_t * aLen)</code> extrahiert und in <code>aData</code> geschrieben.</p>
+<h5 id='beispiel-14'>Beispiel</h5>
+<pre><code>struct netconn *xNetConn = netconn_new(NETCONN_TCP);   
+struct netconn *client = NULL;
+
+netconn_bind(xNetConn, IP_ADDR_ANY, 80);
+netconn_listen(xNetConn);
+
+while (1) {
+    err_t err = netconn_accept(xNetConn, &amp;client);
+    if (err == ERR_OK) {
+        struct netbuf *xNetBuf;
+        if ((err = netconn_recv(client, &amp;xNetBuf)) == ERR_OK) {
+            void *data;
+            u16_t len;
+            netbuf_data(xNetBuf, &amp;data, &amp;len);
+            // data can now be used
+        }
+    }
+}</code></pre>
+<p><a name='rtos_http_server_send'></a> #### 9.8.3 Daten über eine TCP-Verbindung senden Mit der Methode <code>err_t netconn_write(struct netconn * aNetConn, const void * aData, size_t aSize, u8_t aApiFlags)</code> lassen sich Daten über eine bestehende TCP-Verbindung zurücksenden. Dabei ist <code>aNetConn</code> die TCP-Verbindung, <code>aData</code> der Adressanfang der zu sendenen Daten und <code>aSize</code> die Länge der zu sendenden Daten. <code>aApiFlags</code> kann entweder <code>NETCONN_NOCOPY</code> sein, falls die Daten für die Zeit der Überbringung stabil sind oder <code>NETCONN_COPY</code>, falls nicht.</p>
+<h5 id='beispiel-15'>Beispiel</h5>
+<pre><code>char buf[256];
+const char *webpage = 
+{
+    &quot;HTTP/1.1 200 OK\r\n&quot;
+    &quot;Content-type: text/html\r\n\r\n&quot;
+    &quot;&lt;html&gt;&quot;
+    &quot;&lt;head&gt;&lt;title&gt;Test Server&lt;/title&gt;&lt;/head&gt;&quot;
+    &quot;&lt;body&gt;&quot;
+    &quot;&lt;h1&gt;Hello World&lt;/h1&gt;&quot;
+    &quot;&lt;/body&gt;&quot;
+    &quot;&lt;/html&gt;&quot;
+}
+// write webpage to buffer
+snprintf(buf, sizeof(buf), webpage);
+
+netconn_write(client, buf, strlen(buf), NETCONN_COPY);</code></pre>
+<p><a name='rtos_http_server_close'></a> #### 9.8.4 Verbindungen beenden Mit <code>void netbuf_delete(struct netbuf * aNetBuf)</code> kann ein netbuf Objekt gelöscht und sein Speicher deallokiert werden. Die komplette Verbindung lässt sich mit <code>err_t netconn_close(struct netconn * aNetConn)</code> schließen und mit <code>err_t netconn_delete(struct netconn * aNetConn)</code> löschen.</p>
+<pre><code>netbuf_delete(nb);
+netconn_close(client);
+netconn_delete(client)</code></pre>
+<p><a name='rtos_flash'></a> ### 9.9 Schreiben und Lesen des Flash-Speichers</p>
+<p>Um kleinere Werte persistent auf dem ESP-8266 speichern zu können orientiert sich der implementierte Code stark an der Umsetzung der von Arduino intern verwendeten Methoden (https://github.com/esp8266/Arduino/blob/master/libraries/EEPROM/EEPROM.cpp read und write) des EEPROM. (engl. Abk. für electrically erasable programmable read-only memory) Diese nutzen freie Bytes innerhalb des SPI Flash Speicherbereichs zum Lesen und Schreiben.</p>
+<p><strong>Beispiel:</strong> ##### Ausschnitt aus <code>easy_flash_writer.c</code></p>
+<div class='sourceCode'><pre class='sourceCode c'><code class='sourceCode c'><span class='dt'>void</span> flash_write(<span class='dt'>void</span> *value, FlashDataType dataType)
+{
+    <span class='dt'>uint32_t</span> startSector = getStartSector(dataType);
+
+    ESP_LOGI(TAG, <span class='st'>&quot;[flash_write]: Writing value to sector [%d], size: %d</span><span class='sc'>\n</span><span class='st'>&quot;</span>, startSector, SPI_FLASH_SEC_SIZE);
+
+    esp_err_t status = spi_flash_erase_sector(startSector);
+    <span class='cf'>if</span> (status == SPI_FLASH_RESULT_OK)
+    {
+
+        status = spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,
+                                 value, <span class='kw'>sizeof</span>(value));
+
+        <span class='cf'>if</span> (status == SPI_FLASH_RESULT_OK)
+        {
+            ESP_LOGI(TAG, <span class='st'>&quot;[flash_write]: Successfully written to flash!&quot;</span>);
+            ret = true;
+        }
+        <span class='cf'>else</span>
+        {
+            ESP_LOGI(TAG, <span class='st'>&quot;[flash_write]: Error with writing to flash, Error Code: [%d]&quot;</span>, status);
+        }
+    }
+}</code></pre></div>
+<p>So wird beispielsweise beim Schreiben eines Wertes zunächst der entsprechende Startsektor für die jeweilige Variable ausgewählt. Durch den Enum <code>FlashDataType</code> der mit in die Funktion gegeben wird, hat jede Variable einen fest definierten Sektor im frei verfügbaren Bereich des SPI Flashs zugewiesen. Je nachdem welcher Wert gelesen oder geschrieben wird, unterscheidet sich die jeweilige Speicheradresse im SPI-Flash Range, damit Werte sich nicht gegenseitig überschreiben können.</p>
+<p>Vor jedem Schreibvorgang wird zunächst mithilfe <code>spi_flash_erase_sector(startSector)</code> vor dem Schreibvorgang der entsprechende Bereich gelöscht. Bei Erfolg, also <code>SPI_FLASH_RESULT_OK</code> wird die Adresse mithilfe der Funktion <code>spi_flash_write(startSector * SPI_FLASH_SEC_SIZE,  value, sizeof(value));</code> ausgehend vom festgelegten <code>startSector</code> (zwischen den Speicheradressen 0x40200000 und 0x405FB000), in Höhe einer festgelegten <code>SPI_FLASH_SEC_SIZE</code> von 4096bytes mit dem <code>value</code> und dessen tatsächlicher Größe <code>sizeof(value)</code> überschrieben.</p>
+<p><a name='easy_grow'></a> ## 10. Easy Grow Projekt</p>
+<p><a name='eg_hardware'></a> ### 10.1 Hardware-Komponenten</p>
+<table style='width:28%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Hardware-Komponente</strong></th>
+        <th style='text-align: left;'><strong>Bezeichnung</strong></th>
+        <th style='text-align: left;'><strong>Verwendungszweck</strong></th>
+        <th style='text-align: left;'><strong>Anzahl</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'>NodeMCU</td>
+        <td style='text-align: left;'>Amica V2</td>
+        <td style='text-align: left;'>Hardware-Logik<br>Webserver</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>Micro USB Port</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Stromversorgung</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>Wasserpumpe</td>
+        <td style='text-align: left;'>Fenteer 3V</td>
+        <td style='text-align: left;'>Bewässerung der Pflanze</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>Photodiode</td>
+        <td style='text-align: left;'>GL5528</td>
+        <td style='text-align: left;'>Aufzeichnung der Sonnenstunden</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>Hygrometer</td>
+        <td style='text-align: left;'>FC-28</td>
+        <td style='text-align: left;'>Messung der Erdfeuchtigkeit</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>Amplifier (A-D)</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Anschluss von:<br>- Photodiode<br>- Hygrometer</td>
+        <td style='text-align: left;'>2</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>Button</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Einstellung der Erdfeuchtigkeit</td>
+        <td style='text-align: left;'>2</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>LED (Rot)</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'> Erdfeuchtigkeitsanzeige<br>(geringe Feuchtigkeit)</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>LED (Gelb)</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Erdfeuchtigkeitsanzeige<br>(mittlere Feuchtigkeit)</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>LED (Grün)</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Erdfeuchtigkeitsanzeige<br>(hohe Feuchtigkeit)</td>
+        <td style='text-align: left;'>1</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>LED (Blau)</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'>Wasserstandanzeige<br><span class='math inline'>$`2^2`$</span> Zustände:<br>voll, gut, leer</td>
+        <td style='text-align: left;'>2</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>Jumper-Kabel</td>
+        <td style='text-align: left;'>-</td>
+        <td style='text-align: left;'> Messung des Wassertankstandes<br><span class='math inline'>$`2^2`$</span> Zustände:<br>voll, gut, leer</td>
+        <td style='text-align: left;'>2</td>
+        </tr>
+    </tbody>
+    </table>
+<p><a name='stromversorgung'></a> ### 10.2 Stromversorgung</p>
+<p>Die Platine wird über einen Micro USB-B Anschluss mit Strom versorgt. Dabei sind der Pin 1 (VBUS) und der Pin 5 (GND) über einen Kippschalter mit dem Mikrocontroller verbunden. Pin 2, 3 und 4 als Datenleitungen wurden nicht verwendet, da die RX und TX Pins des NodeMCU Boards für das Interface genutzt werden. Zum Flashen ist daher der Mikrocontroller abnehmbar.</p>
+<p>Neben der kompletten Abschaltung des Systems über den Kippschalter, wird diese Schaltung ebenfalls für den Pumpenbetrieb benötigt. Mit einem Verbrauch von bis zu 8 Watt könnte der Power Regulator des NodeMCU je nach Betriebsart überlastet werden und sich zu hoch erhitzen.</p>
+<p>Mit der Betriebsart über den Vin-Pin (Vin-PIn, Micro-USB-Anschluss, sowie 3,3V-Pin werden unterstützt) lassen sich nur um die 800 mA aus der V-Pins beziehen. Daher wird die Pumpe über die von uns entwickelte Platine mit Strom versorgt. Zur Ein- und Abschaltung wird ein Mosfet IRLZ44N genutzt. Die 3,3 V der GPIO-Pins reichen hierbei zum Durchschalten des Mosfets aus. Der direkte Betrieb über die GPIO-Pins ist nicht möglich, da Verbraucher maximal 20mA über diese beziehen dürfen. Zudem wäre die Pumpleistung bei 3,3 V zu schwach.</p>
+<p><a name='stromvebrauch'></a> #### 10.2.1 Stromverbrauch</p>
+<p>Der Stromverbrauch des Mikrocontrollers schwankt stark in Abhängigkeit zu dem Betriebsmodus. Funktioniert er als Accesspoint, während keine LED leuchtet, liegt der Verbrauch bei 108mA. Ist er mit einem WLAN Netzwerkverbunden benötigt die Schaltung 87 mA. Pro eingeschaltete LED kommen 13 mA (rote LED, mit 2 V Flussspannung und 100 Ohm Vorwiderstand) hinzu. Die Pumpe verbraucht im Schnitt 1,2 A.</p>
+<p><a name='batteriebetrieb'></a> #### 10.2.2 Batteriebetrieb</p>
+<p>Für Evaluation des Batteriebetriebs muss zunächst der Verbrauch in Amperestunden ermittelt werden. Als typisches Beispiel wird daher angenommen, dass: 1. Der Controller mit einem WLAN verbunden ist (87 mA) 2. Neben den zwei Tank-LEDs eine weitere LED eingeschaltet ist (39 mA) 3. Die Pumpe 20 Sekunden pro Tag pumpt (0,012 mA)</p>
+<p>Ein 5V Akku mit 2000 mAh wäre schon nach 15 Stunden leer.</p>
+<p>Folgende Möglichkeiten könnte für den Batteriebetrieb in den Betracht gezogen werden:</p>
+<ul>
+    <li>Deaktivieren der LEDs nach wenigen Sekunden und Aktivierung erst wieder bei Knopfdruck</li>
+    <li>Deaktivieren der WiFi-Schnittstelle, wenn in einem gewissen Zeitraum keine SSID/Passworteingabe erfolgt ist.</li>
+    <li>Kompletter Headless-Modus (Keine Web- oder LED-Interface) nach einmaliger Feuchtigkeitseingabe über das Webinterface</li>
+    </ul>
+<p><a name='eg_gpio'></a> ### 10.3 GPIO-Mapping</p>
+<p><img src='images/nodemcu.png' alt='NodeMCU GPIO-Mapping auf ESP8266'></p>
+<table style='width:53%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 8%' />
+        <col style='width: 8%' />
+        <col style='width: 8%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Label</strong></th>
+        <th style='text-align: left;'><strong>GPIO</strong></th>
+        <th style='text-align: left;'><strong>Sensor</strong></th>
+        <th style='text-align: center;'><strong>Input</strong></th>
+        <th style='text-align: center;'><strong>Output</strong></th>
+        <th style='text-align: center;'><strong>ISR</strong></th>
+        <th style='text-align: left;'><strong>Bemerkung</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'>D0</td>
+        <td style='text-align: left;'>16</td>
+        <td style='text-align: left;'>Pumpe</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>HIGH beim Boot.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D1</td>
+        <td style='text-align: left;'>5</td>
+        <td style='text-align: left;'>LED Feuchtigkeit 2 (MID)</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D2</td>
+        <td style='text-align: left;'>4</td>
+        <td style='text-align: left;'>LED Feuchtigkeit 1 (LOW)</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D3</td>
+        <td style='text-align: left;'>0</td>
+        <td style='text-align: left;'>Decrease-Button</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: left;'>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D4</td>
+        <td style='text-align: left;'>2</td>
+        <td style='text-align: left;'>LED Feuchtigkeit 3 (HIGH)</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D5</td>
+        <td style='text-align: left;'>14</td>
+        <td style='text-align: left;'>Increase-Button</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D6</td>
+        <td style='text-align: left;'>12</td>
+        <td style='text-align: left;'>Wasserstandsensor 1 (Oben)</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>D7</td>
+        <td style='text-align: left;'>13</td>
+        <td style='text-align: left;'>Wasserstandsensor 2 (Unten)</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>-</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>D8</td>
+        <td style='text-align: left;'>15</td>
+        <td style='text-align: left;'>LED Wasserstand 1 (Oben)</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>Boot schlägt fehl wenn auf HIGH gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>RX</td>
+        <td style='text-align: left;'>3</td>
+        <td style='text-align: left;'>Photodiode</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: left;'>HIGH beim Boot.</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'>TX</td>
+        <td style='text-align: left;'>1</td>
+        <td style='text-align: left;'>LED Wasserstand 2 (Unten)</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>HIGH beim Boot.<br>Boot schlägt fehl wenn auf LOW gezogen.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'>A0</td>
+        <td style='text-align: left;'>ADC0</td>
+        <td style='text-align: left;'>Feuchtigkeitssensor</td>
+        <td style='text-align: center;'>✓</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: center;'>x</td>
+        <td style='text-align: left;'>Analog Input</td>
+        </tr>
+    </tbody>
+    </table>
+<p><a name='eg_circuit'></a> ### 10.4 Schaltbild</p>
+<p><img src='images/easy_grow_circuit.png' alt='Easy Grow Schaltbild'></p>
+<p><a name='eg_functionality'></a> ### 10.5 Funktionsweise</p>
+<p>Dieses Kapitel beschreibt die detaillierte Funktionsweise des Easy Grow Bewässerungssystems.</p>
+<p><a name='eg_func_hw_logic'></a> #### 10.5.1 Hardware-Logik</p>
+<p>Die Hardware-Logik beschränkt sich auf folgende Features vom Easy Grow Projekt:</p>
+<ul>
+    <li><a href='#eg_func_hw_logic_set_moisture'>Einstellung der Erdfeuchtigkeit</a></li>
+    <li><a href='#eg_func_hw_logic_read_moisture'>Messung der Erdfeuchtigkeit</a></li>
+    <li><a href='#eg_func_hw_logic_watering'>Bewässerung der Pflanze</a></li>
+    <li><a href='#eg_func_hw_logic_sun_hours'>Aufzeichnung der Sonnenstunden</a></li>
+    </ul>
+<p>Folgende Dateien wurden für die Implementierung verwendet:</p>
+<table style='width:14%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Datei</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><a href='main/src/easy_gpio.c'><code>easy_gpio.c</code></a></td>
+        <td style='text-align: left;'>Konfiguration der GPIOs<br>Konfiguration des Analogeingangs<br>Initialisierung des Hardware-Timers</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><a href='main/src/easy_controller.c'><code>easy_controller.c</code></a></td>
+        <td style='text-align: left;'>Funktionen zur automatischen und manuellen Steuerung des Bewässerungssystems</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><a href='main/src/easy_debouncer.c'><code>easy_debouncer.c</code></a></td>
+        <td style='text-align: left;'>Software-Entprellung der Buttons zur Erdfeuchtigkeitseinstelllung</td>
+        </tr>
+    </tbody>
+    </table>
+<p><a name='eg_func_hw_logic_set_moisture'></a> ##### 10.5.1.1 Einstellung der Erdfeuchtigkeit</p>
+<p>Die Einstellung der Erdfeuchtigkeit wird mittels zwei Buttons vorgenommen. Drei LEDs repräsentieren die vier Einstellungsmöglichkeiten der eingestellten Erdfeuchtigkeit. Sie werden durch die Enum <code>MoistureLevel</code> definiert. Die vier Zustände der Erdfeuchtigkeit sind folgende:</p>
+<table style='width:21%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zustand</strong></th>
+        <th style='text-align: left;'><strong>LED Zustand</strong><br>(0)=aus<br>(1)=ein</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>OFF</code></td>
+        <td style='text-align: left;'>Deaktivieren des Bewässerungssystems</td>
+        <td style='text-align: left;'>(0)(0)(0)</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>LOW</code></td>
+        <td style='text-align: left;'>Niedrige Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [733, 923] in V</td>
+        <td style='text-align: left;'>(1)(0)(0)</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>MID</code></td>
+        <td style='text-align: left;'>Mittlere Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [544, 733] in V</td>
+        <td style='text-align: left;'>(1)(1)(0)</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>HIGH</code></td>
+        <td style='text-align: left;'>Hohe Erdfeuchtigkeit<br>Erdfeuchtigkeitsbereich [353, 543] in V</td>
+        <td style='text-align: left;'>(1)(1)(1)</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Mittels den zwei Buttons kann die Erdfeuchtigkeit entweder inkrementiert oder dekrementiert werden. Diese Buttons befinden sich neben den Feuchtigkeits-LEDs. Das Bewässerungssystem kann deaktiviert werden, in dem ein beliebiger Button so oft betätigt wird, bis keines der drei LEDs leuchten.</p>
+<p>Die Betätigung der Buttons wird mittels einer ISR erkannt und behandelt. In dem <code>gpio_task</code> der <code>easy_gpio.c</code> Datei, ist der Handler <code>moisture_button_handler(int io_num)</code> für die Einstellung der Feuchtigkeit und LED-Zustände zuständig.</p>
+<p>Um Fehlsignale des Buttons zu vermeiden wurde ein Software-Debouncer implementiert. Die Enum <code>ButtonStates</code> beinhaltet hierfür vier Zustände die ein Button besitzen kann:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zustand</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>UP</code></td>
+        <td style='text-align: left;'>Der Button wird nicht betätigt</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>DOWN</code></td>
+        <td style='text-align: left;'>Der Button ist betätigt</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>PRESS</code></td>
+        <td style='text-align: left;'>Der Button wird gedrückt</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>RELEASE</code></td>
+        <td style='text-align: left;'>Der Button wird losgelassen)</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die <code>ButtonStates delay_debounce(ButonStates button_state, int gpio_num)</code> Funktion setzt den <code>PRESS</code> Zustand, wenn der Button für 25 ms gedrückt wird. <code>RELEASE</code> wird gesetzt, wenn der Button losgelassen wurde und für weitere 25 ms nicht betätigt wird.</p>
+<p>Die Funktion und die Enum befinden sich in der <code>easy_debouncer.c</code> Datei. Der Aufruf der Funktion erfolgt in der <code>easy_controller.c</code> Datei, innerhalb der <code>moisture_button_handler(int io_num)</code> Funktion.</p>
+<p>Das Speichern des eingestellten Feuchtigkeitswert wird im Kapitel <a href='#eg_func_hw_logic_read_moisture'>10.5.1.2 Messung der Erdfeuchtigkeit</a> behandelt.</p>
+<p><a name='eg_func_hw_logic_read_moisture'></a> ##### 10.5.1.2 Messung der Erdfeuchtigkeit</p>
+<p>Die Messung der Erdfeuchtigkeit erfolgt mittels dem Analogeingang und Verwendung eines Hardware-Timers. Grundlagen für die Initialisierung des Analogpins und des Hardware-Timers befinden sich in den Kapitels <a href='#rtos_gpio_analog'>9.5.3 Analogeingang</a> bzw. <a href='#rtos_timer'>9.6 Timer</a>.</p>
+<p>Die Callback-Funktion <code>read_moisture_level()</code> wird alle 5 Minuten (<code>MOISTURE_READ_INTERVAL</code>) aufgerufen, um die Erdfeuchtigkeit zu lesen. Der Callback ruft für das Lesen der Feuchtigkeit die <code>MoistureValue get_moisture_level()</code> Funktion auf, um 100 (<code>MOISTURE_READ_DEPTH</code>) Werte auszulesen, und anschließend den Mittelwert zu berechnen. Der Callback <code>read_moisture_level()</code> und die Funktion <code>get_moisture_level()</code> befinden sich in der <code>easy_controller.c</code> Datei.</p>
+<p>Der Wertebereich der Feuchtigkeit hat einen Bereich von [353,923]. Dieser Wert wird auf einen Wertebereich von 0 % bis 100 % abgebildet, um die Lesbarkeit zu gewährleisten. Hierfür wird der Funktion <code>static uint8_t map(uint16_t x, uint16_t in_min, uint16_t in_max, uint8_t out_min, uint8_t out_max)</code> der Mittelwert übergeben.</p>
+<p>Nachdem der Mittelwert ausgelesen wurde und die prozentuale Feuchtigkeit berechnet wurde, werden diese Informationen im Struct <code>MoistureValue</code> gespeichert. Die Struct beinhaltet folgende Informationen:</p>
+<table style='width:21%;'>
+    <colgroup>
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        <col style='width: 6%' />
+        </colgroup>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>Status</code></td>
+        <td style='text-align: left;'><code>status</code></td>
+        <td style='text-align: left;'>Enum signalisiert, ob das Lesen der Feuchtigkeit erfolgreich erfolgt ist</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>uint16_t</code></td>
+        <td style='text-align: left;'><code>level_value</code></td>
+        <td style='text-align: left;'>Gelesene Erdfeuchtigkeitswert über den ADC<br>Einheit: 1/1023 V</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>uint8_t</code></td>
+        <td style='text-align: left;'><code>level_percentage</code></td>
+        <td style='text-align: left;'>Abgebildeter Erdfeuchtigkeitswert auf 0 % bis 100%</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>MoistureLevel</code></td>
+        <td style='text-align: left;'><code>level_target</code></td>
+        <td style='text-align: left;'>Eingestellter Erdfeuchtigkeitsbereich<br>(<code>OFF</code>, <code>LOW</code>, <code>MID</code>, <code>HIGH</code>)</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die Enum <code>Status</code> beinhaltet folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>FAILED</code></td>
+        <td style='text-align: left;'>Der Lesevorgang der Feuchtigkeit ist nicht erfolgt</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>SUCCESS</code></td>
+        <td style='text-align: left;'>Der Lesevorgang der Feuchtigkeit ist erfolgt</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die Struct <code>MoistureValue</code> wird mittels des Konstruktors <code>MoistureValue moisture_value_new(Status status, uint16_t level_value, uint8_t level_percentage, MoistureLevel level_target)</code> initialisiert und in der globalen Variable <code>moisture_value</code> gespeichert und aktualisiert, sobald der Callback aufgerufen oder die Erdfeuchtigkeit mittels der Buttons verändert wurde.</p>
+<p><a name='eg_func_hw_logic_watering'></a> ##### 10.5.1.3 Bewässerung der Pflanze</p>
+<p>Nach der Auslösung des Hardware-Timer-Callbacks (<code>read_moisture_value()</code>) wird zunächst überprüft, ob die gewünschte Erdfeuchtigkeit gegeben ist. Hierfür wird die Struct <code>MoistureValue</code>, welche von der Funktion <code>get_moisture_level()</code> an die Funktion <code>pump_handler(MoistureValue mv)</code> übergeben wird.</p>
+<p>Anhand des Werts <code>mv.level_target</code>, welcher die gewünschte Feuchtigkeitseinstellung beinhaltet, wird die gelesene Feuchtigkeit, mit dem Wertebereich von <code>mv.level_target</code> verglichen. Befindet sich die gelesene Feuchtigkeit innerhalb des Wertebereichs, so muss die Pflanze nicht gegossen werden. Ebenso muss diese nicht gegossen werden, wenn der Zustand <code>OFF</code> aktiviert wurde oder die Erdfeuchtigkeit über den Wertebereich liegt, also die Pflanze überwässert ist.</p>
+<p>Um den Wertebereich zu berechnen, muss die Funktion <code>MoistureLevelRange get_moisture_level_target_range(MoistureLevel level_target)</code> aufgerufen werden. Diese Funktion gibt den Wertebereich (Struct <code>MoistureLevelRange</code>) der eingestellten Feuchtigkeit zurück und beinhaltet folgende Werte:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Typ</strong></th>
+        <th style='text-align: left;'><strong>Name</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>uint16_t</code></td>
+        <td style='text-align: left;'><code>min</code></td>
+        <td style='text-align: left;'>Untergrenze der Feuchtigkeit</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>uint16_t</code></td>
+        <td style='text-align: left;'><code>max</code></td>
+        <td style='text-align: left;'>Obergrenze der Feuchtigkeit</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Bevor die Pflanze bewässert wird, wird davor der Inhalt des Wassertanks überprüft. Hierzu wird die Funktion <code>WaterLevel get_water_level()</code> aufgerufen. Der Wassertank wird mittels zwei Sensoren überprüft. Diese Befinden sich zum einen auf der Oberkante und zum anderen auf der Unterkante des Behälters. Durch diese beiden Sensoren ergeben sich insgesamt <span class='math inline'>$`2^2`$</span> Zustände. Diese Zustände werden durch die Enum <code>WaterLevel</code> definiert und sieht wie folgt aus:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>Wert</strong></th>
+        <th style='text-align: left;'><strong>Zweck</strong></th>
+        <th style='text-align: left;'><strong>Zustand der Sensoren</strong><br>T;!T = Oberer Sensor<br>B;!B = Unterer Sensor</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>EMPTY</code></td>
+        <td style='text-align: left;'>Wassertank ist leer</td>
+        <td style='text-align: left;'>!T &amp;&amp; !B</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>GOOD</code></td>
+        <td style='text-align: left;'>Wassertank ist gut gefüllt</td>
+        <td style='text-align: left;'>!T &amp;&amp; B</td>
+        </tr>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>FULL</code></td>
+        <td style='text-align: left;'>Wassertank ist voll</td>
+        <td style='text-align: left;'>T &amp;&amp; B</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die Funktion <code>WaterLevel water_level_leds_handler()</code> stellt zudem den Zustand der Wasserstands-LEDs ein. Diese Funktion wird innerhalb der Funktion <code>get_water_level()</code> aufgerufen.</p>
+<p>Je nach Wasserstand werden die Funktion <code>activate_pump()</code> oder <code>deaktivate_pump()</code> aufgerufen, um die Pflanze zu bewässern oder die Bewässerung zu unterbrechen.</p>
+<p>Wurde die Funktion <code>activate_pump()</code> aufgerufen, so wird die Pflanze für 2 Sekunden (<code>PUMP_INTERVAL</code>) bewässert. Nach einem Delay von <code>PUMP_INTERVAL</code> wird die Funktion <code>deactivate_pump()</code> aufgerufen, um die Bewässerung zu unterbrechen.</p>
+<p>Der Bewässerungsprozess wird erst nach dem nächsten Aufruf des Hardware-Timer-Callbacks wieder durchgeführt. Dieser Prozess stellt sicher, dass die Pflanze stets bewässert wird, sofern sich genügend Wasser im Behälter befindet.</p>
+<p><a name='eg_func_hw_logic_pap'></a> ##### 10.5.1.4 Programmablaufplan</p>
+<p><img src='images/easy_grow_pap.png' width='100%' alt='Programmablaufplan des Bewässerungssystems'></p>
+<p><a name='eg_func_hw_logic_sun_hours'></a> ##### 10.5.1.5 Aufzeichnung der Sonnenstunden</p>
+<p>Easy Grow zeichnet die Sonnenstunden eines Tages (24 Stundenintervall) mittels der <code>esp_timer</code> API und einer ISR auf. Nachdem der Bootvorgang des NodeMCUs vollendet ist, startet der <code>esp_timer</code>. Der <code>esp_timer</code> liefert mittels der <code>esp_timer_get_time()</code> Funktion die Zeit, die nach dem Bootvorgang bis zum aktuellen Zeitpunkt vergangen ist (in Mikrosekunden). Mit Hilfe der ISR werden Veränderungen der Lichtverhältnisse (an oder aus) ermittelt. Bei jeder ausgelösten ISR berechnet der Handler <code>photo_diode_handler()</code> die Zeitspanne der Tag- und Nachtwechsel (in Sekunden), bis insgesamt 24 Stunden vergangen sind. Nach 24 Stunden werden die aufgezeichneten Sonnenstunden (in Sekunden) wieder auf 0 zurückgestellt.</p>
+<h6 id='initialisierung'>Initialisierung</h6>
+<p>Bei der Initialisierung der GPIO der Photodiode wird eine ISR eingesetzt, die auf positive und negative Flanken ausgerichtet ist. D.h., dass jede Veränderung des Lichtverhältnisses, den ISR auslöst.</p>
+<p>Nach der Initialisierung der GPIO und der ISR wird der Sonnenstundenzähler implementiert. Dies geschieht in der <code>init_sun_hours_counter()</code> Funktion. Die Funktion liest zum Einen den initialen Zustand der Photodiode (<code>SUN_COUNTER_PREV_STATE</code>) und zum Anderen die aktuellen Zeit (<code>SUN_COUNTER_PREV_TIME</code>) aus und speichert diese im Flash-Speicher.</p>
+<p>Die Zeitspannen der Tages- und Nachtdauer werden (<code>SUN_COUNTER_TIME_DAY</code> und <code>SUN_COUNTER_TIME_NIGHT</code> Enums) werden initial auf 0 gesetzt und ebenfalls im Flash-Speicher persistiert.</p>
+<h6 id='funktionsweise'>Funktionsweise</h6>
+<p>Nachdem die ISR ausgelöst wurde, wird im Handler <code>photo_diode_handler()</code> die Zeitspanne der Lichtveränderung ausgerechnet.</p>
+<p>Um die Lichtveränderungszeitspanne zu berechnen, muss zunächst herausgefunden werden, ob ein Tag-Nacht-Wechsel oder Nacht-Tag-Wechsel stattfand. Hierzu wird der <code>SUN_COUNTER_PREV_STATE</code> Wert ausgelesen und mit dem aktuellen Zustand (<code>STATE</code>) verglichen. Die folgende Tabelle veranschaulicht den Zustandswechsel:</p>
+<table>
+    <thead>
+    <tr class='header'>
+        <th style='text-align: left;'><strong>PREV_STATE</strong></th>
+        <th style='text-align: left;'>__STATE__</th>
+        <th style='text-align: left;'><strong>Zustand</strong></th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr class='odd'>
+        <td style='text-align: left;'><code>0</code></td>
+        <td style='text-align: left;'><code>1</code></td>
+        <td style='text-align: left;'>Nacht-Tag-Wechsel<br>Zeitspanne der Nacht muss berechnet werden.</td>
+        </tr>
+    <tr class='even'>
+        <td style='text-align: left;'><code>1</code></td>
+        <td style='text-align: left;'><code>0</code></td>
+        <td style='text-align: left;'>Tag-Nacht-Wechsel<br>Zeitspanne des Tages muss berechnet werden.</td>
+        </tr>
+    </tbody>
+    </table>
+<p>Die Zeitspanne (Tag oder Nacht) wird nur bei ungleichem Zustand von <code>PREV_STATE</code> und <code>STATE</code> berechnet, also entweder bei einem Nacht-Tag- oder Tag-Nacht-Wechsel. Der aktuelle <code>STATE</code> und die aktuelle <code>TIME</code> werden in der Funktion <code>photo_diode_handler()</code> gelesen. Die Zeitspanne (<code>TIME_DELTA</code>) berechnet sich durch die Differenz der aktuellen Zeit (<code>TIME</code>) und der <code>PREV_TIME</code>.</p>
+<p>Danach wird <code>PREV_STATE</code> auf <code>STATE</code> und <code>PREV_TIME</code> auf <code>TIME</code> gesetzt, um bei der nächsten ISR die nächste Zeitspanne zu berechnen. Der Tageszeitspanne (<code>SUN_HOURS_TIME_DAY</code>) bzw. der Nachtspanne (<code>SUN_HOURS_TIME_NIGHT</code>) wird <code>TIME_DELTA</code> aufaddiert, je nach Berechneter Zeitspanne (Tag oder Nacht).</p>
+<p>Erreicht die Summe aus <code>SUN_HOURS_TIME_DAY</code> und <code>SUN_HOURS_TIME_NIGHT</code> 24 Stunden, so werden <code>SUN_HOURS_TIME_DAY</code> und <code>SUN_HOURS_TIME_NIGHT</code> auf 0 zurückgesetzt, um die Sonnenstunden der nächsten 24 Stunden aufzuzeichnen.</p>
+<p>Die detaillierte Funktionsweise der Sonnenstundenaufzeichnung wird im folgenden Programmablaufplan beschrieben:</p>
+<p><img src='images/sun_hours_pap.png' alt='Programmablaufplan Sonnenstundenaufzeichnung'></p>
+<p><a name='eg_func_ap'></a> #### 10.5.2 Access-Point / WiFi-Manager Für eine detaillierte Beschreibung der WiFi-Methoden und Funktionsweise siehe <a href='#rtos_wifi'>Kapitel 9.7</a>. Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen.</p>
+<p>Es gibt zwei verschiedene Ausgangslagen beim Start des ESP. Entweder er hat die Credentials eines zuvor verbundenen WLAN-Netzwerkes gespeichert oder nicht. Dies wird differenziert, indem das WiFi zunächst im Station Mode gestartet wird und versucht wird, sich zu verbinden. Bei gespeicherten Credentials sowie dem Vorhandensein des gespeicherten WLAN-Netzwerkes in Reichweite führt dies zu einer erfolgreichen Verbindung und somit zu <a href='#eg_func_ap_with_creds'>Kapitel 10.5.2.1.</a> Der Ablauf bei einem fehlerhaften Rückgabewert wird in <a href='#eg_func_ap_without_creds'>Kapitel 10.5.2.2</a> behandelt.</p>
+<h5 id='ausschnitt-aus-easy_wifi_manager.c'>Ausschnitt aus <code>easy_wifi_manager.c</code></h5>
+<pre><code>wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
+ESP_ERROR_CHECK(esp_wifi_init(&amp;cfg));
+
+// Try connecting first, will connect to station if it has saved credentials
+ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_STA));
+ESP_ERROR_CHECK(esp_wifi_start());
+esp_err_t err = esp_wifi_connect();
+// if it doesn&#39;t return ESP_OK, start ap mode
+if (err != ESP_OK)
+{
+    ESP_LOGI(TAG, &quot;Start in AP Mode&quot;);
+    ap_wifi_init();
+}
+else
+{
+    // BUG: After erase_flash, esp_wifi_connect returns ESP_OK but never actually connects
+    // create task to wait and check if it really connected -&gt; https://github.com/esp8266/Arduino/issues/2235
+    xTaskCreate(&amp;check_conn_task, &quot;wifi_config_server&quot;, 4096, NULL, 2, &amp;check_conn_handle);
+}</code></pre>
+<p><a name='eg_func_ap_with_creds'></a> ##### 10.5.2.1 Start mit gespeicherten Credentials Normalerweise könnte nach der erfolgreichen Verbindung sofort der Webserver mit der Easy Grow Webpage zur Steuerung der Bewässerungsanlage gestartet werden. Ein Bug verhindert dies jedoch: Falls zuvor der Flash-Speicher des ESP gelöscht wurde, liefert <code>esp_wifi_connect()</code> fälschlicherweise <code>ESP_OK</code> zurück, obwohl keine Verbindung vorhanden ist. Der Bug wird umgangen, indem mithilfe eines Tasks eine kurze Zeit gewartet wird. Anschließend wird geprüft, ob tatsächlich eine Verbindung besteht, indem geschaut wird, ob eine IP zugewiesen wurde. Sobald eine IP zugewiesen wurde, wird der Webserver mit <code>start_http(webMode webMode)</code> im Modus <code>EASY_MOISTURE</code> gestartet.</p>
+<h5 id='ausschnitt-aus-easy_wifi_manager.c-1'>Ausschnitt aus <code>easy_wifi_manager.c</code></h5>
+<pre><code>case SYSTEM_EVENT_STA_GOT_IP:
+    ...
+    //Start moisture control http server
+    start_http(EASY_MOISTURE);
+    GOT_IP = true;
+    break;</code></pre>
+<p>Ist nach dem Ablaufen des Tasks keine IP vorhanden, gelangen wir über den Aufruf von <code>ap_wifi_init()</code> zu <a href='#eg_func_ap_without_creds'>Kapitel 10.5.2.2</a>.</p>
+<p><a name='eg_func_ap_without_creds'></a> ##### 10.5.2.2 Start ohne gespeicherte Credentials Hat der ESP keine gespeicherten Credentials, muss das WiFi in den kombinierten Modus gesetzt werden (Station und AP). Dies ist nötig, da wir sowohl einen Access Point eröffnen wollen, als auch gleichzeitig den Station Mode benötigen, um nach verfügbaren WLAN-Netzwerken zu scannen. Das WiFi und der Scan werden konfiguriert und anschließend gestartet.</p>
+<h5 id='ausschnitt-aus-easy_wifi_manager.c-2'>Ausschnitt aus <code>easy_wifi_manager.c</code></h5>
+<pre><code>/*
+ * Start wifi in AP-Mode (Access Point)
+ */
+void ap_wifi_init()
+{
+    wifi_config_t wifi_config = {
+        .ap = {
+            .ssid = EXAMPLE_ESP_WIFI_SSID,
+            .ssid_len = strlen(EXAMPLE_ESP_WIFI_SSID),
+            .password = EXAMPLE_ESP_WIFI_PASS,
+            .max_connection = EXAMPLE_MAX_STA_CONN,
+            .authmode = WIFI_AUTH_WPA_WPA2_PSK
+        },
+    };
+    if (strlen(EXAMPLE_ESP_WIFI_PASS) == 0)
+    {
+        wifi_config.ap.authmode = WIFI_AUTH_OPEN;
+    }
+    //Has to be AP + Station mode, in order to scan for available aps
+    ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_APSTA));
+    ESP_ERROR_CHECK(esp_wifi_set_config(ESP_IF_WIFI_AP, &amp;wifi_config));
+    ESP_ERROR_CHECK(esp_wifi_start());
+
+    ESP_LOGI(TAG, &quot;wifi_init_softap finished.SSID:%s password:%s&quot;,
+             EXAMPLE_ESP_WIFI_SSID, EXAMPLE_ESP_WIFI_PASS);
+
+    wifi_scan_config_t scan_conf = {
+        .ssid = NULL,
+        .bssid = NULL,
+        .channel = 0,
+        .show_hidden = false
+    };
+
+    ESP_ERROR_CHECK(esp_wifi_scan_start(&amp;scan_conf, true));
+} </code></pre>
+<p>Ist der Scan beendet, werden die gefundenen WLAN-Netzwerke ausgelesen und mit der Funktion <code>void set_aps(wifi_ap_record_t aps[], uint16_t apCount)</code> in der Datei <code>easy_http_server.c</code> gesetzt. Anschließend wird der Scan gestoppt und der HTTP-Server über <code>void start_http(webMode webMode)</code> im Config Mode <code>EASY_CONFIG</code> gestartet.</p>
+<h5 id='ausschnitt-aus-easy_wifi_manager.c-3'>Ausschnitt aus <code>easy_wifi_manager.c</code></h5>
+<pre><code>case SYSTEM_EVENT_SCAN_DONE:
+{
+    uint16_t ap_count = 0;
+    //get number of available access points
+    esp_wifi_scan_get_ap_num(&amp;ap_count);
+    if (ap_count == 0)
+    {
+        ESP_LOGI(TAG, &quot;No AP found&quot;);
+    }
+    wifi_ap_record_t *ap_list = (wifi_ap_record_t *)malloc(sizeof(wifi_ap_record_t) * ap_count);
+    if (!ap_list)
+    {
+        ESP_LOGI(TAG, &quot;malloc error, ap_list is NULL&quot;);
+        break;
+    }
+    ESP_ERROR_CHECK(esp_wifi_scan_get_ap_records(&amp;ap_count, ap_list));
+    set_aps(ap_list, ap_count);
+    esp_wifi_scan_stop();
+    free(ap_list);
+    //Start config http server
+    start_http(EASY_CONFIG);
+    break;
+}</code></pre>
+<p><a name='eg_func_server'></a> #### 10.5.3 Webserver Um Web-Inhalte bereitzustellen zu können, wurde ein einfacher Webserver auf dem Gerät implementiert. Für eine detaillierte Beschreibung der Funktionsweise des Servers und seiner Methoden siehe <a href='#rtos_http_server'>Kapitel 9.8</a>. Im Folgenden wird vom Verständnis dieses Kapitels ausgegangen.</p>
+<p><a name='eg_func_server_start'></a> ##### 10.5.3.1 Starten des Webserver-Tasks Der Server läuft, wie bereits in <a href='#rtos_xtasks'>Kapitel 9.4</a> erwähnt, in einem eigenen Task. Über die Methode <code>void start_http(webMode webMode)</code> wird der Task gestartet oder, falls es bereits einen Task gibt, mit <code>void vTaskResume(TaskHandle_t xTaskToResume)</code>fortgesetzt. Der übergebene <code>webMode</code> wird in der Datei global gesetzt. Je nach Modus liefert der Server später eine andere Webpage zurück.</p>
+<h5 id='ausschnitt-aus-easy_http_server.c'>Ausschnitt aus <code>easy_http_server.c</code></h5>
+<pre><code>void start_http(webMode webMode) {
+    mode = webMode;
+    
+    if(httpd_task_initialized) {
+        vTaskResume(httpd_task_handle);
+    } else {
+        xTaskCreate(&amp;httpd_task, &quot;wifi_config_server&quot;, 14096, NULL, 2, &amp;httpd_task_handle);
+        httpd_task_initialized = 1;
+    }
+}</code></pre>
+<p><a name='eg_func_server_page'></a> ##### 10.5.3.2 Webpage vorbereiten und senden Im gestarteten Task werden nun die in <a href='#rtos_http_server'>Kapitel 9.8</a> beschriebenen Funktionen verwendet, um einen HTTP-Server zu starten. Ruft der Nutzer nun mithilfe eines GET-Requests die Seite ab, wird dies abgefangen und die dem <code>webMode</code> entsprechende Webpage zurückgesendet. <br/> Die verschiedenen Webpages liegen jeweils als <code>static char *</code> in der Datei <code>easy_data.c</code>. Dynamische Daten, wie die verfügbaren Access Points für die <code>EASY_CONFIG</code>-Page, werden mithilfe der <code>snprintf()</code>-Funktion an die mit <code>%s</code> markierten Stellen in den Webpage-String hineingeschrieben.</p>
+<h5 id='ausschnitt-aus-easy_data.c'>Ausschnitt aus <code>easy_data.c</code></h5>
+<pre><code>static  char *WEBPAGE_NEW_CONFIG =
+{
+    ...
+    &quot;&lt;div class=&#39;panel&#39;&gt;&quot;
+        &quot;&lt;h3&gt;Verf&amp;uuml;gbare WLAN:&lt;/h3&gt;&quot;
+            &quot;&lt;p class=&#39;wifiLink&#39;&gt;%s&lt;/p&gt;&quot;
+            &quot;&lt;p class=&#39;wifiLink&#39;&gt;%s&lt;/p&gt;&quot;
+            &quot;&lt;p class=&#39;wifiLink&#39;&gt;%s&lt;/p&gt;&quot;
+            &quot;&lt;p class=&#39;wifiLink&#39;&gt;%s&lt;/p&gt;&quot;
+            &quot;&lt;p class=&#39;wifiLink&#39;&gt;%s&lt;/p&gt;&quot;
+    &quot;&lt;/div&gt;&quot;
+    ...
+};</code></pre>
+<h5 id='ausschnitt-aus-easy_http_server.c-1'>Ausschnitt aus <code>easy_http_server.c</code></h5>
+<pre><code>char webpage[5500];
+strcpy(webpage, WEBPAGE_HEAD);
+if (mode == EASY_CONFIG) {
+    strcat(webpage, WEBPAGE_NEW_CONFIG);
+    snprintf(buf, sizeof(buf), webpage, available_aps[0],
+            available_aps[1], available_aps[2],
+            available_aps[3], available_aps[4]);
+} else if (mode == EASY_DOCUMENTATION) {
+    strcat(webpage, WEBPAGE_DOCUMENTATION);
+    snprintf(buf, sizeof(buf), webpage);
+} else if (mode == EASY_MOISTURE) {
+...
+}</code></pre>
+<p><a name='eg_func_server_interact'></a> ##### 10.5.3.3 Interaktionen auf der Webpage Um Interaktionen zu realisieren, wurden Buttons eingeführt, die beim Klicken verschiedene Pfade an die URL anhängen und dorthin weiterleiten. Der erneute Request wird vom Server abgefangen und der angehängte Pfad kann ausgelesen werden. Somit lässt sich beispielsweise bei einem Klick eines Feuchtigkeits-Buttons die Funktion für das Einstellen der Feuchtigkeit aufrufen.</p>
+<h5 id='ausschnitt-aus-easy_data.c-1'>Ausschnitt aus <code>easy_data.c</code></h5>
+<pre><code>static  char *WEBPAGE_MOISTURE =
+{
+    ...
+    &quot;&lt;div class=&#39;button-container&#39;&gt;&quot;
+        ...
+        &quot;&lt;button class=&#39;b-lo&#39; onclick=\&quot;location.href=&#39;/low&#39;\&quot; type=&#39;button&#39;&gt;Niedrig&lt;/button&gt;&quot;
+        &quot;&lt;button class=&#39;b-me&#39; onclick=\&quot;location.href=&#39;/medium&#39;\&quot; type=&#39;button&#39;&gt;Mittel&lt;/button&gt;&quot;
+        &quot;&lt;button class=&#39;b-hi&#39; onclick=\&quot;location.href=&#39;/high&#39;\&quot; type=&#39;button&#39;&gt;Hoch&lt;/button&gt;&quot;
+        ...
+    &quot;&lt;/div&gt;&quot;
+    ...
+}</code></pre>
+<h5 id='ausschnitt-aus-easy_http_server.c-2'>Ausschnitt aus <code>easy_http_server.c</code></h5>
+<pre><code>{
+...
+} else if (!strncmp(ptr, &quot;/high&quot;, max_uri_len)) {
+    set_moisture_level(HIGH);
+} else if (!strncmp(ptr, &quot;/medium&quot;, max_uri_len)) {
+    set_moisture_level(MID);
+} else if (!strncmp(ptr, &quot;/low&quot;, max_uri_len)) {
+    set_moisture_level(LOW);
+}</code></pre>
+<p><a name='eg_func_dns'></a> #### 10.5.4 Easy_DNS</p>
+<p>Der DNS Server wird genutzt um automatisiert die Setupwebseite anzuzeigen. Zunächst wird ein FreeRTOS Task erstellt, dieser läuft bis zur Auswahl eines Wlan Netzwerkes und dem anschließenden Wechsel von AP Mode zu Station Mode. Befindet sich der ESP in einem anderen Netzwerk wird der DNS Server nicht genutzt und kann daher beendet werden. Bei der Erstellung des DNS Task wird der Namensserver für den UDP Port 53 registriert und die AF_INET Adressen Familien genutzt. So kann ein Hostname oder eine IPv4 Adresse einem Port, hier alle eigehenden IP-Adressen dem DNS Port, zugewiesen werden. Ist der Task gestartet und die Socketverbindung erstellt, werden alle DNS Nachrichten empfangen. Diese müssen im nächsten Schritt gefiltert werden. Dabei werden zu lange (über 512 Bytes), zu kurze (unter 12 Bytes) Nachrichten und DNS Antworten der Klienten ignoriert. DNS Antworten werden nicht verarbeitet, weil diese für das Anzeigen einer Netzwerkanmeldung nicht benötigt werden. Ist die DNS Nachricht ein Request wird eine Antwort mit der Weiterleitung an die Netzwerkadresse des ESPs generiert. Das Anzeigen der Netzwerkanmeldung funktioniert je nach Betriebssystem unterschiedlich. Dabei besteht die Gemeinsamkeit im Erkennen der Weiterleitung durch den DNS Server. Das Endgerät versucht eine Webseite aufzurufen (Android z.B. <code>connectivitycheck.android.com</code>) und erhält als Antwort HTTP Status 302 (temporary redirect) anstatt HTTP 204. HTTP 204 würde bedeuten die Seite ist verfügbar aber leer, wodurch das Endgerät weiß, dass eine Internetverbindung besteht. Mit HTTP Status 302, den das Gerät durch unsere DNS Server Weiterleitung erhält, wird die Aufforderung zur Netzwerkanmeldung angezeigt.</p>
+<p><a name='eg_func_server_gui'></a> #### 10.5.5 Bedienung der Weboberflächen</p>
+<p>Die in den vorherigen Abschnitten beschriebenen Funktionalitäten lassen sich über zwei verschiedene Weboberflächen steuern. Die Funktionaliät und Bedienung dieser wird im Folgenden beschrieben.</p>
+<p><a name='eg_func_server_gui-initial'></a> ##### 10.5.5.1 Setupwebseite <img src='images/wifi-mockup.png' width='100%'></p>
+<p>Nach der automatischen Weiterleitung bei Auswahl des <code>EasyGrow_Initial_Config</code> Netzwerkes wird diese Oberfläche je nach Betriebssytem in einem Popup-Fenster, oder im Browser geöffnet. Der Nutzer hat hier die Möglichkeit ein WLAN Netzwerk in seinem Umfeld auszuwählen, um in den Station Modus zu wechseln. In einer Liste im oberen Bereich des Bildschirms lässt sich per Mausklick eine SSID auswählen, welche dann neben dem Feld <code>Wlan-Name</code> als ausgewählt dargestellt wird. Über das Feld <code>Passwort eingeben</code> lässt sich im Anschluss das benötigte Wifi Passwort eingeben. Die darunterliegenden Buttons bieten die folgende Funktionalität:</p>
+<p><strong>(1)</strong> Bestätigen der eingegebenen Wifi Credentials, Schließen des Popups &amp; Wechsel in den Station Modus.</p>
+<p><strong>(2)</strong> Öffnen der Access Point Ansicht (Steuerung des Systems)</p>
+<p><strong>(3)</strong> Öffnen der Systemdokumentation (Die Anzeige dieser gesamten Dokumentation war durch den kleinen Gerätespeicher leider nicht möglich. Daher wird über einen Link auf diese GitLab Seite verwiesen.)</p>
+<h5 id='wichtig-für-punkt-1'>WICHTIG für Punkt 1:</h5>
+<p>Nach dem Absenden der Credentials schließt sich das <code>EasyGrow_Initial_Config</code> Netzwerk. Falls es weiterhin auftaucht, wurde vermutlich etwas falsch eingegeben und das Setup muss von vorne begonnen werden. Falls nicht, verbindet man sein Endgerät nun mit dem zuvor eingegebenen Netzwerk. Die IP-Adresse des ESP im Netzwerk kann nicht mehr übermittelt werden, weswegen sie herausgefunden werden muss. Dies lässt sich bei vielen Netzanbietern über das Router-Menü tun. (meist 192.168.1.1 oder 192.168.2.1). Alternativ lassen sich Apps wie Fing (https://play.google.com/store/apps/details?id=com.overlook.android.fing&amp;hl=de) verwenden. Sobald die richtige IP-Adresse gefunden wurde, muss sie nur noch im Browser der Wahl eingegeben werden.</p>
+<p><a name='eg_func_server_gui-ap'></a> ##### 10.5.5.2 Access-Point Webseite <img src='images/overview-mockup.png' width='100%'></p>
+<p>Nach Klick auf den Button AP-Mode in der vorherigen Ansicht oder nach erfolgreicher Verbindung zum Heimnetzwerk und Eingabe der IP-Adresse des ESP im Browser, gelangt man auf diese Ansicht, die Access-Point Webseite. Sie bietet einen schnellen Überblick über alle zur Steuerung des Systems relevanten Funktionen, ohne dafür ein WLAN-Netzwerk auswählen zu müssen. Die angzeigten Werte werden durch einen Reload der Webseite, alle 5 Sekunden aktualisiert.</p>
+<p>Im oberen Bereich wird eine Auflistung aller wichtigen Parameter gezeigt, diese sind: (von Oben nach Unten) - der gewählte Feuchtigkeitswert (Soll-Wert) - der aktuelle Feuchtigkeitswert (Ist-Wert, in %) - der Wasserstand im Tank (Niedrig, Normal, Hoch) - die gemessenen täglichen Sonnenstunden - Laufzeit des Systems (uptime) - der restliche frei verfügbare Speicherplatz (in byte, zu monitoring Zwecken)</p>
+<p>Darunter befindet sich eine Reihe mit Buttons zur Steuerung des Systems, sie bieten die folgende Funktionalität:</p>
+<p><strong>(1)</strong> Zurücksetzen der Wifi-Konfiguration &amp; Verlassen des Popups</p>
+<p><strong>(2)</strong> Steuerung des ausgewählten Feuchtigkeitswertes (Aus, Niedrig, Mittel, Hoch)</p>
+<p><strong>(3)</strong> Manuelles Betätigen der Wasserpumpe</p>
+<p><a name='git'></a> ### 10.6 Git Als Version Control System (VCS) wird das MI-Gitlab der Hochschule der Medien genutzt. Bei der Entwicklung des Projektes wurde Git mit Orientierung am Gitflow Workflow eingesetzt. Der Gitflow Workflow definiert ein strenges Modell für die Arbeit mit verschiedenen Branches, welches besonders auf Projekt-Releases ausgerichtet ist. Dies bietet einen robusten Ablaufplan für die Verwaltung größerer Projekte. Anstelle eines einzigen Master-Branches verwendet der Giflow Workflow zwei Branches um den Fortschritt des Projekts zu versionieren. Der Master-Branch verzeichnet dabei die offizielle Release-Historie und der Dev-Branch dient als Integrationszweig für Features. Es ist daher auch gängigige Praxis, Commits im Master-Branch mit einer Versionsnummer zu versehen.</p>
+<p>Dadurch, dass die gesamte Feature-Entwicklung in bestimmten Feature-Branches und nicht im Master-Branch stattfindet, können Entwickler an einem bestimmten Feature arbeiten, ohne die Stabilität des gesamten Codes zu beeinträchtigen oder zu gefährden. Feature-Branches ermöglichen es außerdem, bestimmten Code zu reviewen bevor dieser in das offizielle Projekt integriert wird. Sobald auf dem Dev-Branch genügend Features für einen Release zusammengekommen sind, wird ein Release-Branch abgeforked und erlaubt es noch abschließende Bug-Fixes oder Dokuentation hinzuzufügen. Sobald dies abgeschlossen ist, kann der Release-Branch mit einer Versionsnummer versehen und in den Master-Branch gemerged werden. Auf den Master-Branch kann somit nur getesteter und lauffähiger Code gelangen.</p>
+<p><a name='git-cicd'></a> #### 10.6.1 Continuous Integration</p>
+<p>Mithilfe von GitLab wurde eine CI / CD (Continuous Integration / Continuous Deployment) Pipeline für das Projekt eingerichtet.<br />
+    Continuous Integration funktioniert nach dem Prinzip, dass bei jedem Push eine Pipeline von Skripten ausgeführt wird, welche die Code-Änderungen automatisch anwendet, testet und validiert, bevor sie in den entsprechenden Branch integriert werden. Dieses Vorgehen ermöglicht es, Fehler schon frühzeitig im Entwicklungszyklus zu erkennen und sicherzustellen, dass der gesamte Code den festgelegten Anforderungen entspricht. Die einzelnen Schritte inerhalb einer GitLab CI/CD Pipeline werden über eine .gitlab-ci.yml Datei im Hauptverzeichnis des Projektes konfiguriert. Diese wird im Folgenden beschrieben.</p>
+<div class='sourceCode'><pre class='sourceCode yaml'><code class='sourceCode yaml'><span class='fu'>image:</span><span class='at'> mirohero/docker-esp8266</span>
+
+<span class='fu'>sdk-test:</span>
+  <span class='fu'>script:</span>
+    <span class='kw'>-</span> cd $<span class='kw'>{</span>CI_PROJECT_DIR<span class='kw'>}</span>/tests
+    <span class='kw'>-</span> chmod +x sdk-test.sh
+    <span class='kw'>-</span> ./sdk-test.sh
+
+<span class='fu'>build-test:</span><span class='at'>   </span>
+  <span class='fu'>script:</span>
+    <span class='kw'>-</span> cd $<span class='kw'>{</span>CI_PROJECT_DIR<span class='kw'>}</span>
+    <span class='kw'>-</span> make
+  <span class='fu'>only:</span>
+    <span class='kw'>-</span> master
+    <span class='kw'>-</span> dev
+  <span class='fu'>artifacts:</span>
+    <span class='fu'>name:</span><span class='at'> </span><span class='st'>&quot;${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}&quot;</span>
+    <span class='fu'>when:</span><span class='at'> always</span>
+    <span class='fu'>expire_in:</span><span class='at'> 7d</span>
+    <span class='fu'>paths:</span>
+      <span class='kw'>-</span> <span class='st'>&quot;${CI_PROJECT_DIR}/build/easy_grow.bin&quot;</span></code></pre></div>
+<p><strong>(1)</strong> Docker image</p>
+<div class='sourceCode'><pre class='sourceCode yaml'><code class='sourceCode yaml'><span class='fu'>image:</span><span class='at'> mirohero/docker-esp8266</span></code></pre></div>
+<p>Für den Bau einer GitLab-Build-Pipeline würde sich im Normalfall ebenfalls Docker zum Bau gut eignen. Da die MI-Gitlab Pipeline jedoch das Bauen eines Docker-in-Docker Images nicht unterstützt, wurde sie mit diesem Befehl so konfiguriert, dass sie ein im Docker Hub bereitgestelltes Image (https://hub.docker.com/r/mirohero/docker-esp8266) pullt, welches alle benötigten Abhängigkeiten des esp8266 enthält.</p>
+<p><strong>(2)</strong> SDK Test Stage</p>
+<div class='sourceCode'><pre class='sourceCode yaml'><code class='sourceCode yaml'><span class='fu'>sdk-test:</span>
+  <span class='fu'>script:</span>
+    <span class='kw'>-</span> cd $<span class='kw'>{</span>CI_PROJECT_DIR<span class='kw'>}</span>/tests
+    <span class='kw'>-</span> chmod +x sdk-test.sh
+    <span class='kw'>-</span> ./sdk-test.sh</code></pre></div>
+<p>In dieser Stage der Pipeline wird durch das Ausführen eines Skriptes die Funktionalität des installierten SDKs getestet. Über Kommandozeilenbefehle navigiert die .yml Datei in den Unterordner /tests, macht das Test-Script <code>sdk-test.sh</code> ausführbar und startet es.</p>
+<p><strong>(3)</strong> Build Test Stage</p>
+<div class='sourceCode'><pre class='sourceCode yaml'><code class='sourceCode yaml'><span class='fu'>build-test:</span><span class='at'>   </span>
+  <span class='fu'>script:</span>
+    <span class='kw'>-</span> cd $<span class='kw'>{</span>CI_PROJECT_DIR<span class='kw'>}</span>
+    <span class='kw'>-</span> make
+  <span class='fu'>only:</span>
+    <span class='kw'>-</span> master
+    <span class='kw'>-</span> dev
+  <span class='fu'>artifacts:</span>
+    <span class='fu'>name:</span><span class='at'> </span><span class='st'>&quot;${CI_JOB_NAME}_${CI_COMMIT_REF_NAME}_${CI_JOB_ID}&quot;</span>
+    <span class='fu'>when:</span><span class='at'> always</span>
+    <span class='fu'>expire_in:</span><span class='at'> 7d</span>
+    <span class='fu'>paths:</span>
+      <span class='kw'>-</span> <span class='st'>&quot;${CI_PROJECT_DIR}/build/easy_grow.bin&quot;</span></code></pre></div>
+<p>Diese letzte Stage führt einen <code>make</code> Befehl im Hauptverzeichnis aus und baut so den implementierten C - Code des Projektes. <code>only</code> gibt an, dass der Job nur für den entsprechenden Branches -master und -dev auszuführen ist. Artifacts, beschreiben die Liste von Dateien oder Verzeichnissen, welche final von einem CICD Job erstellt werden, sobald dieser beendet ist. An dieser Stelle werden der Artefaktname, der Pfad und das Ablaufdatum (7Tage) gesetzt um die entsprechenden Dateien zu bauen. Dabei werden die folgenden (von GitLab) vordefinierten Umgebungsvariablen genutzt:</p>
+<p><code>CI_JOB_NAME</code>: Der Name des Jobs, wie er in der .gitlab-ci.yml Datei vordefiniert ist.</p>
+<p><code>CI_COMMIT_REF_NAME</code>: Der Branch- oder Commit-Name, für den das Projekt gebaut wird.</p>
+<p><code>CI_JOB_ID</code>: Eine eindeutige ID des aktuellen Jobs, die GitLab CI intern erzeugt und verwendet.</p>
+<p><code>CI_PROJECT_DIR</code>: Der vollständige Pfad auf dem das Repository geklont wird und auf dem der Job ausgeführt wird.</p>
+<p><a name='eg_design'></a> ### 10.7 Produktdesign</p>
+<p>Für die Entwicklung des ersten Prototyps war die Wahl eines passenden Produktgehäuses von grundlegender Wichtigkeit. Dieses sollte sowohl optisch ansprechen und alle benötigten Bauteile platzsparend zusammenfassen, als auch die sensible Elektronik vor Spritzwasser schützen. Mithilfe der kostenfreien online Platform www.tinkercad.com wurde ein entsprechendes 3D-Modell entwickelt, welches die gelisteten, gewünschten Funktionalitäten bietet. Die entwickelte, schützende Kunststoffhülle lässt sich somit während des Betriebs von Easy Grow auf einen mit Wasser gefüllten Topf stülpen. Dabei entsteht zusammen mit dem Gehäuse ein säulenförmiger Standfuß für eine beliebige zu bewässernde Pflanze. Im Inneren des Gehäuses lassen sich der ESP-Controller, sowie alle nötigen Bedienelemente wie LEDs und Schalter befestigen. Das Gehäuse bietet an seinen Seiten Öffnungen zur Verkabelung der verschiedenen Sensoren, Bedienelemente, Netzkabel und Pumpe.</p>
+<p>Auf dem folgenden Bild ist das fertige 3D-Modell in Frontalansicht zu sehen. Sichtbar sind hier beispielsweise die Öffnungen für (von links nach rechts): - eine Power-LED - die beiden vertikal angeordneten LEDS zur Wasserstandsanzeige - Schalter zum Senken der gewählten Feuchtigkeit - drei nebeneinander angeordnete LEDS zum Anzeigen des gewählten Feuchtigkeitsstands - Schalter zum Erhöhen der gewählten Feuchtigkeit</p>
+<p><img src='images/3D-model.png' width='100%'></p>
+<p>Das gewählte Material PETG (Polyethylene Terephthalate Glycol-modified), ist ein beliebtes 3D-Druckmaterial welches die jeweiligen Vorteile von ABS und PLA Kunststoffen vereint. PETG-Kunststoff bietet steife, dauerhafte Festigkeit (wie ABS) und einfache Handhabung (wie PLA) - da beim Druck kein Heizbett erforderlich ist. Außerdem bietet das Material eine gute Bodenhaftung und bildet gedruckt eine glatte, glänzende Oberfläche. Ein vergleichbares Produkt kann unter folgendem Link gefunden werden: https://www.amazon.com/AmazonBasics-Printer-Filament-1-75mm-Purple/dp/B07D68V8JB</p>
+<p>Auf besondere, abdichtende Eigenschaften wurde bei der Wahl des Werkstoffes für diesen Prototyp noch kein Wert gelegt. Bei einer produktiver Umsetzung des Projektes wäre ein wasserabweisendes Material, sowie der Einsatz von Gummidichtungsringen an verschiedenen Stellen empfehlenswert. Gedruckt wurde der Prototyp mithilfe eines Tevo Tarantula 3D-Druckers im privaten Gebrauch: https://www.tevo.cn/products/3d-printers/tevo-tarantula/</p>
+<p><a name='changelog'></a> ## 11. <a href='changelog.md'>Changelog</a></p>
+</body>
+</html>
